@@ -33,6 +33,32 @@ Les quatre étapes
    fenêtre glissante de 10 épisodes) est conservé.
 4. **Artefacts** — ``data/trained_models/rl_checkpoints/`` :
    ``world_model_torch.npz``, ``policy_reinforce.pt``, ``training_report.json``.
+   L'export npz est en plus installé au **slot runtime**
+   ``PCB_WORLD_MODEL_NPZ`` (défaut ``data/trained_models/world_model_torch.npz``)
+   où la boucle nocturne le chargera.
+
+Branchement sur la boucle nocturne
+----------------------------------
+
+Le slot runtime relie la passe RL au runtime AutoPCB : à l'ouverture de chaque
+nuit, :meth:`~backend.services.ai_engine.main.AiEngine.run_night_optimization`
+charge ``world_model_torch.npz`` en **warm start** (si le fichier existe), puis
+en **fin de nuit** y réécrit les poids mis à jour par les itérations gardées
+(``observe`` + ``train`` du world model numpy, miroir exact). Chaque nuit
+repart donc du modèle de la veille, et le bilan complet est exposé dans
+``AiEngine.last_night_summary`` (warm start, score initial/final, gain, slot
+réécrit). La sauvegarde passe dans un ``finally`` : elle s'exécute même si le
+générateur est refermé avant épuisement.
+
+.. code-block:: bash
+
+   make nightly           # passe RL complète + boucle ratchet 300 itérations
+   make nightly-quick     # smoke : RL courte + 60 itérations (~5 s)
+
+La nuit du smoke test déplace le score composite de 0,544 à 0,6122
+(+12,55 %, 5 keep / 1 reject) tout en respectant le ratchet (jamais de
+régression). Sans torch, la passe RL est sautée et la nuit démarre des poids
+courants — le reste de la chaîne est inchangé.
 
 Environnement de placement
 --------------------------
@@ -70,6 +96,12 @@ Hyperparamètres du CLI
    * - ``--out``
      - ``data/trained_models/rl_checkpoints``
      - répertoire des artefacts
+   * - ``--runtime-npz``
+     - ``PCB_WORLD_MODEL_NPZ``
+     - slot runtime du world model (warm start de la boucle nocturne)
+   * - ``--no-install``
+     - —
+     - n'installe pas l'export au slot runtime
    * - ``--archive``
      - —
      - archive keeper JSONL résumée dans le rapport (contexte d'audit)

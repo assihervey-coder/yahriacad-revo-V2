@@ -66,6 +66,9 @@ jobs:
           python -m backend.services.ai_engine.rl_agent.training.train \
             --episodes-dataset 10 --epochs-world 15 --episodes-rl 25 \
             --out out/rl_quick
+      - name: Boucle nocturne branchée au world model (smoke)
+        run: |
+          python -m backend.services.ai_engine.nightly --skip-train --iters 20
       - name: Uploader le rapport d'entraînement
         if: always()
         uses: actions/upload-artifact@v4

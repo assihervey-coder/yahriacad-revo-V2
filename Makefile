@@ -55,6 +55,12 @@ train-rl-quick: ## Passe RL courte (smoke test, ~2 s)
 	--episodes-dataset 10 --epochs-world 15 --episodes-rl 25 \
 	--out data/trained_models/rl_checkpoints/quick
 
+nightly: ## Boucle nocturne : passe RL (torch) puis ratchet 300 it. warm-starté
+	$(PY) -m backend.services.ai_engine.nightly
+
+nightly-quick: ## Smoke nocturne : passe RL courte + 60 itérations
+	$(PY) -m backend.services.ai_engine.nightly --train-quick --iters 60
+
 docs: docs-sphinx docs-doxygen ## Génère TOUTE la documentation (Sphinx + Doxygen)
 
 docs-sphinx: ## API Python -> docs/sphinx/_build/html/index.html
@@ -66,8 +72,11 @@ docs-doxygen: ## Python + noyaux C++/CUDA -> docs/doxygen/build/html/index.html
 	cd docs/doxygen && $(DOXYGEN) Doxyfile
 	@echo "Doxygen : docs/doxygen/build/html/index.html"
 
-ollama-pull: ## Télécharge le modèle LLM local dans le service Ollama (compose)
-	docker compose exec ollama ollama pull $${OLLAMA_MODEL:-llama3.1:8b}
+ollama-pull: ## Télécharge le LLM local du RAG (qwen2.5-coder:14b) dans le service compose
+	docker compose exec ollama ollama pull $${OLLAMA_MODEL:-qwen2.5-coder:14b}
+
+ollama-setup: ## Détecte Ollama (natif ou compose), tire le modèle + vérifie le GPU
+	bash scripts/ollama_setup.sh
 
 compose-up: ## Monte la pile de persistance (Redis, Neo4j, MinIO, Postgres) + monitoring
 	docker compose up -d

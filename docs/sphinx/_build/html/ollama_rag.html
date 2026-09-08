@@ -52,6 +52,7 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -59,6 +60,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -395,13 +397,28 @@ jamais dépendre du réseau : tout échec retombe sur le mode extractif.</p>
 <section id="installation-du-serveur">
 <h2>Installation du serveur<a class="headerlink" href="#installation-du-serveur" title="Lien vers cette rubrique"></a></h2>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Option A — binaire natif (https://ollama.com)</span>
-ollama<span class="w"> </span>pull<span class="w"> </span>llama3.1:8b<span class="w">          </span><span class="c1"># ou nemotron, qwen2.5-coder, bge-m3…</span>
+ollama<span class="w"> </span>pull<span class="w"> </span>qwen2.5-coder:14b<span class="w">   </span><span class="c1"># ~9 Go q4_K_M ; repli léger : llama3.1:8b</span>
 
 <span class="c1"># Option B — docker compose (service déjà défini dans le dépôt)</span>
 docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>ollama
-docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>llama3.1:8b
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>qwen2.5-coder:14b
+
+<span class="c1"># Option C — script tout-en-un (détecte natif/compose, vérifie la VRAM)</span>
+make<span class="w"> </span>ollama-setup
 </pre></div>
 </div>
+</section>
+<section id="acceleration-gpu">
+<h2>Accélération GPU<a class="headerlink" href="#acceleration-gpu" title="Lien vers cette rubrique"></a></h2>
+<p>Sur une machine NVIDIA (12 Go de VRAM recommandés pour un 14B), active le
+serveur GPU avec l’override <code class="docutils literal notranslate"><span class="pre">docker-compose.gpu.yml</span></code> (NVIDIA Container Toolkit
+requis) :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker-compose.yml<span class="w"> </span>-f<span class="w"> </span>docker-compose.gpu.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>ollama
+docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>ollama<span class="w"> </span>ollama<span class="w"> </span>pull<span class="w"> </span>qwen2.5-coder:14b
+</pre></div>
+</div>
+<p>Sans GPU, le même modèle tourne en CPU (inférence plus lente) ; le retriever
+reste identique et retombe de toute façon sur le mode extractif en cas d’échec.</p>
 </section>
 <section id="configuration">
 <h2>Configuration<a class="headerlink" href="#configuration" title="Lien vers cette rubrique"></a></h2>
@@ -421,7 +438,7 @@ docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">ex
 <td><p>Active le client natif Ollama dans le retriever.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LLM_MODEL</span></code></p></td>
-<td><p>Modèle servi (ex. <code class="docutils literal notranslate"><span class="pre">llama3.1:8b</span></code>).</p></td>
+<td><p>Modèle servi (défaut <code class="docutils literal notranslate"><span class="pre">qwen2.5-coder:14b</span></code>, aligné sur <code class="docutils literal notranslate"><span class="pre">.env.example</span></code>).</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">OLLAMA_BASE_URL</span></code></p></td>
 <td><p>URL du serveur (<code class="docutils literal notranslate"><span class="pre">http://localhost:11434</span></code>, <code class="docutils literal notranslate"><span class="pre">http://ollama:11434</span></code> en compose).</p></td>
@@ -453,7 +470,7 @@ instantanément et le champ <code class="docutils literal notranslate"><span cla
 <span class="s">from backend.services.ai_engine.llm_orchestrator.rag_engine.retriever import RagRetriever</span>
 
 <span class="s">retriever = RagRetriever(settings=Settings(llm_provider=&quot;ollama&quot;,</span>
-<span class="s">                                           llm_model=&quot;llama3.1:8b&quot;))</span>
+<span class="s">                                           llm_model=&quot;qwen2.5-coder:14b&quot;))</span>
 <span class="s">print(retriever.answer(&quot;Quelle impédance cible pour l&#39;USB2 ?&quot;))</span>
 <span class="s"># {&quot;answer&quot;: &quot;... [ds_usb p.12]&quot;, &quot;citations&quot;: [...], &quot;mode&quot;: &quot;ollama&quot;}</span>
 <span class="s">PY</span>

@@ -52,6 +52,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -59,6 +60,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -949,7 +951,9 @@ mais les classes ne sont pas définies (cf. torch_modules.py).</p>
 <li><p>collecte d’un dataset de transitions dans <code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code> (rollouts aléatoires) ;</p></li>
 <li><p>pré-entraînement supervisé du <code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code> (MSE + Adam + early stopping) ;</p></li>
 <li><p>export <code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code> — chargeable tel quel par le runtime
-<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code> (architecture miroir) ;</p></li>
+<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code> (architecture miroir) — puis installation au slot
+runtime (<code class="docutils literal notranslate"><span class="pre">PCB_WORLD_MODEL_NPZ</span></code>, défaut <code class="docutils literal notranslate"><span class="pre">data/trained_models/world_model_torch.npz</span></code>)
+où la boucle nocturne le chargera en warm start ;</p></li>
 <li><p>entraînement REINFORCE de la <code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code> ;</p></li>
 <li><p>artefacts + <code class="docutils literal notranslate"><span class="pre">training_report.json</span></code> dans <code class="docutils literal notranslate"><span class="pre">--out</span></code>
 (défaut : <code class="docutils literal notranslate"><span class="pre">data/trained_models/rl_checkpoints/</span></code>).</p></li>

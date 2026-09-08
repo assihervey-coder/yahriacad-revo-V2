@@ -65,7 +65,8 @@ class Settings:
     # llm_provider : "local" (extractif déterministe) | "ollama" (LLM local natif)
     #              | "openai-compatible" (toute API /v1/chat/completions)
     llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "local"))
-    llm_model: str = field(default_factory=lambda: _env("LLM_MODEL", "nemotron-70b"))
+    # qwen2.5-coder:14b — modèle codeur local (~9 Go q4_K_M) ; GPU recommandé.
+    llm_model: str = field(default_factory=lambda: _env("LLM_MODEL", "qwen2.5-coder:14b"))
     llm_api_base: str = field(default_factory=lambda: _env("LLM_API_BASE", "http://localhost:11434/v1"))
     llm_api_key: str = field(default_factory=lambda: _env("LLM_API_KEY", ""))
     embedding_model: str = field(default_factory=lambda: _env("EMBEDDING_MODEL", "bge-m3"))
@@ -77,6 +78,14 @@ class Settings:
     ollama_base_url: str = field(default_factory=lambda: _env("OLLAMA_BASE_URL", "http://localhost:11434"))
     ollama_timeout_s: float = field(default_factory=lambda: _env_float("OLLAMA_TIMEOUT_S", 8.0))
     ollama_num_ctx: int = field(default_factory=lambda: _env_int("OLLAMA_NUM_CTX", 4096))
+
+    # World model RL — slot runtime : la passe RL (torch) y exporte
+    # world_model_torch.npz, la boucle nocturne le charge en warm start puis
+    # y réécrit les poids mis à jour (ratchet AutoPCB).
+    world_model_npz: Path = field(
+        default_factory=lambda: Path(_env("PCB_WORLD_MODEL_NPZ",
+                                          "data/trained_models/world_model_torch.npz"))
+    )
 
     # GPU (brique C++/CUDA du simulateur)
     enable_cuda: bool = field(default_factory=lambda: _env_bool("ENABLE_CUDA", False))

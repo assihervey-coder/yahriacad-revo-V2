@@ -52,6 +52,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -59,6 +60,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -1585,8 +1587,17 @@ testable hors ligne, sans dépendance réseau ni torch.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="backend.services.ai_engine.main.AiEngine.run_night_optimization">
-<span class="sig-name descname"><span class="pre">run_night_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/main.html#AiEngine.run_night_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.main.AiEngine.run_night_optimization" title="Lien vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">run_night_optimization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warm_start_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/main.html#AiEngine.run_night_optimization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.main.AiEngine.run_night_optimization" title="Lien vers cette définition"></a></dt>
 <dd><p>Générateur d’IterationReport — boucle proposer → vérifier → évaluer → ratchet.</p>
+<p>Branchement <code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code> : à l’ouverture de la nuit, les
+poids exportés par la passe RL torch (format miroir du TinyNet numpy)
+sont chargés en warm start depuis <code class="docutils literal notranslate"><span class="pre">warm_start_path</span></code> — défaut :
+<code class="docutils literal notranslate"><span class="pre">settings.world_model_npz</span></code> (<code class="docutils literal notranslate"><span class="pre">PCB_WORLD_MODEL_NPZ</span></code>) — si le fichier
+existe. En fin de nuit, les poids mis à jour par les
+<code class="docutils literal notranslate"><span class="pre">observe()</span></code>/<code class="docutils literal notranslate"><span class="pre">train()</span></code> des itérations gardées sont réécrits au même
+slot : chaque nuit repart du modèle de la veille. La sauvegarde passe
+dans un <code class="docutils literal notranslate"><span class="pre">finally</span></code> — elle s’exécute même si le consommateur referme le
+générateur avant épuisement. Bilan disponible via <code class="docutils literal notranslate"><span class="pre">last_night_summary</span></code>.</p>
 </dd></dl>
 
 <dl class="py property">

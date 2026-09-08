@@ -12,11 +12,29 @@ Installation du serveur
 .. code-block:: bash
 
    # Option A — binaire natif (https://ollama.com)
-   ollama pull llama3.1:8b          # ou nemotron, qwen2.5-coder, bge-m3…
+   ollama pull qwen2.5-coder:14b   # ~9 Go q4_K_M ; repli léger : llama3.1:8b
 
    # Option B — docker compose (service déjà défini dans le dépôt)
    docker compose up -d ollama
-   docker compose exec ollama ollama pull llama3.1:8b
+   docker compose exec ollama ollama pull qwen2.5-coder:14b
+
+   # Option C — script tout-en-un (détecte natif/compose, vérifie la VRAM)
+   make ollama-setup
+
+Accélération GPU
+----------------
+
+Sur une machine NVIDIA (12 Go de VRAM recommandés pour un 14B), active le
+serveur GPU avec l'override ``docker-compose.gpu.yml`` (NVIDIA Container Toolkit
+requis) :
+
+.. code-block:: bash
+
+   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d ollama
+   docker compose exec ollama ollama pull qwen2.5-coder:14b
+
+Sans GPU, le même modèle tourne en CPU (inférence plus lente) ; le retriever
+reste identique et retombe de toute façon sur le mode extractif en cas d'échec.
 
 Configuration
 -------------
@@ -32,7 +50,7 @@ Variables d'environnement (voir ``.env.example``) :
    * - ``LLM_PROVIDER=ollama``
      - Active le client natif Ollama dans le retriever.
    * - ``LLM_MODEL``
-     - Modèle servi (ex. ``llama3.1:8b``).
+     - Modèle servi (défaut ``qwen2.5-coder:14b``, aligné sur ``.env.example``).
    * - ``OLLAMA_BASE_URL``
      - URL du serveur (``http://localhost:11434``, ``http://ollama:11434`` en compose).
    * - ``OLLAMA_TIMEOUT_S`` / ``OLLAMA_NUM_CTX``
@@ -61,7 +79,7 @@ Vérifier le branchement
    from backend.services.ai_engine.llm_orchestrator.rag_engine.retriever import RagRetriever
 
    retriever = RagRetriever(settings=Settings(llm_provider="ollama",
-                                              llm_model="llama3.1:8b"))
+                                              llm_model="qwen2.5-coder:14b"))
    print(retriever.answer("Quelle impédance cible pour l'USB2 ?"))
    # {"answer": "... [ds_usb p.12]", "citations": [...], "mode": "ollama"}
    PY

@@ -53,6 +53,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -60,6 +61,7 @@
 </li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -418,8 +420,31 @@ entraîne la
 baseline EMA et bonus d’entropie ; le meilleur checkpoint (retour moyen sur
 fenêtre glissante de 10 épisodes) est conservé.</p></li>
 <li><p><strong>Artefacts</strong> — <code class="docutils literal notranslate"><span class="pre">data/trained_models/rl_checkpoints/</span></code> :
-<code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code>, <code class="docutils literal notranslate"><span class="pre">policy_reinforce.pt</span></code>, <code class="docutils literal notranslate"><span class="pre">training_report.json</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code>, <code class="docutils literal notranslate"><span class="pre">policy_reinforce.pt</span></code>, <code class="docutils literal notranslate"><span class="pre">training_report.json</span></code>.
+L’export npz est en plus installé au <strong>slot runtime</strong>
+<code class="docutils literal notranslate"><span class="pre">PCB_WORLD_MODEL_NPZ</span></code> (défaut <code class="docutils literal notranslate"><span class="pre">data/trained_models/world_model_torch.npz</span></code>)
+où la boucle nocturne le chargera.</p></li>
 </ol>
+</section>
+<section id="branchement-sur-la-boucle-nocturne">
+<h2>Branchement sur la boucle nocturne<a class="headerlink" href="#branchement-sur-la-boucle-nocturne" title="Lien vers cette rubrique"></a></h2>
+<p>Le slot runtime relie la passe RL au runtime AutoPCB : à l’ouverture de chaque
+nuit, <a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.main.AiEngine.run_night_optimization" title="backend.services.ai_engine.main.AiEngine.run_night_optimization"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_night_optimization()</span></code></a>
+charge <code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code> en <strong>warm start</strong> (si le fichier existe), puis
+en <strong>fin de nuit</strong> y réécrit les poids mis à jour par les itérations gardées
+(<code class="docutils literal notranslate"><span class="pre">observe</span></code> + <code class="docutils literal notranslate"><span class="pre">train</span></code> du world model numpy, miroir exact). Chaque nuit
+repart donc du modèle de la veille, et le bilan complet est exposé dans
+<code class="docutils literal notranslate"><span class="pre">AiEngine.last_night_summary</span></code> (warm start, score initial/final, gain, slot
+réécrit). La sauvegarde passe dans un <code class="docutils literal notranslate"><span class="pre">finally</span></code> : elle s’exécute même si le
+générateur est refermé avant épuisement.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>nightly<span class="w">           </span><span class="c1"># passe RL complète + boucle ratchet 300 itérations</span>
+make<span class="w"> </span>nightly-quick<span class="w">     </span><span class="c1"># smoke : RL courte + 60 itérations (~5 s)</span>
+</pre></div>
+</div>
+<p>La nuit du smoke test déplace le score composite de 0,544 à 0,6122
+(+12,55 %, 5 keep / 1 reject) tout en respectant le ratchet (jamais de
+régression). Sans torch, la passe RL est sautée et la nuit démarre des poids
+courants — le reste de la chaîne est inchangé.</p>
 </section>
 <section id="environnement-de-placement">
 <h2>Environnement de placement<a class="headerlink" href="#environnement-de-placement" title="Lien vers cette rubrique"></a></h2>
@@ -461,6 +486,14 @@ le composant garde sa position et l’agent encaisse la pénalité.</p>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--out</span></code></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">data/trained_models/rl_checkpoints</span></code></p></td>
 <td><p>répertoire des artefacts</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--runtime-npz</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PCB_WORLD_MODEL_NPZ</span></code></p></td>
+<td><p>slot runtime du world model (warm start de la boucle nocturne)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--no-install</span></code></p></td>
+<td><p>—</p></td>
+<td><p>n’installe pas l’export au slot runtime</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--archive</span></code></p></td>
 <td><p>—</p></td>

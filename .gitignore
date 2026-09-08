@@ -31,4 +31,5 @@ frontend/dist/
 .vscode/
 
 # Builds de doc — artefacts régénérables (le HTML est versionné, pas les caches)
+docs/sphinx/_build/html/.doctrees/
 docs/sphinx/_build/.doctrees/

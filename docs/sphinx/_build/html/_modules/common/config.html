@@ -49,6 +49,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -56,6 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -454,7 +456,8 @@
     <span class="c1"># llm_provider : &quot;local&quot; (extractif déterministe) | &quot;ollama&quot; (LLM local natif)</span>
     <span class="c1">#              | &quot;openai-compatible&quot; (toute API /v1/chat/completions)</span>
     <span class="n">llm_provider</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;LLM_PROVIDER&quot;</span><span class="p">,</span> <span class="s2">&quot;local&quot;</span><span class="p">))</span>
-    <span class="n">llm_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;nemotron-70b&quot;</span><span class="p">))</span>
+    <span class="c1"># qwen2.5-coder:14b — modèle codeur local (~9 Go q4_K_M) ; GPU recommandé.</span>
+    <span class="n">llm_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;qwen2.5-coder:14b&quot;</span><span class="p">))</span>
     <span class="n">llm_api_base</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;LLM_API_BASE&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:11434/v1&quot;</span><span class="p">))</span>
     <span class="n">llm_api_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;LLM_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
     <span class="n">embedding_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;EMBEDDING_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;bge-m3&quot;</span><span class="p">))</span>
@@ -466,6 +469,14 @@
     <span class="n">ollama_base_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env</span><span class="p">(</span><span class="s2">&quot;OLLAMA_BASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;http://localhost:11434&quot;</span><span class="p">))</span>
     <span class="n">ollama_timeout_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env_float</span><span class="p">(</span><span class="s2">&quot;OLLAMA_TIMEOUT_S&quot;</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">))</span>
     <span class="n">ollama_num_ctx</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env_int</span><span class="p">(</span><span class="s2">&quot;OLLAMA_NUM_CTX&quot;</span><span class="p">,</span> <span class="mi">4096</span><span class="p">))</span>
+
+    <span class="c1"># World model RL — slot runtime : la passe RL (torch) y exporte</span>
+    <span class="c1"># world_model_torch.npz, la boucle nocturne le charge en warm start puis</span>
+    <span class="c1"># y réécrit les poids mis à jour (ratchet AutoPCB).</span>
+    <span class="n">world_model_npz</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">_env</span><span class="p">(</span><span class="s2">&quot;PCB_WORLD_MODEL_NPZ&quot;</span><span class="p">,</span>
+                                          <span class="s2">&quot;data/trained_models/world_model_torch.npz&quot;</span><span class="p">))</span>
+    <span class="p">)</span>
 
     <span class="c1"># GPU (brique C++/CUDA du simulateur)</span>
     <span class="n">enable_cuda</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">_env_bool</span><span class="p">(</span><span class="s2">&quot;ENABLE_CUDA&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>

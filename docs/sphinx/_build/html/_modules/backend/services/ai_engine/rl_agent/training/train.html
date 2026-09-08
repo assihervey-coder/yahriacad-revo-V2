@@ -49,6 +49,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -56,6 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -391,7 +393,9 @@
 <span class="sd">  1. collecte d&#39;un dataset de transitions dans ``PlacementEnv`` (rollouts aléatoires) ;</span>
 <span class="sd">  2. pré-entraînement supervisé du ``TorchWorldModel`` (MSE + Adam + early stopping) ;</span>
 <span class="sd">  3. export ``world_model_torch.npz`` — chargeable tel quel par le runtime</span>
-<span class="sd">     ``DreamerWorldModel`` (architecture miroir) ;</span>
+<span class="sd">     ``DreamerWorldModel`` (architecture miroir) — puis installation au slot</span>
+<span class="sd">     runtime (``PCB_WORLD_MODEL_NPZ``, défaut ``data/trained_models/world_model_torch.npz``)</span>
+<span class="sd">     où la boucle nocturne le chargera en warm start ;</span>
 <span class="sd">  4. entraînement REINFORCE de la ``PlacementPolicyNet`` ;</span>
 <span class="sd">  5. artefacts + ``training_report.json`` dans ``--out``</span>
 <span class="sd">     (défaut : ``data/trained_models/rl_checkpoints/``).</span>
@@ -409,6 +413,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">replace</span>
@@ -419,6 +424,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">backend.services.ai_engine.rl_agent.training.dataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">collect_dataset</span><span class="p">,</span> <span class="n">summarize_archive</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">backend.services.ai_engine.rl_agent.training.env</span><span class="w"> </span><span class="kn">import</span> <span class="n">PlacementEnv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">common.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_settings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">common.design_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Board</span><span class="p">,</span> <span class="n">Component</span><span class="p">,</span> <span class="n">Net</span><span class="p">,</span> <span class="n">Zone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">common.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
 
@@ -461,6 +467,21 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_install_runtime_npz</span><span class="p">(</span><span class="n">npz_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">runtime_npz</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Copie l&#39;export torch vers le slot runtime du world model (warm start nocturne).</span>
+
+<span class="sd">    La boucle nocturne (``AiEngine.run_night_optimization``) charge ce slot à</span>
+<span class="sd">    l&#39;ouverture de la nuit et y réécrit les poids mis à jour en fin de nuit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">runtime_npz</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">npz_path</span><span class="p">,</span> <span class="n">runtime_npz</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;slot runtime </span><span class="si">{</span><span class="n">runtime_npz</span><span class="si">}</span><span class="s2"> non écrit (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -476,6 +497,11 @@
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;epochs max de régression supervisée (défaut 80)&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--out&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/trained_models/rl_checkpoints&quot;</span><span class="p">),</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;répertoire des artefacts&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--runtime-npz&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;slot runtime du world model pour la boucle nocturne &quot;</span>
+                             <span class="s2">&quot;(défaut : PCB_WORLD_MODEL_NPZ / settings.world_model_npz)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--no-install&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;n&#39;installe pas l&#39;export au slot runtime&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--archive&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;archive keeper JSONL (contexte du rapport)&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--seed&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
@@ -511,20 +537,25 @@
           <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">dataset_stats</span><span class="p">[</span><span class="s1">&#39;episodes&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> épisodes, légalité </span><span class="si">{</span><span class="n">dataset_stats</span><span class="p">[</span><span class="s1">&#39;legal_ratio&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
     <span class="c1"># ---- 2) world model supervisé ------------------------------------------------------</span>
+    <span class="n">runtime_npz</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">runtime_npz</span> <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_settings</span><span class="p">(</span><span class="s2">&quot;ai_engine&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">world_model_npz</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_world</span><span class="p">:</span>
         <span class="n">world</span> <span class="o">=</span> <span class="n">TorchWorldModel</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">train_supervised_world_model</span><span class="p">(</span><span class="n">world</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">epochs_world</span><span class="p">,</span>
                                               <span class="n">seed</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="n">npz_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">out</span> <span class="o">/</span> <span class="s2">&quot;world_model_torch.npz&quot;</span>
         <span class="n">exported</span> <span class="o">=</span> <span class="n">world</span><span class="o">.</span><span class="n">export_npz</span><span class="p">(</span><span class="n">npz_path</span><span class="p">)</span>
+        <span class="n">installed</span> <span class="o">=</span> <span class="n">_install_runtime_npz</span><span class="p">(</span><span class="n">npz_path</span><span class="p">,</span> <span class="n">runtime_npz</span><span class="p">)</span> <span class="k">if</span> <span class="n">exported</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">no_install</span> <span class="k">else</span> <span class="kc">False</span>
         <span class="n">report</span><span class="p">[</span><span class="s2">&quot;world_model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;epochs_run&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;epochs_run&quot;</span><span class="p">],</span>
                                  <span class="s2">&quot;best_val_mse&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;best_val_mse&quot;</span><span class="p">],</span>
                                  <span class="s2">&quot;final_train_mse&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;final_train_mse&quot;</span><span class="p">],</span>
-                                 <span class="s2">&quot;exported&quot;</span><span class="p">:</span> <span class="n">exported</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">npz_path</span><span class="p">)}</span>
+                                 <span class="s2">&quot;exported&quot;</span><span class="p">:</span> <span class="n">exported</span><span class="p">,</span> <span class="s2">&quot;npz&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">npz_path</span><span class="p">),</span>
+                                 <span class="s2">&quot;runtime_npz&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">runtime_npz</span><span class="p">),</span>
+                                                 <span class="s2">&quot;installed&quot;</span><span class="p">:</span> <span class="n">installed</span><span class="p">}}</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[2/4] world model : </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;epochs_run&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> epochs, &quot;</span>
-              <span class="sa">f</span><span class="s2">&quot;val MSE </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;best_val_mse&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, export npz </span><span class="si">{</span><span class="s1">&#39;OK&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">exported</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;ÉCHEC&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+              <span class="sa">f</span><span class="s2">&quot;val MSE </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;best_val_mse&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, export npz </span><span class="si">{</span><span class="s1">&#39;OK&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">exported</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;ÉCHEC&#39;</span><span class="si">}</span><span class="s2">, &quot;</span>
+              <span class="sa">f</span><span class="s2">&quot;slot runtime </span><span class="si">{</span><span class="s1">&#39;OK&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;non écrit&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;world_model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;skipped&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+        <span class="n">report</span><span class="p">[</span><span class="s2">&quot;world_model&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;skipped&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;runtime_npz&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">runtime_npz</span><span class="p">)}</span>
 
     <span class="c1"># ---- 3) REINFORCE ------------------------------------------------------------------</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_rl</span><span class="p">:</span>

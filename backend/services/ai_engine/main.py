@@ -100,6 +100,7 @@ class AiEngine:
         self.keeper = KeeperLogic(project_id, max_vias=200)
         # --- état et câblage du bus ----------------------------------------------------
         self.board: Optional[Board] = None
+        self.last_night_summary: Dict[str, Any] = {}   # bilan de la dernière boucle nocturne
         self.events: List[Event] = []
         self._bus_messages_seen = 0
         self.bus.subscribe_for(None, self._on_constraint)
@@ -199,49 +200,98 @@ class AiEngine:
                 "reason": verdict.reason, "rolled_back": True}
 
     # ---- RPC 3 : autonomous_optimizer ------------------------------------------------------------
-    def run_night_optimization(self, max_iter: int = 300) -> Iterator[Dict[str, Any]]:
-        """Générateur d'IterationReport — boucle proposer → vérifier → évaluer → ratchet."""
+    def run_night_optimization(self, max_iter: int = 300,
+                               warm_start_path: Optional[Path] = None,
+                               save_path: Optional[Path] = None) -> Iterator[Dict[str, Any]]:
+        """Générateur d'IterationReport — boucle proposer → vérifier → évaluer → ratchet.
+
+        Branchement ``world_model_torch.npz`` : à l'ouverture de la nuit, les
+        poids exportés par la passe RL torch (format miroir du TinyNet numpy)
+        sont chargés en warm start depuis ``warm_start_path`` — défaut :
+        ``settings.world_model_npz`` (``PCB_WORLD_MODEL_NPZ``) — si le fichier
+        existe. En fin de nuit, les poids mis à jour par les
+        ``observe()``/``train()`` des itérations gardées sont réécrits au même
+        slot : chaque nuit repart du modèle de la veille. La sauvegarde passe
+        dans un ``finally`` — elle s'exécute même si le consommateur referme le
+        générateur avant épuisement. Bilan disponible via ``last_night_summary``.
+        """
         board = self.board
         if board is None:
             raise RuntimeError("aucun design chargé — appeler load_board() d'abord")
-        detail = self.evaluator.evaluate_detailed(board)
-        baseline = self._composite(detail, board)
-        self.keeper.set_baseline(baseline)
-        stagnant = 0                      # itérations consécutives sans gain
-        for _iteration in range(max_iter):
-            proposals = self.proposer.propose(board, self.intent_graph, n=3)
-            if not proposals:
-                break
-            progressed = False
-            for proposal in proposals:
-                trial = copy.deepcopy(board)
-                if not apply_proposal(trial, proposal):
-                    continue
-                # 1) self_verifier d'abord : chaque position finale issue de la
-                #    proposition (move/rotate/swap) est vérifiée sur la copie.
-                actions = self._actions_for_trial(trial, proposal)
-                if not actions or any(not self.checker.check(trial, a).valid for a in actions):
-                    continue
-                # 2) fast_evaluator (< 5 s garanti) puis règle du ratchet.
-                trial_detail = self.evaluator.evaluate_detailed(trial)
-                score = self._composite(trial_detail, trial)
-                if not self.keeper.keep_if_better(proposal.to_json(), score):
-                    continue                                    # ratchet : rejet
-                self.rollback.push_state(board, {"note": f"keep iter {self.keeper.iterations}"})
-                apply_proposal(board, proposal)                 # engagement réel
-                self.world_model.observe(board, actions[0], {
-                    "congestion_score": trial_detail["si_risk"],
-                    "thermal_rise_estimate": 1.0 - trial_detail["thermal_ok"],
-                    "si_risk": trial_detail["si_risk"]})
-                self.world_model.train()
-                self._emit(EventType.PLAN_UPDATED, iteration=self.keeper.iterations,
-                           best_score=self.keeper.best_score)
-                progressed = True
-                yield self.keeper.reports[-1].to_json()
-            self.policy.anneal()
-            stagnant = 0 if progressed else stagnant + 1
-            if stagnant >= 10:
-                break             # dix passes sans aucun gain : convergé
+        warm_info = self._warm_start_world_model(warm_start_path)
+        try:
+            detail = self.evaluator.evaluate_detailed(board)
+            baseline = self._composite(detail, board)
+            self.keeper.set_baseline(baseline)
+            stagnant = 0                  # itérations consécutives sans gain
+            for _iteration in range(max_iter):
+                proposals = self.proposer.propose(board, self.intent_graph, n=3)
+                if not proposals:
+                    break
+                progressed = False
+                for proposal in proposals:
+                    trial = copy.deepcopy(board)
+                    if not apply_proposal(trial, proposal):
+                        continue
+                    # 1) self_verifier d'abord : chaque position finale issue de la
+                    #    proposition (move/rotate/swap) est vérifiée sur la copie.
+                    actions = self._actions_for_trial(trial, proposal)
+                    if not actions or any(not self.checker.check(trial, a).valid for a in actions):
+                        continue
+                    # 2) fast_evaluator (< 5 s garanti) puis règle du ratchet.
+                    trial_detail = self.evaluator.evaluate_detailed(trial)
+                    score = self._composite(trial_detail, trial)
+                    if not self.keeper.keep_if_better(proposal.to_json(), score):
+                        continue                                    # ratchet : rejet
+                    self.rollback.push_state(board, {"note": f"keep iter {self.keeper.iterations}"})
+                    apply_proposal(board, proposal)                 # engagement réel
+                    self.world_model.observe(board, actions[0], {
+                        "congestion_score": trial_detail["si_risk"],
+                        "thermal_rise_estimate": 1.0 - trial_detail["thermal_ok"],
+                        "si_risk": trial_detail["si_risk"]})
+                    self.world_model.train()
+                    self._emit(EventType.PLAN_UPDATED, iteration=self.keeper.iterations,
+                               best_score=self.keeper.best_score)
+                    progressed = True
+                    yield self.keeper.reports[-1].to_json()
+                self.policy.anneal()
+                stagnant = 0 if progressed else stagnant + 1
+                if stagnant >= 10:
+                    break             # dix passes sans aucun gain : convergé
+        finally:
+            self._finalize_night(warm_info, save_path)
+
+    # ---- branchement world model (passe RL torch ↔ boucle nocturne) -----------------------
+    def _warm_start_world_model(self, warm_start_path: Optional[Path] = None) -> Dict[str, Any]:
+        """Charge le world model torch (world_model_torch.npz) en warm start si présent."""
+        path = Path(warm_start_path) if warm_start_path else Path(self.settings.world_model_npz)
+        info = {"loaded": False, "path": str(path)}
+        if not path.exists():
+            logger.info("world model : pas de warm start (%s absent) — poids courants", path)
+            return info
+        if self.world_model.load(path):
+            info["loaded"] = True
+            logger.info("world model : warm start OK depuis %s — boucle nocturne", path)
+        else:
+            logger.warning("world model : warm start impossible depuis %s — poids courants", path)
+        return info
+
+    def _finalize_night(self, warm_info: Dict[str, Any], save_path: Optional[Path] = None) -> None:
+        """Réécrit le slot world_model_npz avec les poids de la nuit + bilan de session."""
+        path = Path(save_path) if save_path else Path(self.settings.world_model_npz)
+        saved = self.world_model.save(path)
+        stats = self.keeper.stats()
+        self.last_night_summary = {
+            "warm_start": warm_info,
+            "world_model_saved": {"saved": bool(saved), "path": str(path)},
+            "iterations": stats.get("iterations", 0),
+            "kept": stats.get("kept", 0),
+            "rejected": stats.get("rejected", 0),
+            "initial_score": stats.get("initial_score"),
+            "best_score": stats.get("best_score"),
+            "gain_vs_initial": stats.get("gain_vs_initial"),
+        }
+        logger.info("boucle nocturne : %s", json.dumps(self.last_night_summary, ensure_ascii=False))
 
     def _composite(self, detail: Dict[str, Any], board: Board) -> float:
         """Score composite du keeper depuis une évaluation détaillée."""

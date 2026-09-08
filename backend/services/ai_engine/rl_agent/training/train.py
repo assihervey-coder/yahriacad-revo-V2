@@ -4,7 +4,9 @@ Chaîne exécutée :
   1. collecte d'un dataset de transitions dans ``PlacementEnv`` (rollouts aléatoires) ;
   2. pré-entraînement supervisé du ``TorchWorldModel`` (MSE + Adam + early stopping) ;
   3. export ``world_model_torch.npz`` — chargeable tel quel par le runtime
-     ``DreamerWorldModel`` (architecture miroir) ;
+     ``DreamerWorldModel`` (architecture miroir) — puis installation au slot
+     runtime (``PCB_WORLD_MODEL_NPZ``, défaut ``data/trained_models/world_model_torch.npz``)
+     où la boucle nocturne le chargera en warm start ;
   4. entraînement REINFORCE de la ``PlacementPolicyNet`` ;
   5. artefacts + ``training_report.json`` dans ``--out``
      (défaut : ``data/trained_models/rl_checkpoints/``).
@@ -22,6 +24,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 import time
 from dataclasses import replace
@@ -32,6 +35,7 @@ import numpy as np
 
 from backend.services.ai_engine.rl_agent.training.dataset import collect_dataset, summarize_archive
 from backend.services.ai_engine.rl_agent.training.env import PlacementEnv
+from common.config import get_settings
 from common.design_model import Board, Component, Net, Zone
 from common.log import get_logger
 
@@ -71,6 +75,21 @@ def build_demo_board() -> Board:
     return board
 
 
+def _install_runtime_npz(npz_path: Path, runtime_npz: Path) -> bool:
+    """Copie l'export torch vers le slot runtime du world model (warm start nocturne).
+
+    La boucle nocturne (``AiEngine.run_night_optimization``) charge ce slot à
+    l'ouverture de la nuit et y réécrit les poids mis à jour en fin de nuit.
+    """
+    try:
+        runtime_npz.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(npz_path, runtime_npz)
+        return True
+    except OSError as exc:
+        print(f"slot runtime {runtime_npz} non écrit ({exc})", file=sys.stderr)
+        return False
+
+
 def main(argv: List[str] | None = None) -> int:
     """Point d'entrée CLI — 0 si la passe complète a réussi."""
     parser = argparse.ArgumentParser(
@@ -84,6 +103,11 @@ def main(argv: List[str] | None = None) -> int:
                         help="epochs max de régression supervisée (défaut 80)")
     parser.add_argument("--out", type=Path, default=Path("data/trained_models/rl_checkpoints"),
                         help="répertoire des artefacts")
+    parser.add_argument("--runtime-npz", type=Path, default=None,
+                        help="slot runtime du world model pour la boucle nocturne "
+                             "(défaut : PCB_WORLD_MODEL_NPZ / settings.world_model_npz)")
+    parser.add_argument("--no-install", action="store_true",
+                        help="n'installe pas l'export au slot runtime")
     parser.add_argument("--archive", type=Path, default=None,
                         help="archive keeper JSONL (contexte du rapport)")
     parser.add_argument("--seed", type=int, default=42)
@@ -119,20 +143,25 @@ def main(argv: List[str] | None = None) -> int:
           f"({dataset_stats['episodes']} épisodes, légalité {dataset_stats['legal_ratio']:.0%})")
 
     # ---- 2) world model supervisé ------------------------------------------------------
+    runtime_npz = args.runtime_npz or Path(get_settings("ai_engine").world_model_npz)
     if not args.skip_world:
         world = TorchWorldModel(seed=args.seed)
         result = train_supervised_world_model(world, X, Y, epochs=args.epochs_world,
                                               seed=args.seed, device=args.device)
         npz_path = args.out / "world_model_torch.npz"
         exported = world.export_npz(npz_path)
+        installed = _install_runtime_npz(npz_path, runtime_npz) if exported and not args.no_install else False
         report["world_model"] = {"epochs_run": result["epochs_run"],
                                  "best_val_mse": result["best_val_mse"],
                                  "final_train_mse": result["final_train_mse"],
-                                 "exported": exported, "npz": str(npz_path)}
+                                 "exported": exported, "npz": str(npz_path),
+                                 "runtime_npz": {"path": str(runtime_npz),
+                                                 "installed": installed}}
         print(f"[2/4] world model : {result['epochs_run']} epochs, "
-              f"val MSE {result['best_val_mse']:.4f}, export npz {'OK' if exported else 'ÉCHEC'}")
+              f"val MSE {result['best_val_mse']:.4f}, export npz {'OK' if exported else 'ÉCHEC'}, "
+              f"slot runtime {'OK' if installed else 'non écrit'}")
     else:
-        report["world_model"] = {"skipped": True}
+        report["world_model"] = {"skipped": True, "runtime_npz": str(runtime_npz)}
 
     # ---- 3) REINFORCE ------------------------------------------------------------------
     if not args.skip_rl:
