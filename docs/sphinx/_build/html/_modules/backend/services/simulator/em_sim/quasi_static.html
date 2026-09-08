@@ -1,0 +1,870 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>backend.services.simulator.em_sim.quasi_static &mdash; pcb_ai_designer_v2 — référence d&#39;implémentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=351e6318"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../../_static/translations.js?v=e6b791cb"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Recherche" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #0D1117" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            pcb_ai_designer_v2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../architecture.html#le-cerveau-ia">Le cerveau IA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../architecture.html#workflow-8-etapes">Workflow 8 étapes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage — cibles make et services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#demarrage-rapide">Démarrage rapide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#pile-docker-compose">Pile docker compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#entrainement-rl">Entraînement RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#lint-et-proprete">Lint et propreté</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Référence API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/common.html">Socle commun (<code class="docutils literal notranslate"><span class="pre">common</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.design_model">Modèle de design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Side"><code class="docutils literal notranslate"><span class="pre">Side</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Pad"><code class="docutils literal notranslate"><span class="pre">Pad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Component"><code class="docutils literal notranslate"><span class="pre">Component</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Placement"><code class="docutils literal notranslate"><span class="pre">Placement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Net"><code class="docutils literal notranslate"><span class="pre">Net</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Zone"><code class="docutils literal notranslate"><span class="pre">Zone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.DesignState"><code class="docutils literal notranslate"><span class="pre">DesignState</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.config">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.config.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.events">Événements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.EventType"><code class="docutils literal notranslate"><span class="pre">EventType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.make_event"><code class="docutils literal notranslate"><span class="pre">make_event()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.bus">Bus de contraintes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintKind"><code class="docutils literal notranslate"><span class="pre">ConstraintKind</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintMessage"><code class="docutils literal notranslate"><span class="pre">ConstraintMessage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintBus"><code class="docutils literal notranslate"><span class="pre">ConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.InMemoryConstraintBus"><code class="docutils literal notranslate"><span class="pre">InMemoryConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.RedisConstraintBus"><code class="docutils literal notranslate"><span class="pre">RedisConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.create_bus"><code class="docutils literal notranslate"><span class="pre">create_bus()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.credits">Crédits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.Pricing"><code class="docutils literal notranslate"><span class="pre">Pricing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.estimate_night_cost"><code class="docutils literal notranslate"><span class="pre">estimate_night_cost()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.CreditTransaction"><code class="docutils literal notranslate"><span class="pre">CreditTransaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.CreditLedger"><code class="docutils literal notranslate"><span class="pre">CreditLedger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.InsufficientCredits"><code class="docutils literal notranslate"><span class="pre">InsufficientCredits</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.grpc_helpers">Helpers gRPC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.proto_available"><code class="docutils literal notranslate"><span class="pre">proto_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.serve_grpc"><code class="docutils literal notranslate"><span class="pre">serve_grpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.channel_for"><code class="docutils literal notranslate"><span class="pre">channel_for()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.log">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.JsonFormatter"><code class="docutils literal notranslate"><span class="pre">JsonFormatter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/ai_engine.html">Cerveau IA (<code class="docutils literal notranslate"><span class="pre">ai_engine</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.shared_mental_model.intent_graph.graph">Modèle mental partagé</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentNode"><code class="docutils literal notranslate"><span class="pre">IntentNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentEdge"><code class="docutils literal notranslate"><span class="pre">IntentEdge</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentGraph"><code class="docutils literal notranslate"><span class="pre">IntentGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.constraint_bus.service.ProjectConstraintBus"><code class="docutils literal notranslate"><span class="pre">ProjectConstraintBus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.rag_engine.chunker">RAG datasheets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.Document"><code class="docutils literal notranslate"><span class="pre">Document</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.chunk_datasheet"><code class="docutils literal notranslate"><span class="pre">chunk_datasheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.indexer.TfidfIndex"><code class="docutils literal notranslate"><span class="pre">TfidfIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.retriever.RagRetriever"><code class="docutils literal notranslate"><span class="pre">RagRetriever</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client.OllamaClient"><code class="docutils literal notranslate"><span class="pre">OllamaClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client">Graphe de connaissances &amp; prompts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client.Neo4jClient"><code class="docutils literal notranslate"><span class="pre">Neo4jClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternRule"><code class="docutils literal notranslate"><span class="pre">PatternRule</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.SkidlSummary"><code class="docutils literal notranslate"><span class="pre">SkidlSummary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.parse_skidl"><code class="docutils literal notranslate"><span class="pre">parse_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternValidator"><code class="docutils literal notranslate"><span class="pre">PatternValidator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptStats"><code class="docutils literal notranslate"><span class="pre">PromptStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptTemplate"><code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptOptimizer"><code class="docutils literal notranslate"><span class="pre">PromptOptimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.self_verifier.deterministic_checker.checker">Auto-vérification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DesignRules"><code class="docutils literal notranslate"><span class="pre">DesignRules</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.Verdict"><code class="docutils literal notranslate"><span class="pre">Verdict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DeterministicChecker"><code class="docutils literal notranslate"><span class="pre">DeterministicChecker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.rollback_manager.rollback.RollbackManager"><code class="docutils literal notranslate"><span class="pre">RollbackManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer">Optimiseur autonome</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.Proposal"><code class="docutils literal notranslate"><span class="pre">Proposal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.apply_proposal"><code class="docutils literal notranslate"><span class="pre">apply_proposal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.hpwl_mm"><code class="docutils literal notranslate"><span class="pre">hpwl_mm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.HeuristicProposer"><code class="docutils literal notranslate"><span class="pre">HeuristicProposer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.fast_evaluator.freerouting_bridge.FastEvaluator"><code class="docutils literal notranslate"><span class="pre">FastEvaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.IterationReport"><code class="docutils literal notranslate"><span class="pre">IterationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.KeeperLogic"><code class="docutils literal notranslate"><span class="pre">KeeperLogic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.main">Point d’entrée du service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.AiEngine"><code class="docutils literal notranslate"><span class="pre">AiEngine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.self_test"><code class="docutils literal notranslate"><span class="pre">self_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/rl_agent.html">Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.action_space.space">Espace d’action</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace"><code class="docutils literal notranslate"><span class="pre">ActionSpace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.world_model.dreamer">World model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet"><code class="docutils literal notranslate"><span class="pre">TinyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel"><code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.policy_network.policy">Policy ε-greedy (runtime)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.Experience"><code class="docutils literal notranslate"><span class="pre">Experience</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy"><code class="docutils literal notranslate"><span class="pre">EpsilonGreedyPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.training.env">Passe d’entraînement (torch)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.env.PlacementEnv"><code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.collect_dataset"><code class="docutils literal notranslate"><span class="pre">collect_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.summarize_archive"><code class="docutils literal notranslate"><span class="pre">summarize_archive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel"><code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model"><code class="docutils literal notranslate"><span class="pre">train_supervised_world_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet"><code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig"><code class="docutils literal notranslate"><span class="pre">ReinforceConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer"><code class="docutils literal notranslate"><span class="pre">ReinforceTrainer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/orchestrator.html">Orchestrator multi-agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.main">Point d’entrée</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.SkipStep"><code class="docutils literal notranslate"><span class="pre">SkipStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.StepStatus"><code class="docutils literal notranslate"><span class="pre">StepStatus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.PipelineEvent"><code class="docutils literal notranslate"><span class="pre">PipelineEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.Orchestrator"><code class="docutils literal notranslate"><span class="pre">Orchestrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.adapters.AdapterResult"><code class="docutils literal notranslate"><span class="pre">AdapterResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.adapters.call_adapter"><code class="docutils literal notranslate"><span class="pre">call_adapter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.super_agent.super_agent">Super-agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.super_agent.MentalModelEntry"><code class="docutils literal notranslate"><span class="pre">MentalModelEntry</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.super_agent.SuperAgent"><code class="docutils literal notranslate"><span class="pre">SuperAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.PlanStep"><code class="docutils literal notranslate"><span class="pre">PlanStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.ExecutionPlan"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.default_plan"><code class="docutils literal notranslate"><span class="pre">default_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Priority"><code class="docutils literal notranslate"><span class="pre">Priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Allocation"><code class="docutils literal notranslate"><span class="pre">Allocation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.QueuedTask"><code class="docutils literal notranslate"><span class="pre">QueuedTask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.ResourceAllocator"><code class="docutils literal notranslate"><span class="pre">ResourceAllocator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictResolution"><code class="docutils literal notranslate"><span class="pre">ConflictResolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictArbiter"><code class="docutils literal notranslate"><span class="pre">ConflictArbiter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.agent_pipeline.base_agent">Pipeline d’agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentResult"><code class="docutils literal notranslate"><span class="pre">AgentResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.BaseAgent"><code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlanDocument"><code class="docutils literal notranslate"><span class="pre">PlanDocument</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlannerAgent"><code class="docutils literal notranslate"><span class="pre">PlannerAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.researcher_agent.agent.ResearchAgent"><code class="docutils literal notranslate"><span class="pre">ResearchAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.selector_agent.agent.SelectorAgent"><code class="docutils literal notranslate"><span class="pre">SelectorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.code_generator.agent.CodeGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">CodeGeneratorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue"><code class="docutils literal notranslate"><span class="pre">ValidationIssue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport"><code class="docutils literal notranslate"><span class="pre">ValidationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent"><code class="docutils literal notranslate"><span class="pre">ValidatorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.corrector_agent.agent.CorrectorAgent"><code class="docutils literal notranslate"><span class="pre">CorrectorAgent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.state_manager.manager">Gestion d’état</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.StateManager"><code class="docutils literal notranslate"><span class="pre">StateManager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.journal.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.compute_board_delta"><code class="docutils literal notranslate"><span class="pre">compute_board_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_from_delta"><code class="docutils literal notranslate"><span class="pre">events_from_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_since"><code class="docutils literal notranslate"><span class="pre">events_since()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLock"><code class="docutils literal notranslate"><span class="pre">ZoneLock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLockManager"><code class="docutils literal notranslate"><span class="pre">ZoneLockManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/services.html">Services gRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.parser.nl_to_skidl.nl_to_skidl">Parser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.SkidlScript"><code class="docutils literal notranslate"><span class="pre">SkidlScript</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.detect_blocks"><code class="docutils literal notranslate"><span class="pre">detect_blocks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.llm_refine"><code class="docutils literal notranslate"><span class="pre">llm_refine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.natural_language_to_skidl"><code class="docutils literal notranslate"><span class="pre">natural_language_to_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.constraint_extractor.extractor.extract_constraints"><code class="docutils literal notranslate"><span class="pre">extract_constraints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.constraint_extractor.extractor.publish"><code class="docutils literal notranslate"><span class="pre">publish()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.SymbolInstance"><code class="docutils literal notranslate"><span class="pre">SymbolInstance</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.KiCadSchematic"><code class="docutils literal notranslate"><span class="pre">KiCadSchematic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.parse_kicad_sch"><code class="docutils literal notranslate"><span class="pre">parse_kicad_sch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.simulator.thermal_sim.diffusion">Simulateur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.Hotspot"><code class="docutils literal notranslate"><span class="pre">Hotspot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.ThermalResult"><code class="docutils literal notranslate"><span class="pre">ThermalResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.CudaThermalKernel"><code class="docutils literal notranslate"><span class="pre">CudaThermalKernel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.try_load_cuda_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_cuda_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.steady_state"><code class="docutils literal notranslate"><span class="pre">steady_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.transient"><code class="docutils literal notranslate"><span class="pre">transient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair"><code class="docutils literal notranslate"><span class="pre">CouplingPair</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMIZone"><code class="docutils literal notranslate"><span class="pre">EMIZone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMResult"><code class="docutils literal notranslate"><span class="pre">EMResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.try_load_em_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_em_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.quasi_static_analysis"><code class="docutils literal notranslate"><span class="pre">quasi_static_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.ir_drop.IRDropResult"><code class="docutils literal notranslate"><span class="pre">IRDropResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.ir_drop.analyze_ir_drop"><code class="docutils literal notranslate"><span class="pre">analyze_ir_drop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.NetMargin"><code class="docutils literal notranslate"><span class="pre">NetMargin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.SIResult"><code class="docutils literal notranslate"><span class="pre">SIResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze_net"><code class="docutils literal notranslate"><span class="pre">analyze_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze"><code class="docutils literal notranslate"><span class="pre">analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.multi_physics_loop.loop.Finding"><code class="docutils literal notranslate"><span class="pre">Finding</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.multi_physics_loop.loop.MultiPhysicsLoop"><code class="docutils literal notranslate"><span class="pre">MultiPhysicsLoop</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.router.topological.connectivity_graph">Routeur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.connectivity_graph.PadNode"><code class="docutils literal notranslate"><span class="pre">PadNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.connectivity_graph.ConnectivityGraph"><code class="docutils literal notranslate"><span class="pre">ConnectivityGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.pathfinder.RouteResult"><code class="docutils literal notranslate"><span class="pre">RouteResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.pathfinder.Pathfinder"><code class="docutils literal notranslate"><span class="pre">Pathfinder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.via_minimizer.minimizer.MinimizerStats"><code class="docutils literal notranslate"><span class="pre">MinimizerStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.via_minimizer.minimizer.ViaMinimizer"><code class="docutils literal notranslate"><span class="pre">ViaMinimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.drc_dfm_engine.design_rules.checker">DRC / DFM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.DrcReport"><code class="docutils literal notranslate"><span class="pre">DrcReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.check_design_rules"><code class="docutils literal notranslate"><span class="pre">check_design_rules()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.FactoryProfile"><code class="docutils literal notranslate"><span class="pre">FactoryProfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.available_profiles"><code class="docutils literal notranslate"><span class="pre">available_profiles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.check_factory"><code class="docutils literal notranslate"><span class="pre">check_factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.run_erc"><code class="docutils literal notranslate"><span class="pre">run_erc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.erc_summary"><code class="docutils literal notranslate"><span class="pre">erc_summary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.exporter.gerber.rs274x">Exporter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.render_copper_layer"><code class="docutils literal notranslate"><span class="pre">render_copper_layer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.render_edge_cuts"><code class="docutils literal notranslate"><span class="pre">render_edge_cuts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.layer_filename"><code class="docutils literal notranslate"><span class="pre">layer_filename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.export_gerbers"><code class="docutils literal notranslate"><span class="pre">export_gerbers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.excellon.export_drill"><code class="docutils literal notranslate"><span class="pre">export_drill()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.odb.odb_writer.OdbStructure"><code class="docutils literal notranslate"><span class="pre">OdbStructure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.odb.odb_writer.export_odb"><code class="docutils literal notranslate"><span class="pre">export_odb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.bom_pickplace.bom_writer.export_bom"><code class="docutils literal notranslate"><span class="pre">export_bom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.firmware_bridge.pin_exporter.exporter">Firmware bridge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.PinAssignment"><code class="docutils literal notranslate"><span class="pre">PinAssignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.export_pins"><code class="docutils literal notranslate"><span class="pre">export_pins()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.header_generator.generators.GeneratedHeader"><code class="docutils literal notranslate"><span class="pre">GeneratedHeader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.header_generator.generators.generate_headers"><code class="docutils literal notranslate"><span class="pre">generate_headers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.api_gateway.main">Passerelle API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.AuthError"><code class="docutils literal notranslate"><span class="pre">AuthError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.Claims"><code class="docutils literal notranslate"><span class="pre">Claims</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.AuthService"><code class="docutils literal notranslate"><span class="pre">AuthService</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.QuotaDecision"><code class="docutils literal notranslate"><span class="pre">QuotaDecision</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.RateLimitExceeded"><code class="docutils literal notranslate"><span class="pre">RateLimitExceeded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.RateLimiter"><code class="docutils literal notranslate"><span class="pre">RateLimiter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #0D1117" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">pcb_ai_designer_v2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Code du module</a></li>
+      <li class="breadcrumb-item active">backend.services.simulator.em_sim.quasi_static</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Code source de backend.services.simulator.em_sim.quasi_static</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Analyse électromagnétique quasi-statique — diaphonie, EMI, intégrité du plan de masse.</span>
+
+<span class="sd">Hypothèses (calibration heuristique, ordres de grandeur physiques) :</span>
+<span class="sd">  - couplage capacitif entre segments parallèles : C ≈ ε₀·ε_r·A/d avec</span>
+<span class="sd">    A = longueur de recouvrement × largeur moyenne, d = distance perpendiculaire ;</span>
+<span class="sd">  - diaphonie en dB : 20·log₁₀(C_c / (C_self + C_c)) par paire de nets ;</span>
+<span class="sd">  - rayonnement EMI ∝ aire de boucle du courant de retour (polygone fermé par</span>
+<span class="sd">    la chaîne de segments d&#39;un net) ;</span>
+<span class="sd">  - rebond de masse ∝ ratio de découpages du plan de masse × activité des</span>
+<span class="sd">    classes rapides.</span>
+
+<span class="sd">Tout est vectorisé numpy (cupy import gardé, utilisé si présent et ENABLE_CUDA)</span>
+<span class="sd">; un noyau C++ OpenMP (kernels/em_kernel.cpp, api C `em_coupling_matrix`) prend</span>
+<span class="sd">le relais via ctypes s&#39;il est compilé.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ctypes</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">common.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">common.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="s2">&quot;simulator.em_sim&quot;</span><span class="p">)</span>
+
+<span class="c1"># cupy import GARDÉ — fallback numpy si absent</span>
+<span class="k">try</span><span class="p">:</span>  <span class="c1"># pragma: no cover - dépend de l&#39;environnement</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">cupy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_cp</span>  <span class="c1"># type: ignore</span>
+
+    <span class="n">HAS_CUPY</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">_cp</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">HAS_CUPY</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="n">EPS_0</span> <span class="o">=</span> <span class="mf">8.8541878128e-12</span>      <span class="c1"># F/m — permittivité du vide</span>
+<span class="n">EPS_R_DEFAULT</span> <span class="o">=</span> <span class="mf">4.2</span>           <span class="c1"># ε_r FR4</span>
+<span class="n">DIEL_THICKNESS_MM</span> <span class="o">=</span> <span class="mf">0.2</span>       <span class="c1"># hauteur diélectrique piste→plan de masse</span>
+<span class="n">GROUND_PLANE_LAYER</span> <span class="o">=</span> <span class="mi">1</span>        <span class="c1"># couche du plan de masse (convention Board: layer 1 = GND)</span>
+<span class="n">NO_COUPLING_DB</span> <span class="o">=</span> <span class="o">-</span><span class="mf">99.0</span>        <span class="c1"># sentinelle « aucun couplage détecté »</span>
+<span class="n">LOOP_AREA_WARN_MM2</span> <span class="o">=</span> <span class="mf">25.0</span>     <span class="c1"># seuil d&#39;alerte aire de boucle</span>
+<span class="n">LOOP_AREA_CRITICAL_MM2</span> <span class="o">=</span> <span class="mf">80.0</span>
+
+<span class="c1"># proxy d&#39;activité di/dt par classe de net (normalisé, heuristique EMI)</span>
+<span class="n">DI_DT_PROXY</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;usb3&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;pcie&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;ddr4&quot;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span> <span class="s2">&quot;mipi&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;usb2&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;ethernet&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;high_speed&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>
+    <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span> <span class="s2">&quot;power&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1">#  Résultats</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<div class="viewcode-block" id="CouplingPair">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CouplingPair</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Couplage capacitif agrégé entre deux nets (tous segments confondus).&quot;&quot;&quot;</span>
+
+    <span class="n">net_a</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">net_b</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">coupling_pf</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">distance_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">overlap_mm</span><span class="p">:</span> <span class="nb">float</span>
+
+<div class="viewcode-block" id="CouplingPair.to_dict">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;net_a&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_a</span><span class="p">,</span> <span class="s2">&quot;net_b&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net_b</span><span class="p">,</span>
+            <span class="s2">&quot;coupling_pf&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coupling_pf</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;distance_mm&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_mm</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;overlap_mm&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overlap_mm</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EMIZone">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMIZone">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMIZone</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Zone rectangulaire émettrice (boucle de courant) — publiée comme KEEPOUT_ZONE.&quot;&quot;&quot;</span>
+
+    <span class="n">x_min_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y_min_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">x_max_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y_max_mm</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">net</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">loop_area_mm2</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># info | warning | critical</span>
+
+<div class="viewcode-block" id="EMIZone.to_dict">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMIZone.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;x_min_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_min_mm</span><span class="p">,</span> <span class="s2">&quot;y_min_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_min_mm</span><span class="p">,</span>
+            <span class="s2">&quot;x_max_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_max_mm</span><span class="p">,</span> <span class="s2">&quot;y_max_mm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_max_mm</span><span class="p">,</span>
+            <span class="s2">&quot;net&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="p">,</span> <span class="s2">&quot;loop_area_mm2&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loop_area_mm2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EMResult">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMResult">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EMResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Résultat électromagnétique quasi-statique (contrat proto EMResult).&quot;&quot;&quot;</span>
+
+    <span class="n">crosstalk_max_db</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">ground_bounce_mv</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">emi_zones</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">EMIZone</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">coupling_pairs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CouplingPair</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">ground_void_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">worst_pair</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CouplingPair</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">elapsed_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">backend</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;numpy&quot;</span>
+
+<div class="viewcode-block" id="EMResult.to_dict">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMResult.to_dict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;crosstalk_max_db&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crosstalk_max_db</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;ground_bounce_mv&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_bounce_mv</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="s2">&quot;emi_zones&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">z</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">emi_zones</span><span class="p">],</span>
+            <span class="s2">&quot;coupling_pairs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coupling_pairs</span><span class="p">[:</span><span class="mi">8</span><span class="p">]],</span>
+            <span class="s2">&quot;ground_void_ratio&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_void_ratio</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;worst_pair&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_pair</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_pair</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s2">&quot;elapsed_s&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed_s</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="s2">&quot;backend&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">,</span>
+        <span class="p">}</span></div>
+</div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1">#  Binding ctypes du noyau C++ OpenMP (api C — voir kernels/README.md)</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<div class="viewcode-block" id="try_load_em_kernel">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.try_load_em_kernel">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">try_load_em_kernel</span><span class="p">(</span><span class="n">use_native</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Charge libem_kernel.so s&#39;il est compilé (matrice de couplage OpenMP).</span>
+
+<span class="sd">    Politique : tentative uniquement si `use_native` est vrai (ou ENABLE_CUDA</span>
+<span class="sd">    actif — la présence du socle natif est pilotée par la même variable) ;</span>
+<span class="sd">    sinon None → boucles numpy. Aucun appel réseau, échec silencieux.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">use_native</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">use_native</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">get_settings</span><span class="p">(</span><span class="s2">&quot;simulator&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enable_cuda</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">use_native</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">build</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;kernels&quot;</span> <span class="o">/</span> <span class="s2">&quot;build&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;libem_kernel.so&quot;</span><span class="p">,</span> <span class="s2">&quot;libem_kernel.dylib&quot;</span><span class="p">,</span> <span class="s2">&quot;em_kernel.dll&quot;</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">build</span> <span class="o">/</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">lib</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+            <span class="n">fn</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">em_coupling_matrix</span>
+            <span class="c1"># int em_coupling_matrix(const double* segs, const int* net_ids, int n_seg,</span>
+            <span class="c1">#                        int n_nets, double eps_r, double* c_matrix_pf)</span>
+            <span class="n">fn</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">),</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">),</span>
+                <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">,</span>
+                <span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">),</span>
+            <span class="p">]</span>
+            <span class="n">fn</span><span class="o">.</span><span class="n">restype</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;noyau EM natif chargé&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)})</span>
+            <span class="k">return</span> <span class="n">fn</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover - environnement sans GPU/toolchain</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;chargement libem_kernel échoué — fallback numpy&quot;</span><span class="p">,</span>
+                           <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lib&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1">#  Géométrie : distance / recouvrement entre segments parallèles</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_segment_arrays</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(N,4) extrémités + (N,) largeurs pour les segments non-via.&quot;&quot;&quot;</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">s</span><span class="o">.</span><span class="n">x1_mm</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">y1_mm</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">x2_mm</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">y2_mm</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">widths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">width_mm</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pts</span><span class="p">,</span> <span class="n">widths</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parallel_metrics</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pour deux segments : (parallèles ?, distance perpendiculaire mm, recouvrement mm).&quot;&quot;&quot;</span>
+    <span class="n">ax1</span><span class="p">,</span> <span class="n">ay1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ay2</span> <span class="o">=</span> <span class="n">a</span>
+    <span class="n">bx1</span><span class="p">,</span> <span class="n">by1</span><span class="p">,</span> <span class="n">bx2</span><span class="p">,</span> <span class="n">by2</span> <span class="o">=</span> <span class="n">b</span>
+    <span class="n">ua</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ax2</span> <span class="o">-</span> <span class="n">ax1</span><span class="p">,</span> <span class="n">ay2</span> <span class="o">-</span> <span class="n">ay1</span><span class="p">])</span>
+    <span class="n">ub</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">bx2</span> <span class="o">-</span> <span class="n">bx1</span><span class="p">,</span> <span class="n">by2</span> <span class="o">-</span> <span class="n">by1</span><span class="p">])</span>
+    <span class="n">la</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ua</span><span class="p">))</span>
+    <span class="n">lb</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ub</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">la</span> <span class="o">&lt;</span> <span class="mf">1e-9</span> <span class="ow">or</span> <span class="n">lb</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">ua</span> <span class="o">/</span> <span class="n">la</span>
+    <span class="n">sin_theta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ua</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">ub</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ua</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ub</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="n">la</span> <span class="o">*</span> <span class="n">lb</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sin_theta</span> <span class="o">&gt;</span> <span class="mf">0.05</span><span class="p">:</span>  <span class="c1"># tolérance « quasi-parallèle »</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+    <span class="c1"># distance perpendiculaire du milieu de b à la droite portée par a</span>
+    <span class="n">mb</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">bx1</span> <span class="o">+</span> <span class="n">bx2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">by1</span> <span class="o">+</span> <span class="n">by2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">])</span>
+    <span class="n">ma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">ax1</span> <span class="o">+</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">ay1</span> <span class="o">+</span> <span class="n">ay2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">])</span>
+    <span class="n">perp</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ua</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">mb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ma</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">ua</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">mb</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">ma</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">/</span> <span class="n">la</span>
+    <span class="c1"># recouvrement des projections sur l&#39;axe de a</span>
+    <span class="n">ta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">bx1</span><span class="p">,</span> <span class="n">by1</span><span class="p">])</span> <span class="o">-</span> <span class="n">ma</span><span class="p">,</span> <span class="n">u</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">bx2</span><span class="p">,</span> <span class="n">by2</span><span class="p">])</span> <span class="o">-</span> <span class="n">ma</span><span class="p">,</span> <span class="n">u</span><span class="p">)])</span>
+    <span class="n">overlap</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">la</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">ta</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">-</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">la</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">ta</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">perp</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">overlap</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_loop_area_mm2</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="n">List</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aire du polygone fermé par la chaîne de segments (shoelace) + bbox.</span>
+
+<span class="sd">    Les segments sont chaînés gloutonnement depuis le premier (ordre du</span>
+<span class="sd">    routeur), puis refermés — approximation de l&#39;aire de boucle de courant.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">pts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[(</span><span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x1_mm</span><span class="p">,</span> <span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y1_mm</span><span class="p">)]</span>
+    <span class="n">used</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+    <span class="n">used</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x2_mm</span><span class="p">,</span> <span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y2_mm</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">best_i</span><span class="p">,</span> <span class="n">best_d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">used</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">continue</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">((</span><span class="n">seg</span><span class="o">.</span><span class="n">x1_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y1_mm</span><span class="p">),</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">x2_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y2_mm</span><span class="p">)):</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="n">best_d</span><span class="p">:</span>
+                    <span class="n">best_d</span><span class="p">,</span> <span class="n">best_i</span> <span class="o">=</span> <span class="n">d</span><span class="p">,</span> <span class="n">i</span>
+        <span class="k">if</span> <span class="n">best_i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">seg</span> <span class="o">=</span> <span class="n">segments</span><span class="p">[</span><span class="n">best_i</span><span class="p">]</span>
+        <span class="n">used</span><span class="p">[</span><span class="n">best_i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># prolonger la chaîne par l&#39;extrémité la plus proche</span>
+        <span class="n">d1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">x1_mm</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seg</span><span class="o">.</span><span class="n">y1_mm</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">x2_mm</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seg</span><span class="o">.</span><span class="n">y2_mm</span> <span class="o">-</span> <span class="n">cur</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">d1</span> <span class="o">&lt;=</span> <span class="n">d2</span><span class="p">:</span>
+            <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">seg</span><span class="o">.</span><span class="n">x1_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y1_mm</span><span class="p">))</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">x2_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y2_mm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">seg</span><span class="o">.</span><span class="n">x2_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y2_mm</span><span class="p">))</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">x1_mm</span><span class="p">,</span> <span class="n">seg</span><span class="o">.</span><span class="n">y1_mm</span><span class="p">)</span>
+    <span class="n">pts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+    <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pts</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">area</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))))</span> <span class="o">/</span> <span class="mf">2.0</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="nb">float</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">area</span><span class="p">,</span> <span class="n">bbox</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_occupancy_grid</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">cell_mm</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">nx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ny</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">xp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Densité de cuivre par cellule (rastérisation vectorisée) — xp = numpy ou cupy.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">xp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="n">pts</span><span class="p">,</span> <span class="n">widths</span> <span class="o">=</span> <span class="n">_segment_arrays</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+    <span class="n">xs</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span> <span class="o">/</span> <span class="n">cell_mm</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">nx</span> <span class="o">-</span> <span class="mf">1e-6</span><span class="p">)</span>
+    <span class="n">ys</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span> <span class="o">/</span> <span class="n">cell_mm</span><span class="p">)</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ny</span> <span class="o">-</span> <span class="mf">1e-6</span><span class="p">)</span>
+    <span class="n">lengths</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">ys</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">ys</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ny</span><span class="p">,</span> <span class="n">nx</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="c1"># échantillonnage vectorisé : 8 points par segment</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sx</span> <span class="o">=</span> <span class="n">xs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">xs</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">xs</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">sy</span> <span class="o">=</span> <span class="n">ys</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">t</span> <span class="o">*</span> <span class="p">(</span><span class="n">ys</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">ys</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">ix</span> <span class="o">=</span> <span class="n">sx</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">iy</span> <span class="o">=</span> <span class="n">sy</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">xp</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">contrib</span> <span class="o">=</span> <span class="n">xp</span><span class="o">.</span><span class="n">repeat</span><span class="p">((</span><span class="n">lengths</span> <span class="o">*</span> <span class="n">widths</span><span class="p">)</span> <span class="o">/</span> <span class="mf">8.0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xp</span> <span class="ow">is</span> <span class="n">np</span><span class="p">:</span>  <span class="c1"># numpy : accumulation vectorisée ; cupy : boucle d&#39;index (pas d&#39;add.at)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="p">(</span><span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">),</span> <span class="n">contrib</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># pragma: no cover - cupy absent dans l&#39;environnement de dev</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">iy</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">ix</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">contrib</span><span class="o">.</span><span class="n">tolist</span><span class="p">()):</span>
+            <span class="n">grid</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">w</span>
+    <span class="k">return</span> <span class="n">grid</span>
+
+
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<span class="c1">#  API principale</span>
+<span class="c1"># --------------------------------------------------------------------------- #</span>
+<div class="viewcode-block" id="quasi_static_analysis">
+<a class="viewcode-back" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.quasi_static_analysis">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">quasi_static_analysis</span><span class="p">(</span>
+    <span class="n">board</span><span class="p">,</span>
+    <span class="n">eps_r</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">EPS_R_DEFAULT</span><span class="p">,</span>
+    <span class="n">parallel_max_dist_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">min_overlap_mm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">use_native</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EMResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyse quasi-statique complète → EMResult (contrat proto pcb.simulator.v1).</span>
+
+<span class="sd">    1. matrice de couplage capacitif nets↔nets (kernel C++ si présent, sinon numpy) ;</span>
+<span class="sd">    2. diaphonie max par paire de nets : 20·log₁₀(C_c/(C_self+C_c)) ;</span>
+<span class="sd">    3. aires de boucles par net → zones EMI hiérarchisées ;</span>
+<span class="sd">    4. intégrité du plan de masse (découpages + densité de pistes) → rebond de masse.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="n">_cp</span> <span class="k">if</span> <span class="p">(</span><span class="n">HAS_CUPY</span> <span class="ow">and</span> <span class="n">get_settings</span><span class="p">(</span><span class="s2">&quot;simulator&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">enable_cuda</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span>
+
+    <span class="c1"># --- 1. segments par net -------------------------------------------------</span>
+    <span class="n">nets_segments</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">routed_segments</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">is_via</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">net</span><span class="o">.</span><span class="n">routed_segments</span>
+    <span class="p">}</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">nets_segments</span><span class="p">)</span>
+    <span class="n">flat</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">nets_segments</span><span class="p">[</span><span class="n">name</span><span class="p">]]</span>
+    <span class="n">net_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">nets_segments</span><span class="p">[</span><span class="n">name</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">coupling_pairs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">CouplingPair</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">worst_ratio</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">worst_pair</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CouplingPair</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">flat</span><span class="p">:</span>
+        <span class="n">pts</span><span class="p">,</span> <span class="n">widths</span> <span class="o">=</span> <span class="n">_segment_arrays</span><span class="p">(</span><span class="n">flat</span><span class="p">)</span>
+        <span class="n">native_fn</span> <span class="o">=</span> <span class="n">try_load_em_kernel</span><span class="p">(</span><span class="n">use_native</span><span class="p">)</span>
+        <span class="n">matrix_pf</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">native_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">segs_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">pts</span><span class="p">,</span> <span class="n">widths</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">n_nets</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+                <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_nets</span> <span class="o">*</span> <span class="n">n_nets</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">rc</span> <span class="o">=</span> <span class="n">native_fn</span><span class="p">(</span>
+                    <span class="n">segs_c</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">)),</span>
+                    <span class="n">net_ids</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_int</span><span class="p">)),</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">flat</span><span class="p">),</span> <span class="n">n_nets</span><span class="p">,</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">(</span><span class="n">eps_r</span><span class="p">),</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">ctypes</span><span class="o">.</span><span class="n">data_as</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">POINTER</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">)),</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">matrix_pf</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_nets</span><span class="p">,</span> <span class="n">n_nets</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;em_kernel natif en erreur — fallback numpy&quot;</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">)})</span>
+                <span class="n">matrix_pf</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">matrix_pf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
+                    <span class="n">c_pf</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">matrix_pf</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">c_pf</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">coupling_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CouplingPair</span><span class="p">(</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">c_pf</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># --- couplage par paires de segments (numpy, vectorisé par paire de nets) ---</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
+                <span class="n">segs_a</span> <span class="o">=</span> <span class="n">nets_segments</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)):</span>
+                    <span class="n">segs_b</span> <span class="o">=</span> <span class="n">nets_segments</span><span class="p">[</span><span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">]]</span>
+                    <span class="n">c_total</span> <span class="o">=</span> <span class="mf">0.0</span>
+                    <span class="n">d_min</span><span class="p">,</span> <span class="n">ov_max</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="mf">0.0</span>
+                    <span class="k">for</span> <span class="n">sa</span><span class="p">,</span> <span class="n">wa</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">segs_a</span><span class="p">,</span> <span class="n">_segment_arrays</span><span class="p">(</span><span class="n">segs_a</span><span class="p">)[</span><span class="mi">1</span><span class="p">]):</span>
+                        <span class="n">pa</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_segment_arrays</span><span class="p">([</span><span class="n">sa</span><span class="p">])</span>
+                        <span class="k">for</span> <span class="n">sb</span><span class="p">,</span> <span class="n">wb</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">segs_b</span><span class="p">,</span> <span class="n">_segment_arrays</span><span class="p">(</span><span class="n">segs_b</span><span class="p">)[</span><span class="mi">1</span><span class="p">]):</span>
+                            <span class="n">pb</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_segment_arrays</span><span class="p">([</span><span class="n">sb</span><span class="p">])</span>
+                            <span class="n">parallel</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">overlap</span> <span class="o">=</span> <span class="n">_parallel_metrics</span><span class="p">(</span><span class="n">pa</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pb</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                            <span class="k">if</span> <span class="ow">not</span> <span class="n">parallel</span> <span class="ow">or</span> <span class="n">overlap</span> <span class="o">&lt;</span> <span class="n">min_overlap_mm</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="k">if</span> <span class="n">dist</span> <span class="o">&gt;</span> <span class="n">parallel_max_dist_mm</span> <span class="ow">or</span> <span class="n">dist</span> <span class="o">&lt;</span> <span class="mf">1e-6</span><span class="p">:</span>
+                                <span class="k">continue</span>
+                            <span class="n">area_m2</span> <span class="o">=</span> <span class="p">(</span><span class="n">overlap</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="n">wa</span> <span class="o">+</span> <span class="n">wb</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">)</span>
+                            <span class="n">d_m</span> <span class="o">=</span> <span class="n">dist</span> <span class="o">*</span> <span class="mf">1e-3</span>
+                            <span class="n">c_total</span> <span class="o">+=</span> <span class="n">EPS_0</span> <span class="o">*</span> <span class="n">eps_r</span> <span class="o">*</span> <span class="n">area_m2</span> <span class="o">/</span> <span class="n">d_m</span> <span class="o">*</span> <span class="mf">1e12</span>  <span class="c1"># pF</span>
+                            <span class="n">d_min</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">d_min</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
+                            <span class="n">ov_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ov_max</span><span class="p">,</span> <span class="n">overlap</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">c_total</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">coupling_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CouplingPair</span><span class="p">(</span>
+                            <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">names</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="nb">float</span><span class="p">(</span><span class="n">c_total</span><span class="p">),</span>
+                            <span class="n">d_min</span> <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">d_min</span><span class="p">)</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">ov_max</span><span class="p">,</span>
+                        <span class="p">))</span>
+
+        <span class="c1"># --- 2. diaphonie : ratio capacitive vs capacité propre ------------------</span>
+        <span class="n">self_cap_pf</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">segs</span> <span class="o">=</span> <span class="n">nets_segments</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">_segment_arrays</span><span class="p">(</span><span class="n">segs</span><span class="p">)</span>
+            <span class="n">lengths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s</span><span class="o">.</span><span class="n">length_mm</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">segs</span><span class="p">])</span>
+            <span class="c1"># capacité propre au plan : C ≈ ε·L·w / h_diélectrique</span>
+            <span class="n">self_cap_pf</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">EPS_0</span> <span class="o">*</span> <span class="n">eps_r</span> <span class="o">*</span> <span class="p">(</span><span class="n">lengths</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">w</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">DIEL_THICKNESS_MM</span> <span class="o">*</span> <span class="mf">1e-3</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1e12</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">coupling_pairs</span><span class="p">:</span>
+            <span class="n">c_victim</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">self_cap_pf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">net_a</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">self_cap_pf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">net_b</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+            <span class="n">pair_db</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">coupling_pf</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_victim</span> <span class="o">+</span> <span class="n">pair</span><span class="o">.</span><span class="n">coupling_pf</span><span class="p">))</span>
+            <span class="n">ratio</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">coupling_pf</span> <span class="o">/</span> <span class="p">(</span><span class="n">c_victim</span> <span class="o">+</span> <span class="n">pair</span><span class="o">.</span><span class="n">coupling_pf</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">worst_ratio</span><span class="p">:</span>
+                <span class="n">worst_ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+                <span class="n">worst_pair</span> <span class="o">=</span> <span class="n">pair</span>
+
+    <span class="c1"># --- 3. aires de boucles → zones EMI -------------------------------------</span>
+    <span class="n">emi_zones</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">EMIZone</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="n">area</span><span class="p">,</span> <span class="n">bbox</span> <span class="o">=</span> <span class="n">_loop_area_mm2</span><span class="p">(</span><span class="n">nets_segments</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">area</span> <span class="o">&lt;=</span> <span class="n">LOOP_AREA_WARN_MM2</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="s2">&quot;critical&quot;</span> <span class="k">if</span> <span class="n">area</span> <span class="o">&gt;=</span> <span class="n">LOOP_AREA_CRITICAL_MM2</span> <span class="k">else</span> <span class="s2">&quot;warning&quot;</span>
+        <span class="n">emi_zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EMIZone</span><span class="p">(</span>
+            <span class="n">x_min_mm</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_min_mm</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x_max_mm</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">y_max_mm</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+            <span class="n">net</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">loop_area_mm2</span><span class="o">=</span><span class="n">area</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="n">severity</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="c1"># --- 4. intégrité du plan de masse ---------------------------------------</span>
+    <span class="n">board_area</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">width_mm</span> <span class="o">*</span> <span class="n">board</span><span class="o">.</span><span class="n">height_mm</span>
+    <span class="n">void_area</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="s2">&quot;zones&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="k">if</span> <span class="n">zone</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;keepout&quot;</span><span class="p">,</span> <span class="s2">&quot;cutout&quot;</span><span class="p">):</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">x_max_mm</span> <span class="o">-</span> <span class="n">zone</span><span class="o">.</span><span class="n">x_min_mm</span><span class="p">)</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">y_max_mm</span> <span class="o">-</span> <span class="n">zone</span><span class="o">.</span><span class="n">y_min_mm</span><span class="p">)</span>
+            <span class="n">void_area</span> <span class="o">+=</span> <span class="n">w</span> <span class="o">*</span> <span class="n">h</span>
+    <span class="n">void_ratio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">void_area</span> <span class="o">/</span> <span class="n">board_area</span><span class="p">)</span> <span class="k">if</span> <span class="n">board_area</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="c1"># densité de pistes sur la couche GND (découpage effectif additionnel)</span>
+    <span class="n">ground_segments</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">s</span> <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">net</span><span class="o">.</span><span class="n">routed_segments</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">is_via</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">layer</span> <span class="o">==</span> <span class="n">GROUND_PLANE_LAYER</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">ground_segments</span> <span class="ow">and</span> <span class="n">board_area</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">_occupancy_grid</span><span class="p">(</span><span class="n">ground_segments</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">width_mm</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">board</span><span class="o">.</span><span class="n">height_mm</span><span class="p">),</span> <span class="n">xp</span><span class="p">)</span>
+        <span class="n">density</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span> <span class="k">if</span> <span class="n">xp</span> <span class="ow">is</span> <span class="n">np</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">grid</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="n">void_ratio</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">void_ratio</span> <span class="o">+</span> <span class="n">density</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="n">activity</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">DI_DT_PROXY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">net</span><span class="o">.</span><span class="n">net_class</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">DI_DT_PROXY</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">board</span><span class="o">.</span><span class="n">nets</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">net</span><span class="o">.</span><span class="n">is_routed</span>
+    <span class="p">)</span>
+    <span class="c1"># heuristique calibrée : rebond = 40 mV × découpage × (1 + Σ proxies di/dt)</span>
+    <span class="n">ground_bounce_mv</span> <span class="o">=</span> <span class="mf">40.0</span> <span class="o">*</span> <span class="n">void_ratio</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">activity</span><span class="p">)</span>
+
+    <span class="n">crosstalk_db</span> <span class="o">=</span> <span class="n">NO_COUPLING_DB</span>
+    <span class="k">if</span> <span class="n">worst_ratio</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">crosstalk_db</span> <span class="o">=</span> <span class="mf">20.0</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">worst_ratio</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">EMResult</span><span class="p">(</span>
+        <span class="n">crosstalk_max_db</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">crosstalk_db</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">ground_bounce_mv</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">ground_bounce_mv</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="n">emi_zones</span><span class="o">=</span><span class="n">emi_zones</span><span class="p">,</span>
+        <span class="n">coupling_pairs</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">coupling_pairs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">coupling_pf</span><span class="p">),</span>
+        <span class="n">ground_void_ratio</span><span class="o">=</span><span class="n">void_ratio</span><span class="p">,</span>
+        <span class="n">worst_pair</span><span class="o">=</span><span class="n">worst_pair</span><span class="p">,</span>
+        <span class="n">elapsed_s</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="n">backend</span><span class="o">=</span><span class="s2">&quot;cupy&quot;</span> <span class="k">if</span> <span class="n">xp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">np</span> <span class="k">else</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Droits d'auteur 2026, Équipe pcb_ai_designer.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

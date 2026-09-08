@@ -19,7 +19,8 @@ passlib[bcrypt]>=1.7
 scikit-learn>=1.4          # embeddings RAG fallback
 pyyaml>=6.0
 
-# RL — cerveau IA (optionnel en dev ; requis pour l'entraînement)
+# RL — cerveau IA (optionnel en runtime ; requis pour la passe d'entraînement)
+# pip install .[rl]   ou :  pip install torch --index-url https://download.pytorch.org/whl/cpu
 # torch>=2.3
 # gymnasium>=0.29
 

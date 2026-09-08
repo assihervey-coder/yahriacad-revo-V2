@@ -1,0 +1,493 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture &mdash; pcb_ai_designer_v2 — référence d&#39;implémentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=351e6318"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/translations.js?v=e6b791cb"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="LLM local (Ollama) branché dans le RAG" href="ollama_rag.html" />
+    <link rel="prev" title="pcb_ai_designer_v2 — référence d’implémentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #0D1117" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pcb_ai_designer_v2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#le-cerveau-ia">Le cerveau IA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-8-etapes">Workflow 8 étapes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#fonctionnement">Fonctionnement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rl_training.html">Passe RL d’entraînement (torch)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rl_training.html#environnement-de-placement">Environnement de placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage — cibles make et services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#demarrage-rapide">Démarrage rapide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#pile-docker-compose">Pile docker compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#entrainement-rl">Entraînement RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#lint-et-proprete">Lint et propreté</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Référence API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/common.html">Socle commun (<code class="docutils literal notranslate"><span class="pre">common</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.design_model">Modèle de design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Side"><code class="docutils literal notranslate"><span class="pre">Side</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Pad"><code class="docutils literal notranslate"><span class="pre">Pad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Component"><code class="docutils literal notranslate"><span class="pre">Component</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Placement"><code class="docutils literal notranslate"><span class="pre">Placement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Net"><code class="docutils literal notranslate"><span class="pre">Net</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Zone"><code class="docutils literal notranslate"><span class="pre">Zone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.design_model.DesignState"><code class="docutils literal notranslate"><span class="pre">DesignState</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.config">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.config.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.events">Événements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.events.EventType"><code class="docutils literal notranslate"><span class="pre">EventType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.events.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.events.make_event"><code class="docutils literal notranslate"><span class="pre">make_event()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.bus">Bus de contraintes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.ConstraintKind"><code class="docutils literal notranslate"><span class="pre">ConstraintKind</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.ConstraintMessage"><code class="docutils literal notranslate"><span class="pre">ConstraintMessage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.ConstraintBus"><code class="docutils literal notranslate"><span class="pre">ConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.InMemoryConstraintBus"><code class="docutils literal notranslate"><span class="pre">InMemoryConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.RedisConstraintBus"><code class="docutils literal notranslate"><span class="pre">RedisConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.bus.create_bus"><code class="docutils literal notranslate"><span class="pre">create_bus()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.credits">Crédits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.credits.Pricing"><code class="docutils literal notranslate"><span class="pre">Pricing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.credits.estimate_night_cost"><code class="docutils literal notranslate"><span class="pre">estimate_night_cost()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.credits.CreditTransaction"><code class="docutils literal notranslate"><span class="pre">CreditTransaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.credits.CreditLedger"><code class="docutils literal notranslate"><span class="pre">CreditLedger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.credits.InsufficientCredits"><code class="docutils literal notranslate"><span class="pre">InsufficientCredits</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.grpc_helpers">Helpers gRPC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.grpc_helpers.proto_available"><code class="docutils literal notranslate"><span class="pre">proto_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.grpc_helpers.serve_grpc"><code class="docutils literal notranslate"><span class="pre">serve_grpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.grpc_helpers.channel_for"><code class="docutils literal notranslate"><span class="pre">channel_for()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/common.html#module-common.log">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.log.JsonFormatter"><code class="docutils literal notranslate"><span class="pre">JsonFormatter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.log.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/common.html#common.log.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/ai_engine.html">Cerveau IA (<code class="docutils literal notranslate"><span class="pre">ai_engine</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.shared_mental_model.intent_graph.graph">Modèle mental partagé</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentNode"><code class="docutils literal notranslate"><span class="pre">IntentNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentEdge"><code class="docutils literal notranslate"><span class="pre">IntentEdge</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentGraph"><code class="docutils literal notranslate"><span class="pre">IntentGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.shared_mental_model.constraint_bus.service.ProjectConstraintBus"><code class="docutils literal notranslate"><span class="pre">ProjectConstraintBus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.rag_engine.chunker">RAG datasheets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.Document"><code class="docutils literal notranslate"><span class="pre">Document</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.chunk_datasheet"><code class="docutils literal notranslate"><span class="pre">chunk_datasheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.indexer.TfidfIndex"><code class="docutils literal notranslate"><span class="pre">TfidfIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.retriever.RagRetriever"><code class="docutils literal notranslate"><span class="pre">RagRetriever</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client.OllamaClient"><code class="docutils literal notranslate"><span class="pre">OllamaClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client">Graphe de connaissances &amp; prompts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client.Neo4jClient"><code class="docutils literal notranslate"><span class="pre">Neo4jClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternRule"><code class="docutils literal notranslate"><span class="pre">PatternRule</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.SkidlSummary"><code class="docutils literal notranslate"><span class="pre">SkidlSummary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.parse_skidl"><code class="docutils literal notranslate"><span class="pre">parse_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternValidator"><code class="docutils literal notranslate"><span class="pre">PatternValidator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptStats"><code class="docutils literal notranslate"><span class="pre">PromptStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptTemplate"><code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptOptimizer"><code class="docutils literal notranslate"><span class="pre">PromptOptimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.self_verifier.deterministic_checker.checker">Auto-vérification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DesignRules"><code class="docutils literal notranslate"><span class="pre">DesignRules</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.Verdict"><code class="docutils literal notranslate"><span class="pre">Verdict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DeterministicChecker"><code class="docutils literal notranslate"><span class="pre">DeterministicChecker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.self_verifier.rollback_manager.rollback.RollbackManager"><code class="docutils literal notranslate"><span class="pre">RollbackManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer">Optimiseur autonome</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.Proposal"><code class="docutils literal notranslate"><span class="pre">Proposal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.apply_proposal"><code class="docutils literal notranslate"><span class="pre">apply_proposal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.hpwl_mm"><code class="docutils literal notranslate"><span class="pre">hpwl_mm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.HeuristicProposer"><code class="docutils literal notranslate"><span class="pre">HeuristicProposer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.fast_evaluator.freerouting_bridge.FastEvaluator"><code class="docutils literal notranslate"><span class="pre">FastEvaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.IterationReport"><code class="docutils literal notranslate"><span class="pre">IterationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.KeeperLogic"><code class="docutils literal notranslate"><span class="pre">KeeperLogic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.main">Point d’entrée du service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.main.AiEngine"><code class="docutils literal notranslate"><span class="pre">AiEngine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.main.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.main.self_test"><code class="docutils literal notranslate"><span class="pre">self_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/ai_engine.html#backend.services.ai_engine.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/rl_agent.html">Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/rl_agent.html#module-backend.services.ai_engine.rl_agent.action_space.space">Espace d’action</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace"><code class="docutils literal notranslate"><span class="pre">ActionSpace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/rl_agent.html#module-backend.services.ai_engine.rl_agent.world_model.dreamer">World model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet"><code class="docutils literal notranslate"><span class="pre">TinyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel"><code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/rl_agent.html#module-backend.services.ai_engine.rl_agent.policy_network.policy">Policy ε-greedy (runtime)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.Experience"><code class="docutils literal notranslate"><span class="pre">Experience</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy"><code class="docutils literal notranslate"><span class="pre">EpsilonGreedyPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/rl_agent.html#module-backend.services.ai_engine.rl_agent.training.env">Passe d’entraînement (torch)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.env.PlacementEnv"><code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.collect_dataset"><code class="docutils literal notranslate"><span class="pre">collect_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.summarize_archive"><code class="docutils literal notranslate"><span class="pre">summarize_archive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel"><code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model"><code class="docutils literal notranslate"><span class="pre">train_supervised_world_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet"><code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig"><code class="docutils literal notranslate"><span class="pre">ReinforceConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer"><code class="docutils literal notranslate"><span class="pre">ReinforceTrainer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/orchestrator.html">Orchestrator multi-agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/orchestrator.html#module-backend.orchestrator.main">Point d’entrée</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.main.SkipStep"><code class="docutils literal notranslate"><span class="pre">SkipStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.main.StepStatus"><code class="docutils literal notranslate"><span class="pre">StepStatus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.main.PipelineEvent"><code class="docutils literal notranslate"><span class="pre">PipelineEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.main.Orchestrator"><code class="docutils literal notranslate"><span class="pre">Orchestrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.adapters.AdapterResult"><code class="docutils literal notranslate"><span class="pre">AdapterResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.adapters.call_adapter"><code class="docutils literal notranslate"><span class="pre">call_adapter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/orchestrator.html#module-backend.orchestrator.super_agent.super_agent">Super-agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.super_agent.MentalModelEntry"><code class="docutils literal notranslate"><span class="pre">MentalModelEntry</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.super_agent.SuperAgent"><code class="docutils literal notranslate"><span class="pre">SuperAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.plan.PlanStep"><code class="docutils literal notranslate"><span class="pre">PlanStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.plan.ExecutionPlan"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.plan.default_plan"><code class="docutils literal notranslate"><span class="pre">default_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Priority"><code class="docutils literal notranslate"><span class="pre">Priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Allocation"><code class="docutils literal notranslate"><span class="pre">Allocation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.QueuedTask"><code class="docutils literal notranslate"><span class="pre">QueuedTask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.ResourceAllocator"><code class="docutils literal notranslate"><span class="pre">ResourceAllocator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictResolution"><code class="docutils literal notranslate"><span class="pre">ConflictResolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictArbiter"><code class="docutils literal notranslate"><span class="pre">ConflictArbiter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/orchestrator.html#module-backend.orchestrator.agent_pipeline.base_agent">Pipeline d’agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentResult"><code class="docutils literal notranslate"><span class="pre">AgentResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.BaseAgent"><code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlanDocument"><code class="docutils literal notranslate"><span class="pre">PlanDocument</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlannerAgent"><code class="docutils literal notranslate"><span class="pre">PlannerAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.researcher_agent.agent.ResearchAgent"><code class="docutils literal notranslate"><span class="pre">ResearchAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.selector_agent.agent.SelectorAgent"><code class="docutils literal notranslate"><span class="pre">SelectorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.code_generator.agent.CodeGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">CodeGeneratorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue"><code class="docutils literal notranslate"><span class="pre">ValidationIssue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport"><code class="docutils literal notranslate"><span class="pre">ValidationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent"><code class="docutils literal notranslate"><span class="pre">ValidatorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.agent_pipeline.corrector_agent.agent.CorrectorAgent"><code class="docutils literal notranslate"><span class="pre">CorrectorAgent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/orchestrator.html#module-backend.orchestrator.state_manager.manager">Gestion d’état</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.manager.StateManager"><code class="docutils literal notranslate"><span class="pre">StateManager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.manager.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.manager.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.manager.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.journal.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.deltas.compute_board_delta"><code class="docutils literal notranslate"><span class="pre">compute_board_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_from_delta"><code class="docutils literal notranslate"><span class="pre">events_from_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_since"><code class="docutils literal notranslate"><span class="pre">events_since()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.locks.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLock"><code class="docutils literal notranslate"><span class="pre">ZoneLock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLockManager"><code class="docutils literal notranslate"><span class="pre">ZoneLockManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/services.html">Services gRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.parser.nl_to_skidl.nl_to_skidl">Parser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.SkidlScript"><code class="docutils literal notranslate"><span class="pre">SkidlScript</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.detect_blocks"><code class="docutils literal notranslate"><span class="pre">detect_blocks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.llm_refine"><code class="docutils literal notranslate"><span class="pre">llm_refine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.natural_language_to_skidl"><code class="docutils literal notranslate"><span class="pre">natural_language_to_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.constraint_extractor.extractor.extract_constraints"><code class="docutils literal notranslate"><span class="pre">extract_constraints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.constraint_extractor.extractor.publish"><code class="docutils literal notranslate"><span class="pre">publish()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.SymbolInstance"><code class="docutils literal notranslate"><span class="pre">SymbolInstance</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.KiCadSchematic"><code class="docutils literal notranslate"><span class="pre">KiCadSchematic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.parse_kicad_sch"><code class="docutils literal notranslate"><span class="pre">parse_kicad_sch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.simulator.thermal_sim.diffusion">Simulateur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.Hotspot"><code class="docutils literal notranslate"><span class="pre">Hotspot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.ThermalResult"><code class="docutils literal notranslate"><span class="pre">ThermalResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.CudaThermalKernel"><code class="docutils literal notranslate"><span class="pre">CudaThermalKernel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.try_load_cuda_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_cuda_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.steady_state"><code class="docutils literal notranslate"><span class="pre">steady_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.thermal_sim.diffusion.transient"><code class="docutils literal notranslate"><span class="pre">transient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair"><code class="docutils literal notranslate"><span class="pre">CouplingPair</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.em_sim.quasi_static.EMIZone"><code class="docutils literal notranslate"><span class="pre">EMIZone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.em_sim.quasi_static.EMResult"><code class="docutils literal notranslate"><span class="pre">EMResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.em_sim.quasi_static.try_load_em_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_em_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.em_sim.quasi_static.quasi_static_analysis"><code class="docutils literal notranslate"><span class="pre">quasi_static_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.ir_drop.IRDropResult"><code class="docutils literal notranslate"><span class="pre">IRDropResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.ir_drop.analyze_ir_drop"><code class="docutils literal notranslate"><span class="pre">analyze_ir_drop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.eye_diagram.NetMargin"><code class="docutils literal notranslate"><span class="pre">NetMargin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.eye_diagram.SIResult"><code class="docutils literal notranslate"><span class="pre">SIResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze_net"><code class="docutils literal notranslate"><span class="pre">analyze_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze"><code class="docutils literal notranslate"><span class="pre">analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.multi_physics_loop.loop.Finding"><code class="docutils literal notranslate"><span class="pre">Finding</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.simulator.multi_physics_loop.loop.MultiPhysicsLoop"><code class="docutils literal notranslate"><span class="pre">MultiPhysicsLoop</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.router.topological.connectivity_graph">Routeur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.topological.connectivity_graph.PadNode"><code class="docutils literal notranslate"><span class="pre">PadNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.topological.connectivity_graph.ConnectivityGraph"><code class="docutils literal notranslate"><span class="pre">ConnectivityGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.topological.pathfinder.RouteResult"><code class="docutils literal notranslate"><span class="pre">RouteResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.topological.pathfinder.Pathfinder"><code class="docutils literal notranslate"><span class="pre">Pathfinder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.via_minimizer.minimizer.MinimizerStats"><code class="docutils literal notranslate"><span class="pre">MinimizerStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.router.via_minimizer.minimizer.ViaMinimizer"><code class="docutils literal notranslate"><span class="pre">ViaMinimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.drc_dfm_engine.design_rules.checker">DRC / DFM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.design_rules.checker.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.design_rules.checker.DrcReport"><code class="docutils literal notranslate"><span class="pre">DrcReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.design_rules.checker.check_design_rules"><code class="docutils literal notranslate"><span class="pre">check_design_rules()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.FactoryProfile"><code class="docutils literal notranslate"><span class="pre">FactoryProfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.available_profiles"><code class="docutils literal notranslate"><span class="pre">available_profiles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.check_factory"><code class="docutils literal notranslate"><span class="pre">check_factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.run_erc"><code class="docutils literal notranslate"><span class="pre">run_erc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.erc_summary"><code class="docutils literal notranslate"><span class="pre">erc_summary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.exporter.gerber.rs274x">Exporter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.gerber.rs274x.render_copper_layer"><code class="docutils literal notranslate"><span class="pre">render_copper_layer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.gerber.rs274x.render_edge_cuts"><code class="docutils literal notranslate"><span class="pre">render_edge_cuts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.gerber.rs274x.layer_filename"><code class="docutils literal notranslate"><span class="pre">layer_filename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.gerber.rs274x.export_gerbers"><code class="docutils literal notranslate"><span class="pre">export_gerbers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.gerber.excellon.export_drill"><code class="docutils literal notranslate"><span class="pre">export_drill()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.odb.odb_writer.OdbStructure"><code class="docutils literal notranslate"><span class="pre">OdbStructure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.odb.odb_writer.export_odb"><code class="docutils literal notranslate"><span class="pre">export_odb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.exporter.bom_pickplace.bom_writer.export_bom"><code class="docutils literal notranslate"><span class="pre">export_bom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.services.firmware_bridge.pin_exporter.exporter">Firmware bridge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.PinAssignment"><code class="docutils literal notranslate"><span class="pre">PinAssignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.export_pins"><code class="docutils literal notranslate"><span class="pre">export_pins()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.firmware_bridge.header_generator.generators.GeneratedHeader"><code class="docutils literal notranslate"><span class="pre">GeneratedHeader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.services.firmware_bridge.header_generator.generators.generate_headers"><code class="docutils literal notranslate"><span class="pre">generate_headers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/services.html#module-backend.api_gateway.main">Passerelle API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.auth.AuthError"><code class="docutils literal notranslate"><span class="pre">AuthError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.auth.Claims"><code class="docutils literal notranslate"><span class="pre">Claims</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.auth.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.auth.AuthService"><code class="docutils literal notranslate"><span class="pre">AuthService</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.rate_limit.QuotaDecision"><code class="docutils literal notranslate"><span class="pre">QuotaDecision</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.rate_limit.RateLimitExceeded"><code class="docutils literal notranslate"><span class="pre">RateLimitExceeded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/services.html#backend.api_gateway.middleware.rate_limit.RateLimiter"><code class="docutils literal notranslate"><span class="pre">RateLimiter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #0D1117" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pcb_ai_designer_v2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Lien vers cette rubrique"></a></h1>
+<p>Le dépôt est organisé en cinq couches racine dont la séparation reflète les
+frontières de déploiement :</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 44.0%" />
+<col style="width: 38.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Couche</p></th>
+<th class="head"><p>Rôle</p></th>
+<th class="head"><p>Contenu clé</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">frontend/</span></code></p></td>
+<td><p>Interface React / Three.js (WebGL 60 fps), chat, éditeur chirurgical</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">chat_interface</span></code>, <code class="docutils literal notranslate"><span class="pre">viewer_3d</span></code>, <code class="docutils literal notranslate"><span class="pre">surgical_editor</span></code>, <code class="docutils literal notranslate"><span class="pre">pipeline_bar</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">backend/</span></code></p></td>
+<td><p>api_gateway (FastAPI/GraphQL/MCP), orchestrator multi-agents, 7 services gRPC</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ai_engine</span></code>, <code class="docutils literal notranslate"><span class="pre">parser</span></code>, <code class="docutils literal notranslate"><span class="pre">simulator</span></code>, <code class="docutils literal notranslate"><span class="pre">router</span></code>, <code class="docutils literal notranslate"><span class="pre">drc_dfm_engine</span></code>,
+<code class="docutils literal notranslate"><span class="pre">exporter</span></code>, <code class="docutils literal notranslate"><span class="pre">firmware_bridge</span></code>, <code class="docutils literal notranslate"><span class="pre">pcb_plugin</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">common/</span></code></p></td>
+<td><p>Socle partagé : modèle de design, événements typés, bus de contraintes</p></td>
+<td><p><a class="reference internal" href="api/common.html#module-common.design_model" title="common.design_model"><code class="xref py py-mod docutils literal notranslate"><span class="pre">common.design_model</span></code></a>, <a class="reference internal" href="api/common.html#module-common.events" title="common.events"><code class="xref py py-mod docutils literal notranslate"><span class="pre">common.events</span></code></a>, <a class="reference internal" href="api/common.html#module-common.bus" title="common.bus"><code class="xref py py-mod docutils literal notranslate"><span class="pre">common.bus</span></code></a>,
+<a class="reference internal" href="api/common.html#module-common.credits" title="common.credits"><code class="xref py py-mod docutils literal notranslate"><span class="pre">common.credits</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data/</span></code></p></td>
+<td><p>Projets S3, bibliothèque de composants, feedback usine, modèles entraînés</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">trained_models/rl_checkpoints/</span></code>, <code class="docutils literal notranslate"><span class="pre">vector_store/</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">proto/</span></code></p></td>
+<td><p>Contrats gRPC versionnés v1 — source de vérité des interfaces</p></td>
+<td><p>9 fichiers <code class="docutils literal notranslate"><span class="pre">.proto</span></code> (orchestrator, ai_engine, simulator, router…)</p></td>
+</tr>
+</tbody>
+</table>
+<section id="le-cerveau-ia">
+<h2>Le cerveau IA<a class="headerlink" href="#le-cerveau-ia" title="Lien vers cette rubrique"></a></h2>
+<p><code class="xref py py-mod docutils literal notranslate"><span class="pre">backend.services.ai_engine</span></code> agrège cinq sous-systèmes communicant par le
+<strong>bus de contraintes</strong> (latence cible &lt; 50 ms) :</p>
+<ol class="arabic simple">
+<li><p><strong>shared_mental_model</strong> — <a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.shared_mental_model.intent_graph.graph" title="backend.services.ai_engine.shared_mental_model.intent_graph.graph"><code class="xref py py-mod docutils literal notranslate"><span class="pre">graph</span></code></a>
+(graphe d’intention versionné) et
+<a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.shared_mental_model.constraint_bus.service" title="backend.services.ai_engine.shared_mental_model.constraint_bus.service"><code class="xref py py-mod docutils literal notranslate"><span class="pre">service</span></code></a>
+(diffusion zones/impédances/longueurs).</p></li>
+<li><p><strong>llm_orchestrator</strong> — RAG datasheets (<code class="docutils literal notranslate"><span class="pre">chunker</span></code> → <code class="docutils literal notranslate"><span class="pre">indexer</span></code> → <code class="docutils literal notranslate"><span class="pre">retriever</span></code>
++ <a class="reference internal" href="api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client" title="backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ollama_client</span></code></a>
+pour le LLM local), graphe de connaissances Neo4j, validateur de motifs SKiDL,
+optimiseur de prompts.</p></li>
+<li><p><strong>rl_agent</strong> — espace d’action, world model « DreamerV3-like »,
+policy ε-greedy, et la <strong>passe d’entraînement torch</strong> (voir <a class="reference internal" href="rl_training.html"><span class="doc">Passe RL d’entraînement (torch)</span></a>).</p></li>
+<li><p><strong>self_verifier</strong> — vérificateur déterministe (géométrie, électrique,
+routabilité A*) et gestionnaire de rollback.</p></li>
+<li><p><strong>autonomous_optimizer</strong> — proposer d’heuristiques entrelacées, évaluateur
+rapide (bridge freerouting), règle du ratchet (keeper).</p></li>
+</ol>
+</section>
+<section id="workflow-8-etapes">
+<h2>Workflow 8 étapes<a class="headerlink" href="#workflow-8-etapes" title="Lien vers cette rubrique"></a></h2>
+<p>La chaîne déterministe parser → planner → placement/routage → DRC → export est
+orchestrée par <code class="xref py py-mod docutils literal notranslate"><span class="pre">backend.orchestrator</span></code> : chaque étape est portée par un
+agent dédié (<code class="docutils literal notranslate"><span class="pre">agent_pipeline/</span></code>), supervisée par le super-agent
+(<code class="docutils literal notranslate"><span class="pre">super_agent/</span></code> : allocation de ressources + arbitrage de conflits) et
+journalisée par le <a class="reference internal" href="api/orchestrator.html#module-backend.orchestrator.state_manager.manager" title="backend.orchestrator.state_manager.manager"><code class="xref py py-mod docutils literal notranslate"><span class="pre">manager</span></code></a> (deltas,
+verrous, rollback).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="index.html" class="btn btn-neutral float-left" title="pcb_ai_designer_v2 — référence d’implémentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="ollama_rag.html" class="btn btn-neutral float-right" title="LLM local (Ollama) branché dans le RAG" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Droits d'auteur 2026, Équipe pcb_ai_designer.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

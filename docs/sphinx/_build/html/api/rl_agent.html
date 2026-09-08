@@ -1,0 +1,1011 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent RL (rl_agent) &mdash; pcb_ai_designer_v2 — référence d&#39;implémentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=351e6318"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/translations.js?v=e6b791cb"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Orchestrator multi-agents" href="orchestrator.html" />
+    <link rel="prev" title="Cerveau IA (ai_engine)" href="ai_engine.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #0D1117" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pcb_ai_designer_v2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#le-cerveau-ia">Le cerveau IA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture.html#workflow-8-etapes">Workflow 8 étapes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage — cibles make et services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../usage.html#demarrage-rapide">Démarrage rapide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage.html#pile-docker-compose">Pile docker compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage.html#entrainement-rl">Entraînement RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../usage.html#lint-et-proprete">Lint et propreté</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Référence API</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="common.html">Socle commun (<code class="docutils literal notranslate"><span class="pre">common</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.design_model">Modèle de design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Side"><code class="docutils literal notranslate"><span class="pre">Side</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Pad"><code class="docutils literal notranslate"><span class="pre">Pad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Component"><code class="docutils literal notranslate"><span class="pre">Component</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Placement"><code class="docutils literal notranslate"><span class="pre">Placement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Net"><code class="docutils literal notranslate"><span class="pre">Net</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Zone"><code class="docutils literal notranslate"><span class="pre">Zone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.design_model.DesignState"><code class="docutils literal notranslate"><span class="pre">DesignState</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.config">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.config.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.events">Événements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.events.EventType"><code class="docutils literal notranslate"><span class="pre">EventType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.events.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.events.make_event"><code class="docutils literal notranslate"><span class="pre">make_event()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.bus">Bus de contraintes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.ConstraintKind"><code class="docutils literal notranslate"><span class="pre">ConstraintKind</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.ConstraintMessage"><code class="docutils literal notranslate"><span class="pre">ConstraintMessage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.ConstraintBus"><code class="docutils literal notranslate"><span class="pre">ConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.InMemoryConstraintBus"><code class="docutils literal notranslate"><span class="pre">InMemoryConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.RedisConstraintBus"><code class="docutils literal notranslate"><span class="pre">RedisConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.bus.create_bus"><code class="docutils literal notranslate"><span class="pre">create_bus()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.credits">Crédits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.credits.Pricing"><code class="docutils literal notranslate"><span class="pre">Pricing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.credits.estimate_night_cost"><code class="docutils literal notranslate"><span class="pre">estimate_night_cost()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.credits.CreditTransaction"><code class="docutils literal notranslate"><span class="pre">CreditTransaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.credits.CreditLedger"><code class="docutils literal notranslate"><span class="pre">CreditLedger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.credits.InsufficientCredits"><code class="docutils literal notranslate"><span class="pre">InsufficientCredits</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.grpc_helpers">Helpers gRPC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.grpc_helpers.proto_available"><code class="docutils literal notranslate"><span class="pre">proto_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.grpc_helpers.serve_grpc"><code class="docutils literal notranslate"><span class="pre">serve_grpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.grpc_helpers.channel_for"><code class="docutils literal notranslate"><span class="pre">channel_for()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="common.html#module-common.log">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.log.JsonFormatter"><code class="docutils literal notranslate"><span class="pre">JsonFormatter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.log.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="common.html#common.log.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ai_engine.html">Cerveau IA (<code class="docutils literal notranslate"><span class="pre">ai_engine</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.shared_mental_model.intent_graph.graph">Modèle mental partagé</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentNode"><code class="docutils literal notranslate"><span class="pre">IntentNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentEdge"><code class="docutils literal notranslate"><span class="pre">IntentEdge</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentGraph"><code class="docutils literal notranslate"><span class="pre">IntentGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.shared_mental_model.constraint_bus.service.ProjectConstraintBus"><code class="docutils literal notranslate"><span class="pre">ProjectConstraintBus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.rag_engine.chunker">RAG datasheets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.Document"><code class="docutils literal notranslate"><span class="pre">Document</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.chunk_datasheet"><code class="docutils literal notranslate"><span class="pre">chunk_datasheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.indexer.TfidfIndex"><code class="docutils literal notranslate"><span class="pre">TfidfIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.retriever.RagRetriever"><code class="docutils literal notranslate"><span class="pre">RagRetriever</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client.OllamaClient"><code class="docutils literal notranslate"><span class="pre">OllamaClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client">Graphe de connaissances &amp; prompts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client.Neo4jClient"><code class="docutils literal notranslate"><span class="pre">Neo4jClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternRule"><code class="docutils literal notranslate"><span class="pre">PatternRule</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.SkidlSummary"><code class="docutils literal notranslate"><span class="pre">SkidlSummary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.parse_skidl"><code class="docutils literal notranslate"><span class="pre">parse_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternValidator"><code class="docutils literal notranslate"><span class="pre">PatternValidator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptStats"><code class="docutils literal notranslate"><span class="pre">PromptStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptTemplate"><code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptOptimizer"><code class="docutils literal notranslate"><span class="pre">PromptOptimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.self_verifier.deterministic_checker.checker">Auto-vérification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DesignRules"><code class="docutils literal notranslate"><span class="pre">DesignRules</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.Verdict"><code class="docutils literal notranslate"><span class="pre">Verdict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DeterministicChecker"><code class="docutils literal notranslate"><span class="pre">DeterministicChecker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.self_verifier.rollback_manager.rollback.RollbackManager"><code class="docutils literal notranslate"><span class="pre">RollbackManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer">Optimiseur autonome</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.Proposal"><code class="docutils literal notranslate"><span class="pre">Proposal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.apply_proposal"><code class="docutils literal notranslate"><span class="pre">apply_proposal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.hpwl_mm"><code class="docutils literal notranslate"><span class="pre">hpwl_mm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.HeuristicProposer"><code class="docutils literal notranslate"><span class="pre">HeuristicProposer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.fast_evaluator.freerouting_bridge.FastEvaluator"><code class="docutils literal notranslate"><span class="pre">FastEvaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.IterationReport"><code class="docutils literal notranslate"><span class="pre">IterationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.KeeperLogic"><code class="docutils literal notranslate"><span class="pre">KeeperLogic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai_engine.html#module-backend.services.ai_engine.main">Point d’entrée du service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.main.AiEngine"><code class="docutils literal notranslate"><span class="pre">AiEngine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.main.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.main.self_test"><code class="docutils literal notranslate"><span class="pre">self_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai_engine.html#backend.services.ai_engine.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-backend.services.ai_engine.rl_agent.action_space.space">Espace d’action</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace"><code class="docutils literal notranslate"><span class="pre">ActionSpace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-backend.services.ai_engine.rl_agent.world_model.dreamer">World model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet"><code class="docutils literal notranslate"><span class="pre">TinyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel"><code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-backend.services.ai_engine.rl_agent.policy_network.policy">Policy ε-greedy (runtime)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience"><code class="docutils literal notranslate"><span class="pre">Experience</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy"><code class="docutils literal notranslate"><span class="pre">EpsilonGreedyPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-backend.services.ai_engine.rl_agent.training.env">Passe d’entraînement (torch)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv"><code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.dataset.collect_dataset"><code class="docutils literal notranslate"><span class="pre">collect_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.dataset.summarize_archive"><code class="docutils literal notranslate"><span class="pre">summarize_archive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.torch_modules.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel"><code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model"><code class="docutils literal notranslate"><span class="pre">train_supervised_world_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet"><code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.reinforce.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig"><code class="docutils literal notranslate"><span class="pre">ReinforceConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer"><code class="docutils literal notranslate"><span class="pre">ReinforceTrainer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.train.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="orchestrator.html">Orchestrator multi-agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="orchestrator.html#module-backend.orchestrator.main">Point d’entrée</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.main.SkipStep"><code class="docutils literal notranslate"><span class="pre">SkipStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.main.StepStatus"><code class="docutils literal notranslate"><span class="pre">StepStatus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.main.PipelineEvent"><code class="docutils literal notranslate"><span class="pre">PipelineEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.main.Orchestrator"><code class="docutils literal notranslate"><span class="pre">Orchestrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.adapters.AdapterResult"><code class="docutils literal notranslate"><span class="pre">AdapterResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.adapters.call_adapter"><code class="docutils literal notranslate"><span class="pre">call_adapter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="orchestrator.html#module-backend.orchestrator.super_agent.super_agent">Super-agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.super_agent.MentalModelEntry"><code class="docutils literal notranslate"><span class="pre">MentalModelEntry</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.super_agent.SuperAgent"><code class="docutils literal notranslate"><span class="pre">SuperAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.plan.PlanStep"><code class="docutils literal notranslate"><span class="pre">PlanStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.plan.ExecutionPlan"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.plan.default_plan"><code class="docutils literal notranslate"><span class="pre">default_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Priority"><code class="docutils literal notranslate"><span class="pre">Priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Allocation"><code class="docutils literal notranslate"><span class="pre">Allocation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.resource_allocator.QueuedTask"><code class="docutils literal notranslate"><span class="pre">QueuedTask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.resource_allocator.ResourceAllocator"><code class="docutils literal notranslate"><span class="pre">ResourceAllocator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictResolution"><code class="docutils literal notranslate"><span class="pre">ConflictResolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictArbiter"><code class="docutils literal notranslate"><span class="pre">ConflictArbiter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="orchestrator.html#module-backend.orchestrator.agent_pipeline.base_agent">Pipeline d’agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentResult"><code class="docutils literal notranslate"><span class="pre">AgentResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.BaseAgent"><code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlanDocument"><code class="docutils literal notranslate"><span class="pre">PlanDocument</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlannerAgent"><code class="docutils literal notranslate"><span class="pre">PlannerAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.researcher_agent.agent.ResearchAgent"><code class="docutils literal notranslate"><span class="pre">ResearchAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.selector_agent.agent.SelectorAgent"><code class="docutils literal notranslate"><span class="pre">SelectorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.code_generator.agent.CodeGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">CodeGeneratorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue"><code class="docutils literal notranslate"><span class="pre">ValidationIssue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport"><code class="docutils literal notranslate"><span class="pre">ValidationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent"><code class="docutils literal notranslate"><span class="pre">ValidatorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.agent_pipeline.corrector_agent.agent.CorrectorAgent"><code class="docutils literal notranslate"><span class="pre">CorrectorAgent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="orchestrator.html#module-backend.orchestrator.state_manager.manager">Gestion d’état</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.manager.StateManager"><code class="docutils literal notranslate"><span class="pre">StateManager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.manager.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.manager.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.manager.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.journal.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.deltas.compute_board_delta"><code class="docutils literal notranslate"><span class="pre">compute_board_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.deltas.events_from_delta"><code class="docutils literal notranslate"><span class="pre">events_from_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.deltas.events_since"><code class="docutils literal notranslate"><span class="pre">events_since()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.locks.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLock"><code class="docutils literal notranslate"><span class="pre">ZoneLock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.locks.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLockManager"><code class="docutils literal notranslate"><span class="pre">ZoneLockManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="services.html">Services gRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.parser.nl_to_skidl.nl_to_skidl">Parser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.SkidlScript"><code class="docutils literal notranslate"><span class="pre">SkidlScript</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.detect_blocks"><code class="docutils literal notranslate"><span class="pre">detect_blocks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.llm_refine"><code class="docutils literal notranslate"><span class="pre">llm_refine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.natural_language_to_skidl"><code class="docutils literal notranslate"><span class="pre">natural_language_to_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.constraint_extractor.extractor.extract_constraints"><code class="docutils literal notranslate"><span class="pre">extract_constraints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.constraint_extractor.extractor.publish"><code class="docutils literal notranslate"><span class="pre">publish()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.netlist_parser.kicad_sch_parser.SymbolInstance"><code class="docutils literal notranslate"><span class="pre">SymbolInstance</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.netlist_parser.kicad_sch_parser.KiCadSchematic"><code class="docutils literal notranslate"><span class="pre">KiCadSchematic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.parser.netlist_parser.kicad_sch_parser.parse_kicad_sch"><code class="docutils literal notranslate"><span class="pre">parse_kicad_sch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.simulator.thermal_sim.diffusion">Simulateur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.Hotspot"><code class="docutils literal notranslate"><span class="pre">Hotspot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.ThermalResult"><code class="docutils literal notranslate"><span class="pre">ThermalResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.CudaThermalKernel"><code class="docutils literal notranslate"><span class="pre">CudaThermalKernel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.try_load_cuda_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_cuda_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.steady_state"><code class="docutils literal notranslate"><span class="pre">steady_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.thermal_sim.diffusion.transient"><code class="docutils literal notranslate"><span class="pre">transient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair"><code class="docutils literal notranslate"><span class="pre">CouplingPair</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.em_sim.quasi_static.EMIZone"><code class="docutils literal notranslate"><span class="pre">EMIZone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.em_sim.quasi_static.EMResult"><code class="docutils literal notranslate"><span class="pre">EMResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.em_sim.quasi_static.try_load_em_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_em_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.em_sim.quasi_static.quasi_static_analysis"><code class="docutils literal notranslate"><span class="pre">quasi_static_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.ir_drop.IRDropResult"><code class="docutils literal notranslate"><span class="pre">IRDropResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.ir_drop.analyze_ir_drop"><code class="docutils literal notranslate"><span class="pre">analyze_ir_drop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.eye_diagram.NetMargin"><code class="docutils literal notranslate"><span class="pre">NetMargin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.eye_diagram.SIResult"><code class="docutils literal notranslate"><span class="pre">SIResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze_net"><code class="docutils literal notranslate"><span class="pre">analyze_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze"><code class="docutils literal notranslate"><span class="pre">analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.multi_physics_loop.loop.Finding"><code class="docutils literal notranslate"><span class="pre">Finding</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.simulator.multi_physics_loop.loop.MultiPhysicsLoop"><code class="docutils literal notranslate"><span class="pre">MultiPhysicsLoop</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.router.topological.connectivity_graph">Routeur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.topological.connectivity_graph.PadNode"><code class="docutils literal notranslate"><span class="pre">PadNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.topological.connectivity_graph.ConnectivityGraph"><code class="docutils literal notranslate"><span class="pre">ConnectivityGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.topological.pathfinder.RouteResult"><code class="docutils literal notranslate"><span class="pre">RouteResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.topological.pathfinder.Pathfinder"><code class="docutils literal notranslate"><span class="pre">Pathfinder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.via_minimizer.minimizer.MinimizerStats"><code class="docutils literal notranslate"><span class="pre">MinimizerStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.router.via_minimizer.minimizer.ViaMinimizer"><code class="docutils literal notranslate"><span class="pre">ViaMinimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.drc_dfm_engine.design_rules.checker">DRC / DFM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.design_rules.checker.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.design_rules.checker.DrcReport"><code class="docutils literal notranslate"><span class="pre">DrcReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.design_rules.checker.check_design_rules"><code class="docutils literal notranslate"><span class="pre">check_design_rules()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.FactoryProfile"><code class="docutils literal notranslate"><span class="pre">FactoryProfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.available_profiles"><code class="docutils literal notranslate"><span class="pre">available_profiles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.check_factory"><code class="docutils literal notranslate"><span class="pre">check_factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.erc_executor.erc.run_erc"><code class="docutils literal notranslate"><span class="pre">run_erc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.drc_dfm_engine.erc_executor.erc.erc_summary"><code class="docutils literal notranslate"><span class="pre">erc_summary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.exporter.gerber.rs274x">Exporter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.gerber.rs274x.render_copper_layer"><code class="docutils literal notranslate"><span class="pre">render_copper_layer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.gerber.rs274x.render_edge_cuts"><code class="docutils literal notranslate"><span class="pre">render_edge_cuts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.gerber.rs274x.layer_filename"><code class="docutils literal notranslate"><span class="pre">layer_filename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.gerber.rs274x.export_gerbers"><code class="docutils literal notranslate"><span class="pre">export_gerbers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.gerber.excellon.export_drill"><code class="docutils literal notranslate"><span class="pre">export_drill()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.odb.odb_writer.OdbStructure"><code class="docutils literal notranslate"><span class="pre">OdbStructure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.odb.odb_writer.export_odb"><code class="docutils literal notranslate"><span class="pre">export_odb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.exporter.bom_pickplace.bom_writer.export_bom"><code class="docutils literal notranslate"><span class="pre">export_bom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.services.firmware_bridge.pin_exporter.exporter">Firmware bridge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.firmware_bridge.pin_exporter.exporter.PinAssignment"><code class="docutils literal notranslate"><span class="pre">PinAssignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.firmware_bridge.pin_exporter.exporter.export_pins"><code class="docutils literal notranslate"><span class="pre">export_pins()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.firmware_bridge.header_generator.generators.GeneratedHeader"><code class="docutils literal notranslate"><span class="pre">GeneratedHeader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.services.firmware_bridge.header_generator.generators.generate_headers"><code class="docutils literal notranslate"><span class="pre">generate_headers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="services.html#module-backend.api_gateway.main">Passerelle API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.auth.AuthError"><code class="docutils literal notranslate"><span class="pre">AuthError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.auth.Claims"><code class="docutils literal notranslate"><span class="pre">Claims</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.auth.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.auth.AuthService"><code class="docutils literal notranslate"><span class="pre">AuthService</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.rate_limit.QuotaDecision"><code class="docutils literal notranslate"><span class="pre">QuotaDecision</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.rate_limit.RateLimitExceeded"><code class="docutils literal notranslate"><span class="pre">RateLimitExceeded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="services.html#backend.api_gateway.middleware.rate_limit.RateLimiter"><code class="docutils literal notranslate"><span class="pre">RateLimiter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #0D1117" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pcb_ai_designer_v2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="agent-rl-rl-agent">
+<h1>Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)<a class="headerlink" href="#agent-rl-rl-agent" title="Lien vers cette rubrique"></a></h1>
+<p>Espace d’action, world model « DreamerV3-like », policy ε-greedy et la passe
+d’entraînement torch complète.</p>
+<section id="module-backend.services.ai_engine.rl_agent.action_space.space">
+<span id="espace-d-action"></span><h2>Espace d’action<a class="headerlink" href="#module-backend.services.ai_engine.rl_agent.action_space.space" title="Lien vers cette rubrique"></a></h2>
+<p>Espace d’action (x, y, rotation, couche) — le vocabulaire du rl_agent.</p>
+<p>Discrétisation : pas de 0.5 mm en x/y, rotations limitées à {0, 90, 180, 270}°,
+couche ∈ {0=top, 1=bottom}. Fournit l’échantillonnage (autour d’une ancre ou
+uniforme), l’encodage numpy pour le world model, et le masque des actions
+illégales (hors carte, zones keepout, superpositions grossières) — le masque
+évite de gaspiller les essais du world model sur des actions trivialement
+invalides.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.action_space.space.</span></span><span class="sig-name descname"><span class="pre">Action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predicted_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#Action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Une action de placement — mappable 1:1 vers Placement et le proto gRPC.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.ref">
+<span class="sig-name descname"><span class="pre">ref</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.ref" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.x_mm">
+<span class="sig-name descname"><span class="pre">x_mm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.x_mm" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.y_mm">
+<span class="sig-name descname"><span class="pre">y_mm</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.y_mm" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.rotation_deg">
+<span class="sig-name descname"><span class="pre">rotation_deg</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.rotation_deg" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.layer">
+<span class="sig-name descname"><span class="pre">layer</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.layer" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.predicted_reward">
+<span class="sig-name descname"><span class="pre">predicted_reward</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.predicted_reward" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.to_placement">
+<span class="sig-name descname"><span class="pre">to_placement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">locked</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="common.html#common.design_model.Placement" title="common.design_model.Placement"><span class="pre">Placement</span></a></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#Action.to_placement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.to_placement" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.Action.to_json">
+<span class="sig-name descname"><span class="pre">to_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#Action.to_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.Action.to_json" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.action_space.space.</span></span><span class="sig-name descname"><span class="pre">ActionSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Fabrique et filtre les actions de placement pour un composant donné.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.snap">
+<span class="sig-name descname"><span class="pre">snap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.snap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.snap" title="Lien vers cette définition"></a></dt>
+<dd><p>Aligne une coordonnée sur la grille de 0.5 mm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.encode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.encode" title="Lien vers cette définition"></a></dt>
+<dd><p>Encode une action en vecteur numpy (x, y, rotation/90, couche).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.decode">
+<span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.decode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.decode" title="Lien vers cette définition"></a></dt>
+<dd><p>Reconstruit une action depuis un vecteur encodé.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Random</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.sample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.sample" title="Lien vers cette définition"></a></dt>
+<dd><p>Échantillonne n actions : autour de l’ancre (jitter ±spread) si fournie,
+sinon uniformément sur la carte. Toutes les coordonnées sont snappées.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.legal_mask">
+<span class="sig-name descname"><span class="pre">legal_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.legal_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.legal_mask" title="Lien vers cette définition"></a></dt>
+<dd><p>Masque booléen : True = action légalement plaçable sur ce board.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.anchored_candidates">
+<span class="sig-name descname"><span class="pre">anchored_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Random</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.anchored_candidates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.anchored_candidates" title="Lien vers cette définition"></a></dt>
+<dd><p>Échantillonne puis filtre : ne garde que les actions légales.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.rotated">
+<span class="sig-name descname"><span class="pre">rotated</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.action_space.space.Action" title="backend.services.ai_engine.rl_agent.action_space.space.Action"><span class="pre">Action</span></a></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/action_space/space.html#ActionSpace.rotated"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace.rotated" title="Lien vers cette définition"></a></dt>
+<dd><p>Copie de l’action avec une nouvelle rotation (utilisé par le proposer).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-backend.services.ai_engine.rl_agent.world_model.dreamer">
+<span id="world-model"></span><h2>World model<a class="headerlink" href="#module-backend.services.ai_engine.rl_agent.world_model.dreamer" title="Lien vers cette rubrique"></a></h2>
+<p>World model « DreamerV3-like » en numpy pur — le simulateur interne du cerveau.</p>
+<p>POURQUOI un world model : exécuter puis évaluer une action réelle (routage,
+DRC, thermique) coûte des secondes ; le prédire coûte des microsecondes. En
+apprivoisant une représentation prédictive de l’environnement, l’agent explore
+~2 ordres de grandeur d’hypothèses en plus à budget constant — c’est le cœur
+de l’approche Dreamer : « apprendre le monde, rêver dedans, agir au réveil ».</p>
+<p>Implémentation : réseau minimal 2 couches fully-connected (activation tanh,
+forward manuel SANS torch). La première couche est une projection aléatoire
+fixe (random features — approxime un noyau non linéaire), la seconde est
+ajustée par régression aux moindres carrés (ridge, forme fermée numpy) sur les
+expériences observées. AVANT tout entraînement, <code class="docutils literal notranslate"><span class="pre">predict_consequences</span></code>
+retombe sur des heuristiques déterministes (densité, distances, puissance) —
+le code fonctionne donc intégralement hors ligne.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.world_model.dreamer.</span></span><span class="sig-name descname"><span class="pre">TinyNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#TinyNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>2 couches FC : tanh(X·W1 + b1)·W2 + b2 — W1 fixe, W2 appris par LS.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.hidden">
+<span class="sig-name descname"><span class="pre">hidden</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#TinyNet.hidden"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.hidden" title="Lien vers cette définition"></a></dt>
+<dd><p>Activation de la couche cachée — tanh, forward manuel.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#TinyNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.forward" title="Lien vers cette définition"></a></dt>
+<dd><p>Sortie (n, 3) : [congestion, thermal_rise, si_risk] estimés.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.fit_ridge">
+<span class="sig-name descname"><span class="pre">fit_ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lam</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#TinyNet.fit_ridge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet.fit_ridge" title="Lien vers cette définition"></a></dt>
+<dd><p>Résout min ||H·W2 + b2 − Y||² + λ||W2||² en forme fermée.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.world_model.dreamer.</span></span><span class="sig-name descname"><span class="pre">DreamerWorldModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Prédit {congestion_score, thermal_rise_estimate, si_risk} d’une action.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.extract_features">
+<span class="sig-name descname"><span class="pre">extract_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation_deg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.extract_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.extract_features" title="Lien vers cette définition"></a></dt>
+<dd><p>Vecteur de contexte : position, distances, densité, puissance locale.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.predict_consequences">
+<span class="sig-name descname"><span class="pre">predict_consequences</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.predict_consequences"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.predict_consequences" title="Lien vers cette définition"></a></dt>
+<dd><p>Conséquences prédites d’une action — réseau si entraîné, sinon heuristique.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.observe">
+<span class="sig-name descname"><span class="pre">observe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.observe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.observe" title="Lien vers cette définition"></a></dt>
+<dd><p>Stocke une expérience (features, conséquences réelles) — buffer LRU.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_samples</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.train" title="Lien vers cette définition"></a></dt>
+<dd><p>Régression ridge sur le buffer ; retourne le nb d’échantillons utilisés.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.fit_arrays">
+<span class="sig-name descname"><span class="pre">fit_arrays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.fit_arrays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.fit_arrays" title="Lien vers cette définition"></a></dt>
+<dd><p>Entraînement direct (utilisé par la policy) — X (n,d), Y (n,3).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.save" title="Lien vers cette définition"></a></dt>
+<dd><p>Poids vers npz (checkpoint policy) ; False si non écrivable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/world_model/dreamer.html#DreamerWorldModel.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel.load" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-backend.services.ai_engine.rl_agent.policy_network.policy">
+<span id="policy-greedy-runtime"></span><h2>Policy ε-greedy (runtime)<a class="headerlink" href="#module-backend.services.ai_engine.rl_agent.policy_network.policy" title="Lien vers cette rubrique"></a></h2>
+<p>Policy ε-greedy — score = récompense prédite − λ·risque, sur les prédictions
+du world model.</p>
+<p>La policy n’exécute jamais une action réelle pour l’évaluer : elle interroge
+<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel.predict_consequences</span></code> (le « rêve »), convertit les trois
+risques en récompense, pénalise le pire scénario (λ·risque) et explore avec
+une probabilité ε. L’apprentissage est supervisé par les verdicts du
+self_verifier : expériences positives = actions « keep » acceptées, négatives
+= rollbacks — la policy apprend à rêver juste, pas à avoir de la chance.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.Experience">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.policy_network.policy.</span></span><span class="sig-name descname"><span class="pre">Experience</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kept</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#Experience"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Feedback d’une action exécutée — positif (keeper) ou négatif (rollback).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.Experience.ref">
+<span class="sig-name descname"><span class="pre">ref</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience.ref" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.Experience.reward">
+<span class="sig-name descname"><span class="pre">reward</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience.reward" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.Experience.kept">
+<span class="sig-name descname"><span class="pre">kept</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience.kept" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.Experience.metrics">
+<span class="sig-name descname"><span class="pre">metrics</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience.metrics" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.policy_network.policy.</span></span><span class="sig-name descname"><span class="pre">EpsilonGreedyPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda_risk</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Sélection d’action guidée par le world model + apprentissage par verdicts.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.score_action">
+<span class="sig-name descname"><span class="pre">score_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.score_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.score_action" title="Lien vers cette définition"></a></dt>
+<dd><p>(score, détails) : score = reward − λ·risk sur les prédictions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.select_action">
+<span class="sig-name descname"><span class="pre">select_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legal_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.select_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.select_action" title="Lien vers cette définition"></a></dt>
+<dd><p>Meilleure candidate (ou exploration ε) — None si tout est illégal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.rank_candidates">
+<span class="sig-name descname"><span class="pre">rank_candidates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.rank_candidates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.rank_candidates" title="Lien vers cette définition"></a></dt>
+<dd><p>Candidates triées par score décroissant (pour propose_placement).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.learn_from">
+<span class="sig-name descname"><span class="pre">learn_from</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiences</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#backend.services.ai_engine.rl_agent.policy_network.policy.Experience" title="backend.services.ai_engine.rl_agent.policy_network.policy.Experience"><span class="pre">Experience</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.learn_from"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.learn_from" title="Lien vers cette définition"></a></dt>
+<dd><p>Alimente le world model : keepers → cibles améliorées, rollbacks → dégradées.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.remember_features">
+<span class="sig-name descname"><span class="pre">remember_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.remember_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.remember_features" title="Lien vers cette définition"></a></dt>
+<dd><p>Mémorise le vecteur de features d’une action proposée (buffer court).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.anneal">
+<span class="sig-name descname"><span class="pre">anneal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.97</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.anneal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.anneal" title="Lien vers cette définition"></a></dt>
+<dd><p>Réduit ε après chaque lot de succès — exploitation croissante.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.save" title="Lien vers cette définition"></a></dt>
+<dd><p>Checkpoint complet (poids world model + état ε) ; False si non écrivable.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/policy_network/policy.html#EpsilonGreedyPolicy.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.load" title="Lien vers cette définition"></a></dt>
+<dd><p>Recharge un checkpoint policy/world model.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.stats">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">stats</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.stats" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-backend.services.ai_engine.rl_agent.training.env">
+<span id="passe-d-entrainement-torch"></span><h2>Passe d’entraînement (torch)<a class="headerlink" href="#module-backend.services.ai_engine.rl_agent.training.env" title="Lien vers cette rubrique"></a></h2>
+<p>Environnement de placement type gym — le terrain de jeu de la passe RL.</p>
+<p>Chaque épisode place séquentiellement les composants non verrouillés d’une
+carte. À l’étape <em>t</em>, l’agent reçoit l’état s_t : le vecteur de 12 features du
+world model (<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel.extract_features</span></code>) calculé à l’ancre du
+composant courant (centroïde de ses partenaires de nets). Il répond par un
+vecteur continu-discret <code class="docutils literal notranslate"><span class="pre">(dx_norm,</span> <span class="pre">dy_norm,</span> <span class="pre">rot_idx,</span> <span class="pre">layer)</span></code> :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">(dx,</span> <span class="pre">dy)</span></code>   — déplacement relatif à l’ancre, en unités normalisées
+(× <code class="docutils literal notranslate"><span class="pre">spread_mm</span></code> = 12 mm par défaut) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rot_idx</span></code>    — index de rotation ∈ {0, 90, 180, 270}° ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer</span></code>      — couche ∈ {0 = top, 1 = bottom}.</p></li>
+</ul>
+</div></blockquote>
+<p>Récompense (déterministe, donc reproductible — exigence Circuitron) :</p>
+<blockquote>
+<div><p>r = 0.6 · (1 − risque) + 0.4 · gain_HPWL_normalisé − 0.5 · [action illégale]</p>
+</div></blockquote>
+<p>où <code class="docutils literal notranslate"><span class="pre">risque</span> <span class="pre">=</span> <span class="pre">0.4·congestion</span> <span class="pre">+</span> <span class="pre">0.3·thermique</span> <span class="pre">+</span> <span class="pre">0.3·si</span></code> (heuristique du world
+model, cf. <code class="docutils literal notranslate"><span class="pre">dreamer._heuristic_consequences</span></code>). Une action illégale (hors
+carte, keepout, collision) n’est PAS appliquée : le composant garde son
+emplacement courant et l’agent encaisse la pénalité — c’est le mur bas.</p>
+<p>L’environnement travaille sur les placements d’une copie restaurée à chaque
+<code class="docutils literal notranslate"><span class="pre">reset()</span></code> : le board appelant n’est jamais muté.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.env.PlacementEnv">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.env.</span></span><span class="sig-name descname"><span class="pre">PlacementEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">board</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spread_mm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/env.html#PlacementEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Environnement gym-like : place les composants d’une carte, pas à pas.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.env.PlacementEnv.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/env.html#PlacementEnv.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv.reset" title="Lien vers cette définition"></a></dt>
+<dd><p>Restaure les placements initiaux et retourne l’état du 1er composant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.env.PlacementEnv.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Sequence</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/env.html#PlacementEnv.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv.step" title="Lien vers cette définition"></a></dt>
+<dd><p>Applique (dx, dy, rot, layer) sur le composant courant.</p>
+<p>Retour : <code class="docutils literal notranslate"><span class="pre">(état_suivant,</span> <span class="pre">récompense,</span> <span class="pre">terminé,</span> <span class="pre">info)</span></code> — convention gym.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.env.PlacementEnv.random_action">
+<span class="sig-name descname"><span class="pre">random_action</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/env.html#PlacementEnv.random_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv.random_action" title="Lien vers cette définition"></a></dt>
+<dd><p>Action uniforme légale-dans-les-bornes — pour la collecte de dataset.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.env.PlacementEnv.pending">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pending</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv.pending" title="Lien vers cette définition"></a></dt>
+<dd><p>Composants restant à placer dans l’épisode courant.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-backend.services.ai_engine.rl_agent.training.dataset">Collecte du dataset d’entraînement — transitions réelles de l’environnement.</p>
+<p>Le dataset sert au pré-entraînement supervisé du world model torch :
+chaque ligne relie les 12 features d’une décision de placement aux trois
+conséquences RÉELLEMENT calculées par l’environnement (heuristiques
+déterministes du simulateur interne). C’est le principe « apprendre le
+monde avant d’agir dedans » de l’approche Dreamer : le réseau de runtime
+n’est jamais alimenté par des données fictives.</p>
+<p>Les archives JSONL du keeper (<code class="docutils literal notranslate"><span class="pre">data/trained_models/keeper_archive.jsonl</span></code>)
+ne contiennent pas les features brutes (seulement propositions + scores) :
+<code class="docutils literal notranslate"><span class="pre">summarize_archive</span></code> les résume pour le rapport d’entraînement, sans jamais
+les présenter comme un dataset de régression — honnêteté des métriques.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.dataset.collect_dataset">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.dataset.</span></span><span class="sig-name descname"><span class="pre">collect_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.env.PlacementEnv" title="backend.services.ai_engine.rl_agent.training.env.PlacementEnv"><span class="pre">PlacementEnv</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">episodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/dataset.html#collect_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.dataset.collect_dataset" title="Lien vers cette définition"></a></dt>
+<dd><p>Rollouts aléatoires → (features X, cibles Y, actions A, rewards R, stats).</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">X</span></code> — (n, 12) features du composant courant à son ancre ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Y</span></code> — (n, 3)  conséquences réelles [congestion, thermique, si] ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A</span></code> — (n, 4)  vecteur d’action appliqué (dx, dy, rot_idx, layer) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">R</span></code> — (n,)    récompense de chaque transition.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.dataset.summarize_archive">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.dataset.</span></span><span class="sig-name descname"><span class="pre">summarize_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/dataset.html#summarize_archive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.dataset.summarize_archive" title="Lien vers cette définition"></a></dt>
+<dd><p>Résumé d’une archive keeper JSONL — contexte du rapport, pas un dataset.</p>
+</dd></dl>
+
+<p id="module-backend.services.ai_engine.rl_agent.training.torch_modules">Modules torch de la passe RL — world model + policy de placement.</p>
+<p><code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code> reflète EXACTEMENT l’architecture du <code class="docutils literal notranslate"><span class="pre">TinyNet</span></code> numpy du
+runtime (<code class="docutils literal notranslate"><span class="pre">dreamer.TinyNet</span></code>) : première couche = projection aléatoire FIXE
+(random features), seconde couche = tête linéaire entraînée. Cette contrainte
+de symétrie est délibérée : les poids torch entraînés par Adam + early
+stopping sont exportables en <code class="docutils literal notranslate"><span class="pre">.npz</span></code> au format du runtime
+(<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel.load</span></code>) — la passe d’entraînement améliore donc
+directement le cerveau embarqué, sans distillation ni traduction de graphe.</p>
+<p><code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code> est la tête de décision entraînée par policy-gradient
+(REINFORCE, cf. <code class="docutils literal notranslate"><span class="pre">reinforce.py</span></code>) : tronc MLP sur les 12 features du world
+model, tête gaussienne pour (dx, dy) continus, têtes catégorielles pour la
+rotation (4 classes) et la couche (2 classes).</p>
+<p>torch est importé de façon gardée : sans torch, ce module reste importable
+(les classes ne sont simplement pas définies) — cohérent avec la convention
+du dépôt « le runtime ne dépend jamais d’une lib lourde ».</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.torch_available">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.torch_modules.</span></span><span class="sig-name descname"><span class="pre">torch_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#torch_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.torch_available" title="Lien vers cette définition"></a></dt>
+<dd><p>True si torch est importable — utilisé par le CLI et les tests.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.torch_modules.</span></span><span class="sig-name descname"><span class="pre">TorchWorldModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#TorchWorldModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>World model torch — miroir exact du TinyNet runtime (W1 fixe, W2 appris).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#TorchWorldModel.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel.forward" title="Lien vers cette définition"></a></dt>
+<dd><p>tanh(X·W1 + b1)·W2 + b2 — mêmes maths que le runtime numpy.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel.export_npz">
+<span class="sig-name descname"><span class="pre">export_npz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#TorchWorldModel.export_npz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel.export_npz" title="Lien vers cette définition"></a></dt>
+<dd><p>Export au format des checkpoints du runtime — DreamerWorldModel.load.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.torch_modules.</span></span><span class="sig-name descname"><span class="pre">train_supervised_world_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel" title="backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel"><span class="pre">TorchWorldModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">X</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epochs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_decay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patience</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#train_supervised_world_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model" title="Lien vers cette définition"></a></dt>
+<dd><p>Régression supervisée (MSE + Adam) avec split train/val et early stopping.</p>
+<p>Retour : <code class="docutils literal notranslate"><span class="pre">{&quot;epochs_run&quot;,</span> <span class="pre">&quot;best_val_mse&quot;,</span> <span class="pre">&quot;final_train_mse&quot;,</span> <span class="pre">&quot;history&quot;}</span></code>.
+Le meilleur état (val minimale) est restauré avant la sortie — jamais
+d’overfit silencieux vers les derniers epochs.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.torch_modules.</span></span><span class="sig-name descname"><span class="pre">PlacementPolicyNet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hidden</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_rotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#PlacementPolicyNet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Policy π_θ(a|s) : tronc MLP → gaussienne (dx, dy) + catégorielles (rot, couche).</p>
+<p>Les déplacements sont produits en unités normalisées (−1..1 ≈ ±spread_mm
+de l’environnement) : la policy reste invariante à la taille de carte.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#PlacementPolicyNet.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet.forward" title="Lien vers cette définition"></a></dt>
+<dd><p>Distributions d’action — appelé par <code class="docutils literal notranslate"><span class="pre">act</span></code> et par le trainer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet.act">
+<span class="sig-name descname"><span class="pre">act</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/torch_modules.html#PlacementPolicyNet.act"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet.act" title="Lien vers cette définition"></a></dt>
+<dd><p>Échantillonne une action — retourne (vecteur_action, {log_prob, entropy}).</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-backend.services.ai_engine.rl_agent.training.reinforce">REINFORCE avec baseline — la passe de policy-gradient de l’agent [AutoPCB].</p>
+<p>Algorithme : pour chaque épisode, on accumule les (état, action, récompense)
+de l’environnement de placement ; à l’issue, on calcule les retours actualisés
+(return-to-go), on les centre par une baseline EMA (moyenne mobile des retours
+d’épisode) et on minimise :</p>
+<blockquote>
+<div><p>L = −moyenne(log π(a_t|s_t) · (G_t − b)) − β · moyenne(H[π])</p>
+</div></blockquote>
+<p>Le bonus d’entropie (β) maintient l’exploration ; la baseline EMA réduit la
+variance sans introduction de critic (les épisodes sont courts : ≤ 12 pas).
+C’est le choix assumé REINFORCE plutôt que PPO : 3 ordres de grandeur moins
+de calcul par mise à jour, suffisant pour un espace d’action de dimension 4.</p>
+<p>torch est importé de façon gardée — sans torch, le module reste importable
+mais les classes ne sont pas définies (cf. torch_modules.py).</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.torch_available">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.reinforce.</span></span><span class="sig-name descname"><span class="pre">torch_available</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#torch_available"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.torch_available" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.reinforce.</span></span><span class="sig-name descname"><span class="pre">ReinforceConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">episodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">120</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.003</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entropy_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseline_beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deterministic_eval</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Hyperparamètres de la passe REINFORCE — valeurs par défaut sobres.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.episodes">
+<span class="sig-name descname"><span class="pre">episodes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">120</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.episodes" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.lr">
+<span class="sig-name descname"><span class="pre">lr</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.003</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.lr" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.gamma">
+<span class="sig-name descname"><span class="pre">gamma</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.95</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.gamma" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.entropy_beta">
+<span class="sig-name descname"><span class="pre">entropy_beta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.01</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.entropy_beta" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.baseline_beta">
+<span class="sig-name descname"><span class="pre">baseline_beta</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.9</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.baseline_beta" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.seed">
+<span class="sig-name descname"><span class="pre">seed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">42</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.seed" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.device">
+<span class="sig-name descname"><span class="pre">device</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'cpu'</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.device" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.deterministic_eval">
+<span class="sig-name descname"><span class="pre">deterministic_eval</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig.deterministic_eval" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.reinforce.</span></span><span class="sig-name descname"><span class="pre">ReinforceTrainer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_net</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig" title="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig"><span class="pre">ReinforceConfig</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceTrainer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer" title="Lien vers cette définition"></a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Boucle d’entraînement policy-gradient sur <code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code>.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.history">
+<span class="sig-name descname"><span class="pre">history</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.history" title="Lien vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.train_episode">
+<span class="sig-name descname"><span class="pre">train_episode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceTrainer.train_episode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.train_episode" title="Lien vers cette définition"></a></dt>
+<dd><p>Un épisode = rollout + mise à jour policy-gradient. Retour : métriques.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.train">
+<span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">episodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceTrainer.train"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.train" title="Lien vers cette définition"></a></dt>
+<dd><p>Entraîne N épisodes, sauvegarde le meilleur checkpoint (retour moyen max).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.save_checkpoint">
+<span class="sig-name descname"><span class="pre">save_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">episode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mean_reward</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceTrainer.save_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.save_checkpoint" title="Lien vers cette définition"></a></dt>
+<dd><p>Checkpoint complet (poids policy + hyperparamètres + métrique).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.load_checkpoint">
+<span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/reinforce.html#ReinforceTrainer.load_checkpoint"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer.load_checkpoint" title="Lien vers cette définition"></a></dt>
+<dd><p>Recharge un checkpoint policy — False si fichier absent/corrompu.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p id="module-backend.services.ai_engine.rl_agent.training.train">CLI de la passe RL — python -m backend.services.ai_engine.rl_agent.training.train</p>
+<dl>
+<dt>Chaîne exécutée :</dt><dd><ol class="arabic simple">
+<li><p>collecte d’un dataset de transitions dans <code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code> (rollouts aléatoires) ;</p></li>
+<li><p>pré-entraînement supervisé du <code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code> (MSE + Adam + early stopping) ;</p></li>
+<li><p>export <code class="docutils literal notranslate"><span class="pre">world_model_torch.npz</span></code> — chargeable tel quel par le runtime
+<code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code> (architecture miroir) ;</p></li>
+<li><p>entraînement REINFORCE de la <code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code> ;</p></li>
+<li><p>artefacts + <code class="docutils literal notranslate"><span class="pre">training_report.json</span></code> dans <code class="docutils literal notranslate"><span class="pre">--out</span></code>
+(défaut : <code class="docutils literal notranslate"><span class="pre">data/trained_models/rl_checkpoints/</span></code>).</p></li>
+</ol>
+</dd>
+<dt>Exemples :</dt><dd><p># passe complète (dataset 40 épisodes, RL 150 épisodes)
+python -m backend.services.ai_engine.rl_agent.training.train</p>
+<p># reprendre le world model depuis les archintentions du keeper + RL court
+python -m backend.services.ai_engine.rl_agent.training.train         –archive data/trained_models/keeper_archive.jsonl –episodes-rl 60</p>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.train.build_demo_board">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.train.</span></span><span class="sig-name descname"><span class="pre">build_demo_board</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="common.html#common.design_model.Board" title="common.design_model.Board"><span class="pre">Board</span></a></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/train.html#build_demo_board"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.train.build_demo_board" title="Lien vers cette définition"></a></dt>
+<dd><p>Mini-carte de référence (miroir du self-test ai_engine) : 3 composants,
+4 nets, 1 keepout — déterministe, exécutable hors ligne.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="backend.services.ai_engine.rl_agent.training.train.main">
+<span class="sig-prename descclassname"><span class="pre">backend.services.ai_engine.rl_agent.training.train.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/backend/services/ai_engine/rl_agent/training/train.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#backend.services.ai_engine.rl_agent.training.train.main" title="Lien vers cette définition"></a></dt>
+<dd><p>Point d’entrée CLI — 0 si la passe complète a réussi.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="ai_engine.html" class="btn btn-neutral float-left" title="Cerveau IA (ai_engine)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="orchestrator.html" class="btn btn-neutral float-right" title="Orchestrator multi-agents" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Droits d'auteur 2026, Équipe pcb_ai_designer.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,574 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" data-content_root="../../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>backend.orchestrator.agent_pipeline.validator_agent.agent &mdash; pcb_ai_designer_v2 — référence d&#39;implémentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../../_static/documentation_options.js?v=351e6318"></script>
+      <script src="../../../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../../../../../_static/translations.js?v=e6b791cb"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Recherche" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #0D1117" >
+
+          
+          
+          <a href="../../../../../index.html" class="icon icon-home">
+            pcb_ai_designer_v2
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" aria-label="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../architecture.html#le-cerveau-ia">Le cerveau IA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../architecture.html#workflow-8-etapes">Workflow 8 étapes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../usage.html">Usage — cibles make et services</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#demarrage-rapide">Démarrage rapide</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#pile-docker-compose">Pile docker compose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#entrainement-rl">Entraînement RL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#documentation">Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../usage.html#lint-et-proprete">Lint et propreté</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Référence API</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/common.html">Socle commun (<code class="docutils literal notranslate"><span class="pre">common</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.design_model">Modèle de design</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Side"><code class="docutils literal notranslate"><span class="pre">Side</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Pad"><code class="docutils literal notranslate"><span class="pre">Pad</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Component"><code class="docutils literal notranslate"><span class="pre">Component</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Placement"><code class="docutils literal notranslate"><span class="pre">Placement</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Net"><code class="docutils literal notranslate"><span class="pre">Net</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Zone"><code class="docutils literal notranslate"><span class="pre">Zone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.Board"><code class="docutils literal notranslate"><span class="pre">Board</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.design_model.DesignState"><code class="docutils literal notranslate"><span class="pre">DesignState</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.config">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.config.Settings"><code class="docutils literal notranslate"><span class="pre">Settings</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.config.get_settings"><code class="docutils literal notranslate"><span class="pre">get_settings()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.events">Événements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.EventType"><code class="docutils literal notranslate"><span class="pre">EventType</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.WorkflowStep"><code class="docutils literal notranslate"><span class="pre">WorkflowStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.Event"><code class="docutils literal notranslate"><span class="pre">Event</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.events.make_event"><code class="docutils literal notranslate"><span class="pre">make_event()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.bus">Bus de contraintes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintKind"><code class="docutils literal notranslate"><span class="pre">ConstraintKind</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintMessage"><code class="docutils literal notranslate"><span class="pre">ConstraintMessage</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.ConstraintBus"><code class="docutils literal notranslate"><span class="pre">ConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.InMemoryConstraintBus"><code class="docutils literal notranslate"><span class="pre">InMemoryConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.RedisConstraintBus"><code class="docutils literal notranslate"><span class="pre">RedisConstraintBus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.bus.create_bus"><code class="docutils literal notranslate"><span class="pre">create_bus()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.credits">Crédits</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.Pricing"><code class="docutils literal notranslate"><span class="pre">Pricing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.estimate_night_cost"><code class="docutils literal notranslate"><span class="pre">estimate_night_cost()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.CreditTransaction"><code class="docutils literal notranslate"><span class="pre">CreditTransaction</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.CreditLedger"><code class="docutils literal notranslate"><span class="pre">CreditLedger</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.credits.InsufficientCredits"><code class="docutils literal notranslate"><span class="pre">InsufficientCredits</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.grpc_helpers">Helpers gRPC</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.proto_available"><code class="docutils literal notranslate"><span class="pre">proto_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.serve_grpc"><code class="docutils literal notranslate"><span class="pre">serve_grpc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.grpc_helpers.channel_for"><code class="docutils literal notranslate"><span class="pre">channel_for()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/common.html#module-common.log">Logging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.JsonFormatter"><code class="docutils literal notranslate"><span class="pre">JsonFormatter</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.configure_logging"><code class="docutils literal notranslate"><span class="pre">configure_logging()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/common.html#common.log.get_logger"><code class="docutils literal notranslate"><span class="pre">get_logger()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/ai_engine.html">Cerveau IA (<code class="docutils literal notranslate"><span class="pre">ai_engine</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.shared_mental_model.intent_graph.graph">Modèle mental partagé</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentNode"><code class="docutils literal notranslate"><span class="pre">IntentNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentEdge"><code class="docutils literal notranslate"><span class="pre">IntentEdge</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.intent_graph.graph.IntentGraph"><code class="docutils literal notranslate"><span class="pre">IntentGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.shared_mental_model.constraint_bus.service.ProjectConstraintBus"><code class="docutils literal notranslate"><span class="pre">ProjectConstraintBus</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.rag_engine.chunker">RAG datasheets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.Document"><code class="docutils literal notranslate"><span class="pre">Document</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.chunker.chunk_datasheet"><code class="docutils literal notranslate"><span class="pre">chunk_datasheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.indexer.TfidfIndex"><code class="docutils literal notranslate"><span class="pre">TfidfIndex</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.retriever.RagRetriever"><code class="docutils literal notranslate"><span class="pre">RagRetriever</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.rag_engine.ollama_client.OllamaClient"><code class="docutils literal notranslate"><span class="pre">OllamaClient</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client">Graphe de connaissances &amp; prompts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.neo4j_client.Neo4jClient"><code class="docutils literal notranslate"><span class="pre">Neo4jClient</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternRule"><code class="docutils literal notranslate"><span class="pre">PatternRule</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.SkidlSummary"><code class="docutils literal notranslate"><span class="pre">SkidlSummary</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.parse_skidl"><code class="docutils literal notranslate"><span class="pre">parse_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.knowledge_graph.pattern_validator.PatternValidator"><code class="docutils literal notranslate"><span class="pre">PatternValidator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptStats"><code class="docutils literal notranslate"><span class="pre">PromptStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptTemplate"><code class="docutils literal notranslate"><span class="pre">PromptTemplate</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.llm_orchestrator.prompt_optimizer.optimizer.PromptOptimizer"><code class="docutils literal notranslate"><span class="pre">PromptOptimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.self_verifier.deterministic_checker.checker">Auto-vérification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DesignRules"><code class="docutils literal notranslate"><span class="pre">DesignRules</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.Verdict"><code class="docutils literal notranslate"><span class="pre">Verdict</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.deterministic_checker.checker.DeterministicChecker"><code class="docutils literal notranslate"><span class="pre">DeterministicChecker</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.self_verifier.rollback_manager.rollback.RollbackManager"><code class="docutils literal notranslate"><span class="pre">RollbackManager</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer">Optimiseur autonome</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.Proposal"><code class="docutils literal notranslate"><span class="pre">Proposal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.apply_proposal"><code class="docutils literal notranslate"><span class="pre">apply_proposal()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.hpwl_mm"><code class="docutils literal notranslate"><span class="pre">hpwl_mm()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.proposer_llm.proposer.HeuristicProposer"><code class="docutils literal notranslate"><span class="pre">HeuristicProposer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.fast_evaluator.freerouting_bridge.FastEvaluator"><code class="docutils literal notranslate"><span class="pre">FastEvaluator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.IterationReport"><code class="docutils literal notranslate"><span class="pre">IterationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.autonomous_optimizer.keeper_logic.keeper.KeeperLogic"><code class="docutils literal notranslate"><span class="pre">KeeperLogic</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/ai_engine.html#module-backend.services.ai_engine.main">Point d’entrée du service</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.AiEngine"><code class="docutils literal notranslate"><span class="pre">AiEngine</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.self_test"><code class="docutils literal notranslate"><span class="pre">self_test()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/ai_engine.html#backend.services.ai_engine.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/rl_agent.html">Agent RL (<code class="docutils literal notranslate"><span class="pre">rl_agent</span></code>)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.action_space.space">Espace d’action</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.action_space.space.ActionSpace"><code class="docutils literal notranslate"><span class="pre">ActionSpace</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.world_model.dreamer">World model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.TinyNet"><code class="docutils literal notranslate"><span class="pre">TinyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.world_model.dreamer.DreamerWorldModel"><code class="docutils literal notranslate"><span class="pre">DreamerWorldModel</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.policy_network.policy">Policy ε-greedy (runtime)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.Experience"><code class="docutils literal notranslate"><span class="pre">Experience</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy"><code class="docutils literal notranslate"><span class="pre">EpsilonGreedyPolicy</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/rl_agent.html#module-backend.services.ai_engine.rl_agent.training.env">Passe d’entraînement (torch)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.env.PlacementEnv"><code class="docutils literal notranslate"><span class="pre">PlacementEnv</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.collect_dataset"><code class="docutils literal notranslate"><span class="pre">collect_dataset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.dataset.summarize_archive"><code class="docutils literal notranslate"><span class="pre">summarize_archive()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.TorchWorldModel"><code class="docutils literal notranslate"><span class="pre">TorchWorldModel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.train_supervised_world_model"><code class="docutils literal notranslate"><span class="pre">train_supervised_world_model()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.torch_modules.PlacementPolicyNet"><code class="docutils literal notranslate"><span class="pre">PlacementPolicyNet</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.torch_available"><code class="docutils literal notranslate"><span class="pre">torch_available()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceConfig"><code class="docutils literal notranslate"><span class="pre">ReinforceConfig</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.reinforce.ReinforceTrainer"><code class="docutils literal notranslate"><span class="pre">ReinforceTrainer</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.build_demo_board"><code class="docutils literal notranslate"><span class="pre">build_demo_board()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/rl_agent.html#backend.services.ai_engine.rl_agent.training.train.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/orchestrator.html">Orchestrator multi-agents</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.main">Point d’entrée</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.SkipStep"><code class="docutils literal notranslate"><span class="pre">SkipStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.StepStatus"><code class="docutils literal notranslate"><span class="pre">StepStatus</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.PipelineEvent"><code class="docutils literal notranslate"><span class="pre">PipelineEvent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.main.Orchestrator"><code class="docutils literal notranslate"><span class="pre">Orchestrator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.adapters.AdapterResult"><code class="docutils literal notranslate"><span class="pre">AdapterResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.adapters.call_adapter"><code class="docutils literal notranslate"><span class="pre">call_adapter()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.super_agent.super_agent">Super-agent</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.super_agent.MentalModelEntry"><code class="docutils literal notranslate"><span class="pre">MentalModelEntry</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.super_agent.SuperAgent"><code class="docutils literal notranslate"><span class="pre">SuperAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.PlanStep"><code class="docutils literal notranslate"><span class="pre">PlanStep</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.ExecutionPlan"><code class="docutils literal notranslate"><span class="pre">ExecutionPlan</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.plan.default_plan"><code class="docutils literal notranslate"><span class="pre">default_plan()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Priority"><code class="docutils literal notranslate"><span class="pre">Priority</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Allocation"><code class="docutils literal notranslate"><span class="pre">Allocation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.QueuedTask"><code class="docutils literal notranslate"><span class="pre">QueuedTask</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.ResourceAllocator"><code class="docutils literal notranslate"><span class="pre">ResourceAllocator</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictResolution"><code class="docutils literal notranslate"><span class="pre">ConflictResolution</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.super_agent.conflict_arbiter.ConflictArbiter"><code class="docutils literal notranslate"><span class="pre">ConflictArbiter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.agent_pipeline.base_agent">Pipeline d’agents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentResult"><code class="docutils literal notranslate"><span class="pre">AgentResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.base_agent.BaseAgent"><code class="docutils literal notranslate"><span class="pre">BaseAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlanDocument"><code class="docutils literal notranslate"><span class="pre">PlanDocument</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.planner_agent.agent.PlannerAgent"><code class="docutils literal notranslate"><span class="pre">PlannerAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.researcher_agent.agent.ResearchAgent"><code class="docutils literal notranslate"><span class="pre">ResearchAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.selector_agent.agent.SelectorAgent"><code class="docutils literal notranslate"><span class="pre">SelectorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.code_generator.agent.CodeGeneratorAgent"><code class="docutils literal notranslate"><span class="pre">CodeGeneratorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue"><code class="docutils literal notranslate"><span class="pre">ValidationIssue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport"><code class="docutils literal notranslate"><span class="pre">ValidationReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent"><code class="docutils literal notranslate"><span class="pre">ValidatorAgent</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.corrector_agent.agent.CorrectorAgent"><code class="docutils literal notranslate"><span class="pre">CorrectorAgent</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/orchestrator.html#module-backend.orchestrator.state_manager.manager">Gestion d’état</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.StateManager"><code class="docutils literal notranslate"><span class="pre">StateManager</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.manager.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.journal.AuditJournal"><code class="docutils literal notranslate"><span class="pre">AuditJournal</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.compute_board_delta"><code class="docutils literal notranslate"><span class="pre">compute_board_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_from_delta"><code class="docutils literal notranslate"><span class="pre">events_from_delta()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.deltas.events_since"><code class="docutils literal notranslate"><span class="pre">events_since()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.BBox"><code class="docutils literal notranslate"><span class="pre">BBox</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLock"><code class="docutils literal notranslate"><span class="pre">ZoneLock</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneConflictError"><code class="docutils literal notranslate"><span class="pre">ZoneConflictError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/orchestrator.html#backend.orchestrator.state_manager.locks.ZoneLockManager"><code class="docutils literal notranslate"><span class="pre">ZoneLockManager</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/services.html">Services gRPC</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.parser.nl_to_skidl.nl_to_skidl">Parser</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.SkidlScript"><code class="docutils literal notranslate"><span class="pre">SkidlScript</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.detect_blocks"><code class="docutils literal notranslate"><span class="pre">detect_blocks()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.llm_refine"><code class="docutils literal notranslate"><span class="pre">llm_refine()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.nl_to_skidl.nl_to_skidl.natural_language_to_skidl"><code class="docutils literal notranslate"><span class="pre">natural_language_to_skidl()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.constraint_extractor.extractor.extract_constraints"><code class="docutils literal notranslate"><span class="pre">extract_constraints()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.constraint_extractor.extractor.publish"><code class="docutils literal notranslate"><span class="pre">publish()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.SymbolInstance"><code class="docutils literal notranslate"><span class="pre">SymbolInstance</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.KiCadSchematic"><code class="docutils literal notranslate"><span class="pre">KiCadSchematic</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.parser.netlist_parser.kicad_sch_parser.parse_kicad_sch"><code class="docutils literal notranslate"><span class="pre">parse_kicad_sch()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.simulator.thermal_sim.diffusion">Simulateur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.Hotspot"><code class="docutils literal notranslate"><span class="pre">Hotspot</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.ThermalResult"><code class="docutils literal notranslate"><span class="pre">ThermalResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.CudaThermalKernel"><code class="docutils literal notranslate"><span class="pre">CudaThermalKernel</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.try_load_cuda_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_cuda_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.steady_state"><code class="docutils literal notranslate"><span class="pre">steady_state()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.thermal_sim.diffusion.transient"><code class="docutils literal notranslate"><span class="pre">transient()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.CouplingPair"><code class="docutils literal notranslate"><span class="pre">CouplingPair</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMIZone"><code class="docutils literal notranslate"><span class="pre">EMIZone</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.EMResult"><code class="docutils literal notranslate"><span class="pre">EMResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.try_load_em_kernel"><code class="docutils literal notranslate"><span class="pre">try_load_em_kernel()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.em_sim.quasi_static.quasi_static_analysis"><code class="docutils literal notranslate"><span class="pre">quasi_static_analysis()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.ir_drop.IRDropResult"><code class="docutils literal notranslate"><span class="pre">IRDropResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.ir_drop.analyze_ir_drop"><code class="docutils literal notranslate"><span class="pre">analyze_ir_drop()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.NetMargin"><code class="docutils literal notranslate"><span class="pre">NetMargin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.SIResult"><code class="docutils literal notranslate"><span class="pre">SIResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze_net"><code class="docutils literal notranslate"><span class="pre">analyze_net()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.signal_integrity.eye_diagram.analyze"><code class="docutils literal notranslate"><span class="pre">analyze()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.multi_physics_loop.loop.Finding"><code class="docutils literal notranslate"><span class="pre">Finding</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.simulator.multi_physics_loop.loop.MultiPhysicsLoop"><code class="docutils literal notranslate"><span class="pre">MultiPhysicsLoop</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.router.topological.connectivity_graph">Routeur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.connectivity_graph.PadNode"><code class="docutils literal notranslate"><span class="pre">PadNode</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.connectivity_graph.ConnectivityGraph"><code class="docutils literal notranslate"><span class="pre">ConnectivityGraph</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.pathfinder.RouteResult"><code class="docutils literal notranslate"><span class="pre">RouteResult</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.topological.pathfinder.Pathfinder"><code class="docutils literal notranslate"><span class="pre">Pathfinder</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.via_minimizer.minimizer.MinimizerStats"><code class="docutils literal notranslate"><span class="pre">MinimizerStats</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.router.via_minimizer.minimizer.ViaMinimizer"><code class="docutils literal notranslate"><span class="pre">ViaMinimizer</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.drc_dfm_engine.design_rules.checker">DRC / DFM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.Violation"><code class="docutils literal notranslate"><span class="pre">Violation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.DrcReport"><code class="docutils literal notranslate"><span class="pre">DrcReport</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.design_rules.checker.check_design_rules"><code class="docutils literal notranslate"><span class="pre">check_design_rules()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.FactoryProfile"><code class="docutils literal notranslate"><span class="pre">FactoryProfile</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.get_profile"><code class="docutils literal notranslate"><span class="pre">get_profile()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.available_profiles"><code class="docutils literal notranslate"><span class="pre">available_profiles()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.manufacturing_rules.profiles.check_factory"><code class="docutils literal notranslate"><span class="pre">check_factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.run_erc"><code class="docutils literal notranslate"><span class="pre">run_erc()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.drc_dfm_engine.erc_executor.erc.erc_summary"><code class="docutils literal notranslate"><span class="pre">erc_summary()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.exporter.gerber.rs274x">Exporter</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.render_copper_layer"><code class="docutils literal notranslate"><span class="pre">render_copper_layer()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.render_edge_cuts"><code class="docutils literal notranslate"><span class="pre">render_edge_cuts()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.layer_filename"><code class="docutils literal notranslate"><span class="pre">layer_filename()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.rs274x.export_gerbers"><code class="docutils literal notranslate"><span class="pre">export_gerbers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.gerber.excellon.export_drill"><code class="docutils literal notranslate"><span class="pre">export_drill()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.odb.odb_writer.OdbStructure"><code class="docutils literal notranslate"><span class="pre">OdbStructure</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.odb.odb_writer.export_odb"><code class="docutils literal notranslate"><span class="pre">export_odb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.exporter.bom_pickplace.bom_writer.export_bom"><code class="docutils literal notranslate"><span class="pre">export_bom()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.services.firmware_bridge.pin_exporter.exporter">Firmware bridge</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.PinAssignment"><code class="docutils literal notranslate"><span class="pre">PinAssignment</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.pin_exporter.exporter.export_pins"><code class="docutils literal notranslate"><span class="pre">export_pins()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.header_generator.generators.GeneratedHeader"><code class="docutils literal notranslate"><span class="pre">GeneratedHeader</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.services.firmware_bridge.header_generator.generators.generate_headers"><code class="docutils literal notranslate"><span class="pre">generate_headers()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../../api/services.html#module-backend.api_gateway.main">Passerelle API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.AuthError"><code class="docutils literal notranslate"><span class="pre">AuthError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.Claims"><code class="docutils literal notranslate"><span class="pre">Claims</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.Identity"><code class="docutils literal notranslate"><span class="pre">Identity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.auth.AuthService"><code class="docutils literal notranslate"><span class="pre">AuthService</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.QuotaDecision"><code class="docutils literal notranslate"><span class="pre">QuotaDecision</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.RateLimitExceeded"><code class="docutils literal notranslate"><span class="pre">RateLimitExceeded</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../../api/services.html#backend.api_gateway.middleware.rate_limit.RateLimiter"><code class="docutils literal notranslate"><span class="pre">RateLimiter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #0D1117" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">pcb_ai_designer_v2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../../index.html">Code du module</a></li>
+      <li class="breadcrumb-item active">backend.orchestrator.agent_pipeline.validator_agent.agent</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Code source de backend.orchestrator.agent_pipeline.validator_agent.agent</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Agent validator — première passe de validation avant placement RL.</span>
+
+<span class="sd">Trois familles de contrôles :</span>
+<span class="sd">1. cohérence des nets (&gt;= 2 connexions, refs connues du BOM) ;</span>
+<span class="sd">2. ERC statique via l&#39;adaptateur `erc_executor` (service écrit en parallèle) ;</span>
+<span class="sd">3. empreintes contre la bibliothèque (préfixe KiCad + présence du champ).</span>
+<span class="sd">Sortie : ValidationReport(passed, issues) — consommé par le corrector_agent.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span><span class="p">,</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">common.events</span><span class="w"> </span><span class="kn">import</span> <span class="n">EventType</span><span class="p">,</span> <span class="n">make_event</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..base_agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentContext</span><span class="p">,</span> <span class="n">AgentResult</span><span class="p">,</span> <span class="n">BaseAgent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">...adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">call_adapter</span>
+
+<span class="n">_KICAD_LIB_PREFIXES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Package_&quot;</span><span class="p">,</span> <span class="s2">&quot;Connector_&quot;</span><span class="p">,</span> <span class="s2">&quot;RF_&quot;</span><span class="p">,</span> <span class="s2">&quot;Sensor_&quot;</span><span class="p">,</span> <span class="s2">&quot;MCU_&quot;</span><span class="p">,</span> <span class="s2">&quot;Capacitor_&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;Resistor_&quot;</span><span class="p">,</span> <span class="s2">&quot;Inductor_&quot;</span><span class="p">,</span> <span class="s2">&quot;Diode_&quot;</span><span class="p">,</span> <span class="s2">&quot;Button_&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ValidationIssue">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationIssue</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Un problème détecté — code + sévérité + message, corrigeable par règle.&quot;&quot;&quot;</span>
+
+    <span class="n">code</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>            <span class="c1"># error | warning</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">rule</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>           <span class="c1"># clé de patch (corrector_agent/patcher.py)</span>
+
+<div class="viewcode-block" id="ValidationIssue.to_json">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationIssue.to_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">asdict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ValidationReport">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidationReport</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rapport de validation — passed = zéro issue de sévérité error.&quot;&quot;&quot;</span>
+
+    <span class="n">passed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">checked</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ValidationReport.to_json">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidationReport.to_json">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed</span><span class="p">,</span> <span class="s2">&quot;checked&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">checked</span><span class="p">,</span>
+                <span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">issues</span><span class="p">]}</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="ValidatorAgent">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidatorAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Valide netlist + empreintes — l&#39;ERC approfondi viendra du drc_dfm_engine.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;validator&quot;</span><span class="p">,</span> <span class="n">grpc_service</span><span class="o">=</span><span class="s2">&quot;ai_engine&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ValidatorAgent.execute">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent.execute">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">AgentContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentResult</span><span class="p">:</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">validation</span> <span class="o">=</span> <span class="n">report</span>
+        <span class="k">return</span> <span class="n">AgentResult</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;done&quot;</span><span class="p">,</span>
+                           <span class="n">outputs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="n">report</span><span class="o">.</span><span class="n">to_json</span><span class="p">()},</span>
+                           <span class="n">justifications</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_justify</span><span class="p">(</span><span class="n">report</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ValidatorAgent.validate">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent.validate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">AgentContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidationReport</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validation pure (réutilisable par la boucle du corrector_agent).&quot;&quot;&quot;</span>
+        <span class="n">components</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;skidl_components&quot;</span><span class="p">)</span> <span class="ow">or</span> \
+            <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="vm">__dict__</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">context</span><span class="o">.</span><span class="n">bom</span><span class="p">]</span>
+        <span class="n">nets</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;skidl_nets&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">refs</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ref&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span><span class="p">}</span>
+        <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationIssue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># 1) cohérence des nets</span>
+        <span class="k">for</span> <span class="n">net</span> <span class="ow">in</span> <span class="n">nets</span><span class="p">:</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;connections&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">for</span> <span class="n">ref</span><span class="p">,</span> <span class="n">_pin</span> <span class="ow">in</span> <span class="n">connections</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ref</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">:</span>
+                    <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span>
+                        <span class="n">code</span><span class="o">=</span><span class="s2">&quot;NET-REF&quot;</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                        <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;ref </span><span class="si">{</span><span class="n">ref</span><span class="si">}</span><span class="s2"> absente du BOM (net </span><span class="si">{</span><span class="n">net</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="n">ref</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">ref</span><span class="p">),</span> <span class="n">rule</span><span class="o">=</span><span class="s2">&quot;unknown_ref&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">connections</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="n">code</span><span class="o">=</span><span class="s2">&quot;NET-FLOAT&quot;</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;net </span><span class="si">{</span><span class="n">net</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> avec moins de 2 connexions&quot;</span><span class="p">,</span>
+                    <span class="n">rule</span><span class="o">=</span><span class="s2">&quot;floating_net&quot;</span><span class="p">))</span>
+
+        <span class="c1"># 2) ERC statique via adaptateur</span>
+        <span class="n">erc</span> <span class="o">=</span> <span class="n">call_adapter</span><span class="p">(</span><span class="s2">&quot;erc_executor&quot;</span><span class="p">,</span>
+                           <span class="p">{</span><span class="s2">&quot;components&quot;</span><span class="p">:</span> <span class="n">components</span><span class="p">,</span> <span class="s2">&quot;nets&quot;</span><span class="p">:</span> <span class="n">nets</span><span class="p">})</span>
+        <span class="k">for</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">erc</span><span class="o">.</span><span class="n">value</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span>
+                <span class="n">code</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;code&quot;</span><span class="p">,</span> <span class="s2">&quot;ERC-000&quot;</span><span class="p">)),</span> <span class="n">severity</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;severity&quot;</span><span class="p">,</span> <span class="s2">&quot;error&quot;</span><span class="p">)),</span>
+                <span class="n">message</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="s2">&quot;erreur ERC&quot;</span><span class="p">)),</span>
+                <span class="n">ref</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span> <span class="n">rule</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rule&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))))</span>
+
+        <span class="c1"># 3) empreintes contre la bibliothèque</span>
+        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+            <span class="n">footprint</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;footprint&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">footprint</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="n">code</span><span class="o">=</span><span class="s2">&quot;FP-MISSING&quot;</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;empreinte manquante pour </span><span class="si">{</span><span class="n">comp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ref&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">ref</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)),</span> <span class="n">rule</span><span class="o">=</span><span class="s2">&quot;missing_footprint&quot;</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="n">footprint</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_KICAD_LIB_PREFIXES</span><span class="p">):</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationIssue</span><span class="p">(</span>
+                    <span class="n">code</span><span class="o">=</span><span class="s2">&quot;FP-LIB&quot;</span><span class="p">,</span> <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+                    <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;empreinte hors bibliothèque KiCad : </span><span class="si">{</span><span class="n">footprint</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">ref</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">comp</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))))</span>
+
+        <span class="n">report</span> <span class="o">=</span> <span class="n">ValidationReport</span><span class="p">(</span>
+            <span class="n">passed</span><span class="o">=</span><span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">),</span>
+            <span class="n">issues</span><span class="o">=</span><span class="n">issues</span><span class="p">,</span>
+            <span class="n">checked</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;components&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">),</span> <span class="s2">&quot;nets&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">nets</span><span class="p">)})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">report</span><span class="o">.</span><span class="n">passed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_manager</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">issue</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">state_manager</span><span class="o">.</span><span class="n">publish_event</span><span class="p">(</span><span class="n">make_event</span><span class="p">(</span>
+                        <span class="n">EventType</span><span class="o">.</span><span class="n">ERC_ERROR</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">project_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">code</span><span class="o">=</span><span class="n">issue</span><span class="o">.</span><span class="n">code</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">issue</span><span class="o">.</span><span class="n">message</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">issue</span><span class="o">.</span><span class="n">ref</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">report</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_justify</span><span class="p">(</span><span class="n">report</span><span class="p">:</span> <span class="n">ValidationReport</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">errors</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">report</span><span class="o">.</span><span class="n">issues</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;error&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">issues</span><span class="p">)</span> <span class="o">-</span> <span class="n">errors</span>
+        <span class="n">justifications</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;contrôles : </span><span class="si">{</span><span class="n">report</span><span class="o">.</span><span class="n">checked</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">errors</span><span class="si">}</span><span class="s2"> erreur(s), </span><span class="si">{</span><span class="n">warnings</span><span class="si">}</span><span class="s2"> warning(s)&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">report</span><span class="o">.</span><span class="n">passed</span><span class="p">:</span>
+            <span class="n">justifications</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;validation PASS — netlist prête pour le placement RL&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">justifications</span>
+
+<div class="viewcode-block" id="ValidatorAgent.fallback">
+<a class="viewcode-back" href="../../../../../api/orchestrator.html#backend.orchestrator.agent_pipeline.validator_agent.agent.ValidatorAgent.fallback">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">AgentContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                           <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;validation dégradée — contrôles sautés&quot;</span><span class="p">}}</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Droits d'auteur 2026, Équipe pcb_ai_designer.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

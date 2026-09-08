@@ -37,9 +37,10 @@ pip install -r requirements.txt
 # 2. Générer les stubs gRPC depuis proto/
 make proto
 
-# 3. Lancer la plateforme complète (Redis, Neo4j, MinIO, Postgres, Grafana...)
+# 3. Lancer la plateforme complète (Redis, Neo4j, MinIO, Postgres, Ollama, Grafana...)
 cp .env.example .env
-docker compose up -d redis neo4j minio postgres
+docker compose up -d redis neo4j minio postgres ollama
+docker compose exec ollama ollama pull llama3.1:8b   # LLM local du RAG
 
 # 4. Démarrer les services (terminaux séparés ou make start)
 make start-services      # gateway :8000 + les 7 services gRPC
@@ -50,6 +51,55 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 # 6. Benchmark vs Quilter
 make benchmark           # tests/vs_quilter_benchmark — score, vias, convergence
 ```
+
+## LLM local (Ollama) branché dans le RAG
+
+Le retriever RAG peut déléguer la rédaction des réponses à un **vrai LLM local**
+servi par Ollama (API native `/api/chat`, `/api/tags`, `/api/embeddings`), sans
+jamais dépendre du réseau : tout échec retombe instantanément sur le mode
+extractif déterministe (réponses citées `[source p.X]`).
+
+```bash
+LLM_PROVIDER=ollama LLM_MODEL=llama3.1:8b \        # variables : .env.example
+OLLAMA_BASE_URL=http://localhost:11434 make start-services
+```
+
+Le client natif vit dans `rag_engine/ollama_client.py` ; la doc complète est
+sous `docs/sphinx/_build/html/ollama_rag.html` et les tests end-to-end (serveur
+simulé, zéro dépendance réseau) sous `tests/unit/test_ollama_rag.py`.
+
+## Passe RL d'entraînement (torch)
+
+La passe offline renforce le cerveau avant déploiement du runtime : collecte de
+transitions dans un environnement de placement type gym, pré-entraînement du world
+model (miroir exact du TinyNet numpy → export `.npz` chargeable tel quel), puis
+policy-gradient **REINFORCE** (baseline EMA + entropie) sur la policy de
+placement. torch est optionnel — le runtime numpy continue de fonctionner sans.
+
+```bash
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+make train-rl          # artefacts : data/trained_models/rl_checkpoints/
+make train-rl-quick    # smoke test ~2 s
+```
+
+Artefacts produits : `world_model_torch.npz`, `policy_reinforce.pt`,
+`training_report.json` (courbes d'apprentissage, résumé de l'archive keeper).
+
+## Documentation
+
+| Chaîne | Portée | Sortie |
+|---|---|---|
+| **Sphinx** (autodoc + napoleon) | API Python complète — common, ai_engine, rl_agent, orchestrator, services | `docs/sphinx/_build/html/index.html` |
+| **Doxygen** | Python + noyaux de simulation **C++/CUDA** + README en page principale | `docs/doxygen/build/html/index.html` |
+
+```bash
+make docs              # les deux chaînes (doxygen requis pour la 2e)
+make docs-sphinx       # Sphinx seul : pip install sphinx sphinx-rtd-theme
+make docs-doxygen      # Doxygen seul : apt install doxygen
+```
+
+Le HTML généré est versionné dans le dépôt : `docs/sphinx/_build/html/` et
+`docs/doxygen/build/html/` sont consultables directement depuis GitHub.
 
 ## Ordre d'implémentation recommandé (section 11)
 
@@ -63,7 +113,8 @@ Chaque étape livre une valeur testable et alimente le benchmark.
 ## Makefile
 
 `make help` liste toutes les cibles : `proto`, `start-services`, `lint`,
-`test`, `benchmark`, `compose-up`, `compose-down`.
+`test`, `benchmark`, `train-rl`, `docs`, `docs-sphinx`, `docs-doxygen`,
+`ollama-pull`, `compose-up`, `compose-down`.
 
 ## Licences & mentions
 

@@ -1,0 +1,72 @@
+{
+  "torch_version": "2.14.0+cpu",
+  "device": "cpu",
+  "seed": 42,
+  "out_dir": "data/trained_models/rl_checkpoints",
+  "dataset": {
+    "episodes": 40,
+    "transitions": 120,
+    "legal_ratio": 0.483,
+    "mean_reward": 0.1706
+  },
+  "world_model": {
+    "epochs_run": 45,
+    "best_val_mse": 0.004581,
+    "final_train_mse": 0.005031,
+    "exported": true,
+    "npz": "data/trained_models/rl_checkpoints/world_model_torch.npz"
+  },
+  "reinforce": {
+    "episodes": 150,
+    "mean_reward": 0.7185,
+    "best_mean_reward_10": 1.0282,
+    "final_baseline": 0.7307,
+    "history_tail": [
+      {
+        "episode_return": 0.7295,
+        "baseline": 0.7311,
+        "loss": -225.621246,
+        "entropy": 3.2096,
+        "steps": 3,
+        "hpwl_mm": 135.0
+      },
+      {
+        "episode_return": 0.7295,
+        "baseline": 0.7309,
+        "loss": -234.829834,
+        "entropy": 3.1994,
+        "steps": 3,
+        "hpwl_mm": 135.0
+      },
+      {
+        "episode_return": 0.7317,
+        "baseline": 0.731,
+        "loss": -245.059341,
+        "entropy": 3.1887,
+        "steps": 3,
+        "hpwl_mm": 135.0
+      },
+      {
+        "episode_return": 0.7295,
+        "baseline": 0.7308,
+        "loss": -253.824158,
+        "entropy": 3.1743,
+        "steps": 3,
+        "hpwl_mm": 135.0
+      },
+      {
+        "episode_return": 0.7295,
+        "baseline": 0.7307,
+        "loss": -263.255676,
+        "entropy": 3.1597,
+        "steps": 3,
+        "hpwl_mm": 135.0
+      }
+    ],
+    "checkpoint": "data/trained_models/rl_checkpoints/policy_reinforce.pt"
+  },
+  "keeper_archive": {
+    "available": false
+  },
+  "elapsed_s": 3.06
+}

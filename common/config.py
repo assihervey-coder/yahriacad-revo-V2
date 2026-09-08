@@ -62,7 +62,9 @@ class Settings:
     redis_url: str = field(default_factory=lambda: _env("REDIS_URL", "redis://localhost:6379/0"))
 
     # LLM / RAG (briques Siemens Fuse + Circuitron)
-    llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "local"))  # local | openai-compatible
+    # llm_provider : "local" (extractif déterministe) | "ollama" (LLM local natif)
+    #              | "openai-compatible" (toute API /v1/chat/completions)
+    llm_provider: str = field(default_factory=lambda: _env("LLM_PROVIDER", "local"))
     llm_model: str = field(default_factory=lambda: _env("LLM_MODEL", "nemotron-70b"))
     llm_api_base: str = field(default_factory=lambda: _env("LLM_API_BASE", "http://localhost:11434/v1"))
     llm_api_key: str = field(default_factory=lambda: _env("LLM_API_KEY", ""))
@@ -70,6 +72,11 @@ class Settings:
     vector_store_dir: Path = field(
         default_factory=lambda: Path(_env("VECTOR_STORE_DIR", "data/trained_models/vector_store"))
     )
+
+    # LLM local Ollama — API native (distincte du point d'entrée OpenAI-compatible)
+    ollama_base_url: str = field(default_factory=lambda: _env("OLLAMA_BASE_URL", "http://localhost:11434"))
+    ollama_timeout_s: float = field(default_factory=lambda: _env_float("OLLAMA_TIMEOUT_S", 8.0))
+    ollama_num_ctx: int = field(default_factory=lambda: _env_int("OLLAMA_NUM_CTX", 4096))
 
     # GPU (brique C++/CUDA du simulateur)
     enable_cuda: bool = field(default_factory=lambda: _env_bool("ENABLE_CUDA", False))

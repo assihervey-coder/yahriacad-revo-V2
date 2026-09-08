@@ -1,0 +1,57 @@
+# Doxyfile — documentation Doxygen de pcb_ai_designer_v2
+# Couvre le Python (backend, common, tests) ET les noyaux de simulation
+# C++/CUDA (backend/services/simulator/kernels/). Génération :
+#   make docs-doxygen     (ou doxygen docs/doxygen/Doxyfile)
+# Sortie : docs/doxygen/build/html/index.html
+
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = "pcb_ai_designer_v2"
+PROJECT_NUMBER         = 2.0.0
+PROJECT_BRIEF          = "Plateforme de conception PCB pilotée par IA — essaim d'agents, RL + LLM + symbolique"
+
+# ---- entrées -------------------------------------------------------------------------
+INPUT                  = backend \
+                         common \
+                         tests \
+                         scripts \
+                         README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+RECURSIVE              = YES
+FILE_PATTERNS          = *.py \
+                         *.cpp \
+                         *.cu \
+                         *.cuh \
+                         *.h \
+                         *.hpp \
+                         *.c
+EXCLUDE_PATTERNS       = */proto_gen/* \
+                         */_build/* \
+                         */node_modules/* \
+                         */__pycache__/*
+EXCLUDE_SYMLINKS       = YES
+INPUT_ENCODING         = UTF-8
+
+# ---- extraction ----------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+JAVADOC_AUTOBRIEF      = YES
+MARKDOWN_SUPPORT       = YES
+STRIP_CODE_COMMENTS    = NO
+
+# ---- sortie HTML ---------------------------------------------------------------------
+GENERATE_HTML          = YES
+OUTPUT_DIRECTORY       = build
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+GENERATE_LATEX         = NO
+SEARCHENGINE           = YES
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+SHOW_FILES             = YES
+SHOW_INCLUDE_FILES     = NO
+QUIET                  = YES
+WARN_IF_UNDOCUMENTED   = NO
+HAVE_DOT               = NO
+OPTIMIZE_OUTPUT_JAVA   = YES
+SORT_MEMBER_DOCS       = NO

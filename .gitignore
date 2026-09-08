@@ -29,3 +29,6 @@ frontend/dist/
 .DS_Store
 .idea/
 .vscode/
+
+# Builds de doc — artefacts régénérables (le HTML est versionné, pas les caches)
+docs/sphinx/_build/.doctrees/

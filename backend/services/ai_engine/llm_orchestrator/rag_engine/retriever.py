@@ -1,11 +1,14 @@
 """Retriever RAG — passages pertinents + réponses « anchored » avec citations.
 
-Deux modes : (1) extractif déterministe — les meilleures phrases des passages
+Trois modes : (1) extractif déterministe — les meilleures phrases des passages
 retrouvés sont concaténées, chacune suffixée par sa citation ``[source p.X]`` ;
-(2) LLM optionnel — un POST vers ``settings.llm_api_base`` (API compatible
-OpenAI via httpx) est tenté UNIQUEMENT si ``llm_provider`` ≠ ``local`` et si
-httpx est importable ; tout échec (réseau, JSON, timeout de 4 s) retombe
-instantanément sur le mode extractif — le service ne dépend jamais du réseau.
+(2) **Ollama local** — ``LLM_PROVIDER=ollama`` branch le client natif
+``OllamaClient`` (``/api/chat`` du serveur Ollama, cf. ``ollama_client.py``) :
+un vrai LLM local rédige la réponse à partir des passages retrouvés, la
+contrainte de citation reste imposée par le prompt système ; (3) LLM
+générique — API compatible OpenAI via ``settings.llm_api_base``.
+Tout échec (serveur arrêté, timeout, JSON) retombe instantanément sur le
+mode extractif — le service ne dépend jamais du réseau.
 """
 
 from __future__ import annotations
@@ -44,12 +47,43 @@ class RagRetriever:
         """Réponse ancrée : texte + liste de citations + mode réellement utilisé."""
         passages = self.retrieve(query, k=k)
         citations = [doc.citation() for doc, _score in passages]
-        if self.settings.llm_provider != "local":
+        provider = self.settings.llm_provider
+        if provider == "ollama":
+            llm_text = self._ollama_answer(query, passages)
+            if llm_text is not None:
+                return {"answer": llm_text, "citations": citations, "mode": "ollama"}
+        elif provider != "local":                       # openai-compatible / distant
             llm_text = self._llm_answer(query, passages)
             if llm_text is not None:
                 return {"answer": llm_text, "citations": citations, "mode": "llm"}
         return {"answer": self._extractive_answer(query, passages),
                 "citations": citations, "mode": "extractif"}
+
+    def _ollama_answer(self, query: str,
+                       passages: List[Tuple[Document, float]]) -> str | None:
+        """Réponse par le LLM local Ollama — None = fallback extractif immédiat.
+
+        Le prompt système impose l'ancrage : chaque affirmation doit citer sa
+        source ``[source p.X]`` issue des passages retrouvés — le LLM local
+        n'est jamais autorisé à répondre « hors contexte ».
+        """
+        from .ollama_client import OllamaClient    # import local — évite les cycles
+        client = OllamaClient(settings=self.settings)
+        if not passages:
+            return None
+        context = "\n\n".join(
+            f"{doc.citation()} {doc.content[:600]}" for doc, _s in passages[:4])
+        messages = [
+            {"role": "system",
+             "content": "Tu es l'assistant RAG d'une plateforme de conception PCB. "
+                        "Réponds en français, de façon concise et factuelle. "
+                        "Chaque affirmation doit citer sa source entre crochets "
+                        "[source p.X] telle qu'elle apparaît dans le contexte. "
+                        "Si le contexte ne permet pas de répondre, dis-le."},
+            {"role": "user",
+             "content": f"Contexte :\n{context}\n\nQuestion : {query}"},
+        ]
+        return client.chat(messages, temperature=0.2)
 
     def _extractive_answer(self, query: str, passages: List[Tuple[Document, float]]) -> str:
         """Concatène les meilleures phrases, chacune citée — déterministe."""

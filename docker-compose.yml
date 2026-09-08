@@ -54,6 +54,21 @@ services:
     volumes: [pg_data:/var/lib/postgresql/data]
     networks: [pcbnet]
 
+  # ---------- LLM local (RAG — brique Siemens Fuse) ----------
+  ollama: # LLM local natif — LLM_PROVIDER=ollama côté ai_engine
+    image: ollama/ollama:latest
+    ports: ["11434:11434"]
+    volumes: [ollama_data:/root/.ollama]
+    networks: [pcbnet]
+    # Accélération GPU (facultatif) : décommenter pour NVIDIA
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
   # ---------- backend ----------
   api_gateway:
     <<: *service-defaults
@@ -98,6 +113,9 @@ services:
       SERVICE_NAME: ai_engine
       GRPC_PORT: "50052"
       ENABLE_CUDA: "true"
+      LLM_PROVIDER: "ollama"
+      LLM_MODEL: "llama3.1:8b"
+      OLLAMA_BASE_URL: "http://ollama:11434"
 
   simulator:
     <<: *service-defaults
@@ -181,3 +199,4 @@ volumes:
   neo4j_data: {}
   minio_data: {}
   pg_data: {}
+  ollama_data: {}
