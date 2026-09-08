@@ -1,0 +1,54 @@
+{
+  "id": "usb_c_dock",
+  "name": "Dock USB-C 4 ports",
+  "description": "Hub USB 3.2 Gen1 à 4 ports avec Power Delivery : hub VL817, contrôleur PD STUSB4500, ESD et protections. Les paires différentielles USB3 à 90 ohms et le pairage de longueur constituent la contrainte discriminante.",
+  "components": [
+    {"ref": "U1", "mpn": "VL817-Q7", "value": "Hub USB3.2", "footprint": "QFN-76", "pins": 76, "width_mm": 9.0, "height_mm": 9.0, "power_w": 0.85, "price_usd": 4.30, "stock": 3100, "functional_block": "usb"},
+    {"ref": "U2", "mpn": "STUSB4500QFTR", "value": "PD 3.0", "footprint": "QFN-24", "pins": 24, "width_mm": 4.5, "height_mm": 4.5, "power_w": 0.10, "price_usd": 2.60, "stock": 5200, "functional_block": "power"},
+    {"ref": "U3", "mpn": "TPS254600RTJR", "value": "Power switch x4", "footprint": "QFN-16", "pins": 16, "width_mm": 4.0, "height_mm": 4.0, "power_w": 0.30, "price_usd": 1.45, "stock": 7700, "functional_block": "power"},
+    {"ref": "U4", "mpn": "TPD4S214", "value": "ESD USB-C", "footprint": "WQFN-12", "pins": 12, "width_mm": 3.0, "height_mm": 2.0, "power_w": 0.02, "price_usd": 1.20, "stock": 6400, "functional_block": "protection"},
+    {"ref": "J1", "mpn": "USB4105-GF-A", "value": "USB-C PD in", "footprint": "USB-C-24", "pins": 24, "width_mm": 9.0, "height_mm": 7.5, "power_w": 0.0, "price_usd": 1.90, "stock": 4900, "functional_block": "connectivity"},
+    {"ref": "J2", "mpn": "USB4105-GF-A", "value": "USB-C out 1", "footprint": "USB-C-24", "pins": 24, "width_mm": 9.0, "height_mm": 7.5, "power_w": 0.0, "price_usd": 1.90, "stock": 4900, "functional_block": "connectivity"},
+    {"ref": "J3", "mpn": "USB-A-SMT", "value": "USB-A out 2", "footprint": "USB-A", "pins": 4, "width_mm": 13.0, "height_mm": 6.0, "power_w": 0.0, "price_usd": 0.75, "stock": 8800, "functional_block": "connectivity"},
+    {"ref": "J4", "mpn": "USB-A-SMT", "value": "USB-A out 3", "footprint": "USB-A", "pins": 4, "width_mm": 13.0, "height_mm": 6.0, "power_w": 0.0, "price_usd": 0.75, "stock": 8800, "functional_block": "connectivity"},
+    {"ref": "X1", "mpn": "CX3225GA25000D0", "value": "25MHz", "footprint": "3225", "pins": 4, "width_mm": 3.2, "height_mm": 2.5, "power_w": 0.0, "price_usd": 0.60, "stock": 12000, "functional_block": "clocking"},
+    {"ref": "C1", "mpn": "GRM188R61E226ME11D", "value": "22u", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.09, "stock": 15000, "functional_block": "passives"},
+    {"ref": "C2", "mpn": "GRM188R71H104KA93D", "value": "100n", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.02, "stock": 62000, "functional_block": "passives"},
+    {"ref": "R1", "mpn": "RC0603FR-07100RL", "value": "100r", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.01, "stock": 30000, "functional_block": "passives"}
+  ],
+  "nets": [
+    {"name": "VBUS_IN", "net_class": "POWER", "connections": [["J1", "A4"], ["J1", "B4"], ["U2", "14"], ["C1", "1"]], "impedance_target_ohm": 0},
+    {"name": "GND", "net_class": "POWER", "connections": [["J1", "A1"], ["J1", "B1"], ["U1", "70"], ["U2", "12"], ["U3", "8"], ["U4", "6"], ["C1", "2"], ["C2", "2"]], "impedance_target_ohm": 0},
+    {"name": "USB3_TX1_P", "net_class": "USB3", "connections": [["J1", "A2"], ["U1", "9"]], "impedance_target_ohm": 90, "length_match_group": "LINK1"},
+    {"name": "USB3_TX1_N", "net_class": "USB3", "connections": [["J1", "A3"], ["U1", "10"]], "impedance_target_ohm": 90, "length_match_group": "LINK1"},
+    {"name": "USB3_RX1_P", "net_class": "USB3", "connections": [["J1", "B2"], ["U1", "14"]], "impedance_target_ohm": 90, "length_match_group": "LINK2"},
+    {"name": "USB3_RX1_N", "net_class": "USB3", "connections": [["J1", "B3"], ["U1", "15"]], "impedance_target_ohm": 90, "length_match_group": "LINK2"},
+    {"name": "USB2_D1_P", "net_class": "USB2", "connections": [["U1", "30"], ["J2", "A6"]], "impedance_target_ohm": 90, "length_match_group": "OUT1"},
+    {"name": "USB2_D1_N", "net_class": "USB2", "connections": [["U1", "31"], ["J2", "A7"]], "impedance_target_ohm": 90, "length_match_group": "OUT1"},
+    {"name": "USB2_D2_P", "net_class": "USB2", "connections": [["U1", "34"], ["J3", "3"], ["J4", "3"]], "impedance_target_ohm": 90, "length_match_group": "OUT2"},
+    {"name": "USB2_D2_N", "net_class": "USB2", "connections": [["U1", "35"], ["J3", "2"], ["J4", "2"]], "impedance_target_ohm": 90, "length_match_group": "OUT2"},
+    {"name": "CC1", "net_class": "ANALOG", "connections": [["J1", "A5"], ["U2", "3"], ["R1", "1"]], "impedance_target_ohm": 0},
+    {"name": "VBUS_OUT1", "net_class": "POWER", "connections": [["U3", "1"], ["J2", "A4"]], "impedance_target_ohm": 0},
+    {"name": "XO_25M", "net_class": "CLOCK", "connections": [["X1", "3"], ["U1", "5"]], "impedance_target_ohm": 0}
+  ],
+  "constraints": {
+    "board": {"width_mm": 80.0, "height_mm": 45.0, "layers": 4},
+    "keepouts": [
+      {"name": "edge_connector_zone", "x_min_mm": 0.0, "y_min_mm": 0.0, "x_max_mm": 80.0, "y_max_mm": 3.0, "kind": "keepout"}
+    ],
+    "thermal": {"max_temp_c": 80.0, "hot_components": ["U1", "U3"]},
+    "impedance_targets": [
+      {"net": "USB3_TX1_P", "ohm": 90.0},
+      {"net": "USB3_RX1_P", "ohm": 90.0},
+      {"net": "USB2_D1_P", "ohm": 90.0}
+    ],
+    "factory": "jlcpcb"
+  },
+  "expected_metrics": {
+    "drc_score": 92.0,
+    "via_count": 68,
+    "routed_length_mm": 720.0,
+    "convergence_s": 340.0,
+    "cost_usd": 1.20
+  }
+}

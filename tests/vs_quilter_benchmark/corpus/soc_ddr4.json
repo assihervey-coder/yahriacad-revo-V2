@@ -1,0 +1,59 @@
+{
+  "id": "soc_ddr4",
+  "name": "SoC DDR4 8 couches",
+  "description": "Carte embarquée haute densité : SoC ARM quad-core + DDR4 x16, PMIC multi-rails, Ethernet RGMII. Le length matching des buses DDR et le placement du PMIC face aux rails composent le cas le plus exigeant du corpus.",
+  "components": [
+    {"ref": "U1", "mpn": "HI3660-EMB", "value": "SoC 4x A53", "footprint": "FCBGA-400", "pins": 400, "width_mm": 15.0, "height_mm": 15.0, "power_w": 2.60, "price_usd": 18.40, "stock": 850, "functional_block": "soc"},
+    {"ref": "U2", "mpn": "MT40A512M16LY-075", "value": "DDR4 1GB x16", "footprint": "FBGA-96", "pins": 96, "width_mm": 9.0, "height_mm": 12.0, "power_w": 0.90, "price_usd": 6.20, "stock": 2100, "functional_block": "memory"},
+    {"ref": "U3", "mpn": "TPS65981DMR", "value": "PMIC", "footprint": "QFN-40", "pins": 40, "width_mm": 6.0, "height_mm": 6.0, "power_w": 1.10, "price_usd": 4.90, "stock": 1900, "functional_block": "power"},
+    {"ref": "U4", "mpn": "KSZ9131RNXI", "value": "PHY Ethernet", "footprint": "QFN-48", "pins": 48, "width_mm": 7.0, "height_mm": 7.0, "power_w": 0.35, "price_usd": 3.10, "stock": 2600, "functional_block": "connectivity"},
+    {"ref": "U5", "mpn": "W25N01GVZEIG", "value": "NAND 1Gb", "footprint": "WSON-8", "pins": 8, "width_mm": 6.0, "height_mm": 5.0, "power_w": 0.15, "price_usd": 1.75, "stock": 4400, "functional_block": "memory"},
+    {"ref": "J1", "mpn": "RJ45-MAGJACK", "value": "Ethernet", "footprint": "RJ45", "pins": 12, "width_mm": 16.0, "height_mm": 13.0, "power_w": 0.0, "price_usd": 1.60, "stock": 5100, "functional_block": "connectivity"},
+    {"ref": "X1", "mpn": "CX3225GA25000D0", "value": "25MHz", "footprint": "3225", "pins": 4, "width_mm": 3.2, "height_mm": 2.5, "power_w": 0.0, "price_usd": 0.60, "stock": 12000, "functional_block": "clocking"},
+    {"ref": "X2", "mpn": "CX3225GB32000D0", "value": "32MHz", "footprint": "3225", "pins": 4, "width_mm": 3.2, "height_mm": 2.5, "power_w": 0.0, "price_usd": 0.65, "stock": 9700, "functional_block": "clocking"},
+    {"ref": "L1", "mpn": "XFL4020-2R2ME", "value": "2u2", "footprint": "4020", "pins": 2, "width_mm": 4.0, "height_mm": 4.0, "power_w": 0.0, "price_usd": 0.35, "stock": 6900, "functional_block": "power"},
+    {"ref": "C1", "mpn": "GRM188R61E226ME11D", "value": "22u", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.09, "stock": 15000, "functional_block": "passives"},
+    {"ref": "C2", "mpn": "GRM188R71H104KA93D", "value": "100n", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.02, "stock": 62000, "functional_block": "passives"},
+    {"ref": "C3", "mpn": "GRM188R71H104KA93D", "value": "100n", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.02, "stock": 62000, "functional_block": "passives"},
+    {"ref": "R1", "mpn": "RC0603FR-0749R9L", "value": "49r9", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.01, "stock": 26000, "functional_block": "passives"},
+    {"ref": "R2", "mpn": "RC0603FR-0749R9L", "value": "49r9", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.01, "stock": 26000, "functional_block": "passives"}
+  ],
+  "nets": [
+    {"name": "VDD_DDR_1V2", "net_class": "POWER", "connections": [["U3", "12"], ["U2", "1"], ["C1", "1"], ["L1", "2"]], "impedance_target_ohm": 0},
+    {"name": "VDD_SOC_1V8", "net_class": "POWER", "connections": [["U3", "18"], ["U1", "A12"], ["C2", "1"]], "impedance_target_ohm": 0},
+    {"name": "GND", "net_class": "POWER", "connections": [["U3", "5"], ["U1", "B3"], ["U2", "50"], ["U4", "40"], ["C1", "2"], ["C2", "2"], ["C3", "2"]], "impedance_target_ohm": 0},
+    {"name": "DDR4_DQ0", "net_class": "DDR", "connections": [["U1", "C5"], ["U2", "4"]], "impedance_target_ohm": 40, "length_match_group": "BYTE0"},
+    {"name": "DDR4_DQ1", "net_class": "DDR", "connections": [["U1", "C6"], ["U2", "5"]], "impedance_target_ohm": 40, "length_match_group": "BYTE0"},
+    {"name": "DDR4_DQ2", "net_class": "DDR", "connections": [["U1", "C7"], ["U2", "6"]], "impedance_target_ohm": 40, "length_match_group": "BYTE0"},
+    {"name": "DDR4_DQS0P", "net_class": "DDR", "connections": [["U1", "D5"], ["U2", "7"]], "impedance_target_ohm": 40, "length_match_group": "BYTE0"},
+    {"name": "DDR4_CLKP", "net_class": "DDR", "connections": [["U1", "E4"], ["U2", "33"]], "impedance_target_ohm": 40, "length_match_group": "CLK"},
+    {"name": "DDR4_CLKN", "net_class": "DDR", "connections": [["U1", "E5"], ["U2", "34"]], "impedance_target_ohm": 40, "length_match_group": "CLK"},
+    {"name": "ETH_TX_P", "net_class": "ETHERNET", "connections": [["U4", "22"], ["J1", "2"], ["R1", "1"]], "impedance_target_ohm": 50, "length_match_group": "ETH"},
+    {"name": "ETH_TX_N", "net_class": "ETHERNET", "connections": [["U4", "23"], ["J1", "3"], ["R2", "1"]], "impedance_target_ohm": 50, "length_match_group": "ETH"},
+    {"name": "RGMII_TXC", "net_class": "ETHERNET", "connections": [["U1", "H10"], ["U4", "10"]], "impedance_target_ohm": 0},
+    {"name": "NAND_IO0", "net_class": "MEMORY_IO", "connections": [["U1", "J8"], ["U5", "5"]], "impedance_target_ohm": 0},
+    {"name": "XO_25M", "net_class": "CLOCK", "connections": [["X1", "3"], ["U4", "2"]], "impedance_target_ohm": 0},
+    {"name": "XO_32M", "net_class": "CLOCK", "connections": [["X2", "3"], ["U1", "K2"]], "impedance_target_ohm": 0},
+    {"name": "SW_L1", "net_class": "POWER", "connections": [["U3", "15"], ["L1", "1"]], "impedance_target_ohm": 0}
+  ],
+  "constraints": {
+    "board": {"width_mm": 90.0, "height_mm": 70.0, "layers": 8},
+    "keepouts": [
+      {"name": "bga_under_zone", "x_min_mm": 20.0, "y_min_mm": 15.0, "x_max_mm": 70.0, "y_max_mm": 55.0, "kind": "thermal"}
+    ],
+    "thermal": {"max_temp_c": 95.0, "hot_components": ["U1", "U3"]},
+    "impedance_targets": [
+      {"net": "DDR4_DQ0", "ohm": 40.0},
+      {"net": "ETH_TX_P", "ohm": 50.0}
+    ],
+    "length_match": [{"group": "BYTE0", "tolerance_mm": 1.0}, {"group": "CLK", "tolerance_mm": 0.5}],
+    "factory": "jlcpcb"
+  },
+  "expected_metrics": {
+    "drc_score": 88.0,
+    "via_count": 210,
+    "routed_length_mm": 1900.0,
+    "convergence_s": 900.0,
+    "cost_usd": 1.20
+  }
+}

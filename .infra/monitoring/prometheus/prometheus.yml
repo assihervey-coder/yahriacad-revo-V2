@@ -1,0 +1,70 @@
+# Configuration Prometheus — pcb_ai_designer_v2 (spec section 07).
+# Monté dans le conteneur prometheus par docker-compose.yml :
+#   ./.infra/monitoring/prometheus/prometheus.yml -> /etc/prometheus/prometheus.yml
+# Convention de la plateforme : chaque service expose /metrics sur le port 9091
+# (prometheus-client) ; la gateway les expose sur son port HTTP 8000.
+
+global:
+  # Fenêtre d'échantillonnage — alignée sur la latence cible du workflow
+  # (fast_eval < 5 s : un scrape de 15 s détecte une dégradation en 2 passes).
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  evaluation_interval: 15s
+
+rule_files:
+  - /etc/prometheus/rules.yml
+
+scrape_configs:
+  # ---------- passerelle publique ----------
+  - job_name: api-gateway
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["api_gateway:8000"]
+        labels:
+          service: api_gateway
+          domain: gateway
+
+  # ---------- services gRPC (port métriques 9091) ----------
+  - job_name: grpc-services
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - orchestrator:9091
+        labels:
+          service: orchestrator
+          domain: pipeline
+      - targets:
+          - parser:9091
+        labels:
+          service: parser
+          domain: pipeline
+      - targets:
+          - ai_engine:9091
+        labels:
+          service: ai_engine
+          domain: ai
+      - targets:
+          - simulator:9091
+        labels:
+          service: simulator
+          domain: ai
+      - targets:
+          - router:9091
+        labels:
+          service: router
+          domain: pipeline
+      - targets:
+          - drc_dfm_engine:9091
+        labels:
+          service: drc_dfm_engine
+          domain: validation
+      - targets:
+          - firmware_bridge:9091
+        labels:
+          service: firmware_bridge
+          domain: pipeline
+      - targets:
+          - exporter:9091
+        labels:
+          service: exporter
+          domain: validation

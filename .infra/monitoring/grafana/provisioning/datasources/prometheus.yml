@@ -1,0 +1,17 @@
+# Provisioning Grafana — datasource Prometheus.
+# Monté par docker-compose.yml :
+#   ./.infra/monitoring/grafana/provisioning -> /etc/grafana/provisioning (ro)
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus-pcb        # uid stable — référencé par les dashboards provisionnés
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: false
+    jsonData:
+      httpMethod: POST
+      timeInterval: 15s        # aligné sur scrape_interval de prometheus.yml
+    version: 1

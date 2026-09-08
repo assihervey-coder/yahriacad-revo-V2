@@ -1,0 +1,29 @@
+{{/*
+Services ClusterIP — un par microservice.
+Ports alignés sur docker-compose.yml : gRPC 50051-50057 (+ orchestrator 50060),
+gateway HTTP 8000 ; chaque service expose aussi son port métriques 9091.
+*/}}
+{{- range $name, $svc := .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pcb-ai-designer.fullname" (dict "root" $ "service" $name) }}
+  labels:
+    {{- include "pcb-ai-designer.labels" (merge (dict "component" $name) $) | nindent 4 }}
+  annotations:
+    # Découverte par Prometheus (scrape des /metrics sur 9091).
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9091"
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "pcb-ai-designer.selectorLabels" (merge (dict "component" $name) $) | nindent 4 }}
+  ports:
+    {{- range $svc.servicePorts }}
+    - name: {{ .name }}
+      port: {{ .port }}
+      targetPort: {{ .targetPort }}
+      protocol: TCP
+    {{- end }}
+{{- end }}

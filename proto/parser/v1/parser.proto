@@ -1,0 +1,52 @@
+// Service parser — import et normalisation des entrées (section 6.1).
+syntax = "proto3";
+
+package pcb.parser.v1;
+
+import "common/v1/common.proto";
+
+// netlist_parser : lit .net (SPICE) et .sch (KiCad)
+message ImportFileRequest {
+  pcb.common.v1.DesignRef design = 1;
+  string filename = 2;       // ex. "drone_main.net"
+  bytes content = 3;         // contenu du fichier
+  string format_hint = 4;    // "spice" | "kicad_sch" | "auto"
+}
+
+message ImportReport {
+  bool ok = 1;
+  int32 components_imported = 2;
+  int32 nets_imported = 3;
+  repeated string warnings = 4;   // nets flottants, empreintes manquantes...
+  string normalized_json = 5;     // Board normalisé (sérialisation JSON)
+}
+
+// nl_to_skidl : langage naturel → script SKiDL [Circuitron]
+message NaturalLanguageRequest {
+  pcb.common.v1.DesignRef design = 1;
+  string request_text = 2;        // "carte drone STM32 + LoRa"
+  string target_format = 3;       // "skidl" (seul format supporté en v1)
+}
+
+message SkidlScript {
+  string python_source = 1;       // script exécutable, lisible, versionnable
+  repeated string functional_blocks = 2;
+  string explanation = 3;         // justification des choix d'architecture
+}
+
+// constraint_extractor : extraction des contraintes techniques
+message ExtractConstraintsRequest {
+  pcb.common.v1.DesignRef design = 1;
+  string netlist_or_spec = 2;     // netlist importée ou cahier des charges NL
+}
+
+message ExtractedConstraints {
+  repeated pcb.common.v1.Constraint constraints = 1; // publiées ensuite sur le constraint_bus
+  repeated string signal_classes = 2;                // DDR, USB, MIPI...
+}
+
+service Parser {
+  rpc ImportFile(ImportFileRequest) returns (ImportReport);
+  rpc NaturalLanguageToSkidl(NaturalLanguageRequest) returns (SkidlScript);
+  rpc ExtractConstraints(ExtractConstraintsRequest) returns (ExtractedConstraints);
+}

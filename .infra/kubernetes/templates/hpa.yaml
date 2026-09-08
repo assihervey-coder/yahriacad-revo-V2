@@ -1,0 +1,45 @@
+{{/*
+HorizontalPodAutoscaler (autoscaling/v2) — un par service autoscalé.
+Cible : 70 % d'utilisation CPU (moyenne des pods) ; min/max par service.
+Les services GPU (ai_engine, simulator) scalent seulement sur les nœuds du pool
+"gpu" — les ressources nvidia.com/gpu limitent naturellement le maxReplicas.
+*/}}
+{{- range $name, $svc := .Values.services }}
+{{- if $svc.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "pcb-ai-designer.fullname" (dict "root" $ "service" $name) }}
+  labels:
+    {{- include "pcb-ai-designer.labels" (merge (dict "component" $name) $) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "pcb-ai-designer.fullname" (dict "root" $ "service" $name) }}
+  minReplicas: {{ $svc.autoscaling.minReplicas }}
+  maxReplicas: {{ $svc.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ $svc.autoscaling.targetCPUUtilizationPercentage }}
+  behavior:
+    scaleDown:
+      # Descente en charge prudente : ne casser pas une nuit d'optimisation en cours.
+      stabilizationWindowSeconds: 600
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+{{- end }}
+{{- end }}

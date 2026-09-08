@@ -1,0 +1,26 @@
+// Service router — routage géométrique (section 6.4, brique DeepPCB pour via_minimizer).
+syntax = "proto3";
+
+package pcb.router.v1;
+
+import "common/v1/common.proto";
+
+message RouteRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  bool minimize_vias = 3;         // active la passe via_minimizer (−44 % cible)
+  bool stream_live = 4;           // true = chaque piste est poussée en direct (websocket_live)
+  repeated string nets_filter = 5; // vide = tous les nets non routés (re-route chirurgical sinon)
+}
+
+message RouteEvent {
+  oneof event {
+    pcb.common.v1.Segment segment = 1;   // piste routée — animée côté navigateur/KiCad
+    pcb.common.v1.Metrics progress = 2;  // score et vias courants
+    string error = 3;                    // net inroutable — escalade super_agent
+  }
+}
+
+service Router {
+  rpc Route(RouteRequest) returns (stream RouteEvent);
+}

@@ -1,0 +1,27 @@
+# Dépendances d'exécution — socle (les imports lourds sont gardés/guardés dans le code)
+numpy>=1.26
+fastapi>=0.111
+uvicorn[standard]>=0.30
+graphql-core>=3.2          # schéma GraphQL de la gateway
+pydantic>=2.7
+httpx>=0.27
+websockets>=12.0
+python-multipart>=0.0.9    # upload de fichiers (routes upload)
+prometheus-client>=0.20
+grpcio>=1.62               # requis par make proto
+grpcio-tools>=1.62
+grpcio-health-checking>=1.62
+protobuf>=4.25
+redis>=5.0                 # bus de contraintes multi-pods (fallback mémoire sinon)
+neo4j>=5.20                # graphe de connaissances [Circuitron]
+python-jose[cryptography]>=3.3  # JWT middleware
+passlib[bcrypt]>=1.7
+scikit-learn>=1.4          # embeddings RAG fallback
+pyyaml>=6.0
+
+# RL — cerveau IA (optionnel en dev ; requis pour l'entraînement)
+# torch>=2.3
+# gymnasium>=0.29
+
+# Simulation — bindings CUDA optionnels (.infra/docker_toolchain)
+# cupy-cuda12x>=13.0

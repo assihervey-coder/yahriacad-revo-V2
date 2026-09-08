@@ -1,0 +1,59 @@
+# syntax=docker/dockerfile:1.7
+# =============================================================================
+# Image générique des microservices — pcb_ai_designer_v2
+# -----------------------------------------------------------------------------
+# Les 9 services (api_gateway, orchestrator, parser, ai_engine, simulator,
+# router, drc_dfm_engine, firmware_bridge, exporter) partagent CETTE image :
+# seul SERVICE_MODULE change au lancement (dans docker-compose.yml, Helm,
+# ou la commande du conteneur). Cohérent avec docker-compose.yml :
+#   build: context: .  dockerfile: .infra/docker_toolchain/Dockerfile.service
+#
+# Build :
+#   docker build -f .infra/docker_toolchain/Dockerfile.service -t pcb-parser:2.0.0 .
+#   docker tag / push puis épinglement par digest dans Helm (values.yaml).
+# =============================================================================
+
+# Image de base : cible "pcb-base" de Dockerfile.base (build de l'étape 1) ou
+# image pré-publiée par digest. L'ARG permet les deux flux :
+#   - dev   : docker build --build-arg BASE_IMAGE=pcb-base:2.0.0 ...
+#   - prod  : BASE_IMAGE=registry.example.com/pcb/pcb-base@sha256:abcd... (gelé)
+ARG BASE_IMAGE=pcb-base:2.0.0
+FROM ${BASE_IMAGE}
+
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Dépendances applicatives d'abord (meilleure réutilisation du cache layer).
+COPY requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Code source : socle commun + contrats gRPC + backend.
+# backend/ est développé en parallèle ; wildcard + mkdir pour rester buildable
+# tant que les couches ne sont pas fusionnées (l'image minimale boot alors en
+# mode dégradé : socle common/ seul, utile pour les tests d'image CI).
+RUN mkdir -p ./backend
+COPY common/ ./common/
+COPY proto/ ./proto/
+COPY backend/ ./backend/
+
+# Utilisateur non-root dédié (uid fixe pour la cohérence des volumes S3/POSIX).
+RUN useradd --uid 10001 --user-group --create-home --shell /usr/sbin/nologin pcb \
+    && chown -R pcb:pcb /app
+USER pcb
+
+# ENTRYPOINT générique : le module du service est choisi par SERVICE_MODULE.
+# Exemples (alignés sur docker-compose.yml) :
+#   SERVICE_MODULE=backend.api_gateway.main      -> gateway HTTP :8000
+#   SERVICE_MODULE=backend.services.parser.main  -> gRPC :50051
+#   SERVICE_MODULE=backend.services.router.main  -> gRPC :50054
+ENV SERVICE_MODULE=backend.services.parser.main \
+    GRPC_PORT=50051
+ENTRYPOINT ["sh", "-c", "exec python -m \"${SERVICE_MODULE}\""]
+
+# Sonde applicative : chaque service expose /health (HTTP) sur GRPC_PORT/http
+# et /metrics sur 9091 — les probes Kubernetes ciblent ces endpoints.
+EXPOSE 50051 8000 9091

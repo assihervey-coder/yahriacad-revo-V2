@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Stubs gRPC générés
+backend/proto_gen/
+
+# Secrets & environnement
+.env
+*.pem
+
+# Artefacts de run
+out/
+/tmp/
+data/projects/*/exports/
+data/projects/credits.json
+data/trained_models/checkpoints/
+*.log
+
+# Node (frontend)
+frontend/node_modules/
+frontend/dist/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/

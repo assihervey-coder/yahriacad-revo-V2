@@ -1,0 +1,18 @@
+# Provisioning Grafana — provider de dashboards.
+# Les dashboards JSON de .infra/monitoring/grafana/dashboards/ sont montés dans
+# /var/lib/grafana/dashboards par docker-compose.yml et scannés toutes les 10 s :
+# une modification du dépôt suffit à mettre le dashboard à jour.
+apiVersion: 1
+
+providers:
+  - name: pcb-ai-designer
+    orgId: 1
+    folder: PCB AI Designer
+    folderUid: pcb-ai-designer
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

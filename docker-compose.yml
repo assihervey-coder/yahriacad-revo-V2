@@ -1,0 +1,183 @@
+# pcb_ai_designer_v2 — pile complète de développement
+# Persistance (data/, section 07) + gateway + services gRPC + monitoring.
+# Usage : docker compose up -d [redis neo4j minio postgres prometheus grafana]
+
+x-common-env: &common-env
+  APP_ENV: development
+  LOG_LEVEL: INFO
+  REDIS_URL: redis://redis:6379/0
+  NEO4J_URI: bolt://neo4j:7687
+  S3_ENDPOINT: http://minio:9000
+  S3_BUCKET: pcb-projects
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  environment:
+    <<: *common-env
+  depends_on:
+    - redis
+    - minio
+  networks: [pcbnet]
+
+services:
+  # ---------- persistance ----------
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    networks: [pcbnet]
+
+  neo4j: # graphe de connaissances [Circuitron] — data/knowledge_graph_db/
+    image: neo4j:5-community
+    environment:
+      NEO4J_AUTH: neo4j/pcb-dev
+    ports: ["7474:7474", "7687:7687"]
+    volumes: [neo4j_data:/data]
+    networks: [pcbnet]
+
+  minio: # S3 compatible — data/projects/
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: pcbadmin
+      MINIO_ROOT_PASSWORD: pcb-dev-secret
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [minio_data:/data]
+    networks: [pcbnet]
+
+  postgres: # registre de modèles, journal manufacturing_feedback, crédits
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: pcb
+      POSTGRES_PASSWORD: pcb-dev
+      POSTGRES_DB: pcb_designer
+    ports: ["5432:5432"]
+    volumes: [pg_data:/var/lib/postgresql/data]
+    networks: [pcbnet]
+
+  # ---------- backend ----------
+  api_gateway:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: uvicorn backend.api_gateway.main:app --host 0.0.0.0 --port 8000
+    ports: ["8000:8000"]
+    depends_on: [redis, minio, postgres]
+
+  orchestrator:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.orchestrator.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: orchestrator
+      GRPC_PORT: "50060"
+    ports: ["50060:50060"]
+
+  parser:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.parser.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: parser
+      GRPC_PORT: "50051"
+
+  ai_engine:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.ai_engine.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: ai_engine
+      GRPC_PORT: "50052"
+      ENABLE_CUDA: "true"
+
+  simulator:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.simulator.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: simulator
+      GRPC_PORT: "50053"
+      ENABLE_CUDA: "true"
+
+  router:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.router.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: router
+      GRPC_PORT: "50054"
+
+  drc_dfm_engine:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.drc_dfm_engine.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: drc_dfm_engine
+      GRPC_PORT: "50055"
+
+  firmware_bridge:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.firmware_bridge.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: firmware_bridge
+      GRPC_PORT: "50056"
+
+  exporter:
+    <<: *service-defaults
+    build:
+      context: .
+      dockerfile: .infra/docker_toolchain/Dockerfile.service
+    command: python -m backend.services.exporter.main
+    environment:
+      <<: *common-env
+      SERVICE_NAME: exporter
+      GRPC_PORT: "50057"
+
+  # ---------- monitoring (.infra/monitoring/) ----------
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./.infra/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./.infra/monitoring/prometheus/rules.yml:/etc/prometheus/rules.yml:ro
+    ports: ["9090:9090"]
+    networks: [pcbnet]
+
+  grafana:
+    image: grafana/grafana:latest
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: pcb-dev
+    volumes:
+      - ./.infra/monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./.infra/monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    networks: [pcbnet]
+
+networks:
+  pcbnet: {}
+
+volumes:
+  neo4j_data: {}
+  minio_data: {}
+  pg_data: {}

@@ -1,0 +1,169 @@
+# Règles d'alerte MÉTIER — pcb_ai_designer_v2 (spec section 07).
+# Chargées par prometheus.yml (rule_files: /etc/prometheus/rules.yml) et
+# visualisables dans Grafana (panneau "Alertes").
+#
+# Philosophie : on alerte sur des indicateurs MÉTIER de conception (latence
+# d'évaluation, taux d'acceptation keeper, vias par design, échecs DRC, latence
+# WebSocket/bus, pression GPU) AVANT que l'utilisateur ne subisse l'incident.
+#
+# Métriques émises par la plateforme (prometheus-client) :
+#   pcb_fasteval_duration_seconds      (histogramme, secondes)  — itération fast_eval
+#   pcb_keeper_acceptance_ratio        (jauge 0..1)             — keeper_logic / AutoPCB
+#   pcb_vias_per_design                (jauge)                  — vias du design courant
+#   pcb_drc_checks_total               (compteur)               — vérifications DRC
+#   pcb_drc_checks_failed_total        (compteur)               — échecs DRC
+#   pcb_ws_latency_ms                  (histogramme, ms)        — canal WebSocket live
+#   pcb_bus_latency_ms                 (histogramme, ms)        — bus de contraintes
+#   pcb_optimizer_iterations_total     (compteur)               — itérations nocturnes
+#   pcb_credits_spent_usd_total        (compteur, USD)          — crédits dépensés
+
+groups:
+  - name: pcb_designer_metier
+    # Évaluation toutes les 15 s (evaluation_interval global).
+    rules:
+      # ------------------------------------------------------------------ #
+      # Latence d'évaluation rapide : un p95 > 5 s signale une régression   #
+      # du cerveau IA (modèle plus lourd, contention GPU) — la boucle       #
+      # ratchet nocturne (~300 itérations) devient alors prohibitif.        #
+      # ------------------------------------------------------------------ #
+      - alert: FastEvalLatencyAbove5s
+        expr: |
+          histogram_quantile(0.95, sum by (le, service) (rate(pcb_fasteval_duration_seconds_bucket[5m]))) > 5
+        for: 10m
+        labels:
+          severity: warning
+          domain: ai
+        annotations:
+          summary: "Latence fast_eval p95 au-dessus de 5 s sur {{ $labels.service }}"
+          description: >-
+            Le p95 de la durée d'itération fast_eval dépasse 5 s depuis 10 min
+            (valeur courante : {{ $value | humanize }}s). La boucle nocturne
+            AutoPCB (~300 itérations ≈ 1,20 USD) dérive : vérifier la charge GPU
+            et la version du modèle policy_network avant dégradation utilisateur.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=fasteval"
+
+      # ------------------------------------------------------------------ #
+      # Taux d'acceptation keeper : sous 30 % sur 1 h, le modèle de         #
+      # dégradation propose des designs majoritairement rejetés — c'est le  #
+      # signal le plus précoce d'une dégradation de modèle, AVANT tout      #
+      # incident utilisateur.                                               #
+      # ------------------------------------------------------------------ #
+      - alert: KeeperAcceptanceRateLow
+        expr: avg_over_time(pcb_keeper_acceptance_ratio[1h]) < 0.30
+        for: 15m
+        labels:
+          severity: critical
+          domain: ai
+        annotations:
+          summary: "Taux d'acceptation keeper < 30 % sur 1 h"
+          description: >-
+            Le keeper_logic n'accepte que {{ $value | humanizePercentage }} des
+            propositions sur la dernière heure. Dégradation probable du modèle
+            policy_network (régression, drift de distribution). ROLLBACK vers la
+            dernière version saine du registre (data/trained_models/) recommandé.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=keeper"
+
+      # ------------------------------------------------------------------ #
+      # Pic de vias par design : comparer la fenêtre 15 min à la référence  #
+      # 7 jours. Un facteur 2 signifie que le routeur RL a changé de        #
+      # comportement (régression d'entraînement ou contraintes ignorées) —  #
+      # les vias coûtent du rendement usine et du bruit de routage.         #
+      # ------------------------------------------------------------------ #
+      - alert: ViasPerDesignSpike
+        expr: |
+          avg_over_time(pcb_vias_per_design[15m])
+            > 2 * avg_over_time(pcb_vias_per_design[7d])
+        for: 15m
+        labels:
+          severity: warning
+          domain: ai
+        annotations:
+          summary: "Pic de vias par design (x2 vs référence 7 j)"
+          description: >-
+            Moyenne de vias/design sur 15 min : {{ $value | printf "%.0f" }} —
+            plus du double de la référence hebdomadaire. La promesse plateforme
+            est -44 % de vias vs Quilter : investiguer la dernière itération du
+            routeur RL (données d'entraînement, contraintes de bus ignorées).
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=vias"
+
+      # ------------------------------------------------------------------ #
+      # Taux d'échec DRC : plus de 10 % des vérifications échouent —        #
+      # détecte un jeu de règles DRC/DFM désynchronisé ou un routeur        #
+      # déréglé avant que les exports Gerber ne partent en usine.           #
+      # ------------------------------------------------------------------ #
+      - alert: DrcFailRateHigh
+        expr: |
+          sum(rate(pcb_drc_checks_failed_total[15m]))
+            / clamp_min(sum(rate(pcb_drc_checks_total[15m])), 0.001) > 0.10
+        for: 15m
+        labels:
+          severity: critical
+          domain: validation
+        annotations:
+          summary: "Taux d'échec DRC > 10 % sur 15 min"
+          description: >-
+            {{ $value | humanizePercentage }} des vérifications DRC échouent
+            depuis 15 min. Vérifier la synchronisation des règles
+            drc_dfm_engine (requalification data/manufacturing_feedback/) et la
+            dernière version du routeur RL.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=drc"
+
+      # ------------------------------------------------------------------ #
+      # Latence WebSocket live : cible contractuelle < 100 ms (le "routage  #
+      # en direct" est le cœur de l'expérience DeepPCB).                    #
+      # ------------------------------------------------------------------ #
+      - alert: WsLatencyAbove100ms
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(pcb_ws_latency_ms_bucket[5m]))) > 100
+        for: 5m
+        labels:
+          severity: warning
+          domain: gateway
+        annotations:
+          summary: "Latence WebSocket p95 > 100 ms"
+          description: >-
+            Le canal WebSocket live affiche un p95 de {{ $value | printf "%.0f" }} ms
+            depuis 5 min — l'éditeur chirurgical et le rendu WebGL vont sentir
+            le décalage. Vérifier la saturation de api_gateway (HPA) et le bus.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=ws"
+
+      # ------------------------------------------------------------------ #
+      # Latence du bus de contraintes : cible < 50 ms — au-delà, les agents #
+      # décident sur des contraintes périmées (thermal, impedance, keepout).#
+      # ------------------------------------------------------------------ #
+      - alert: BusLatencyAbove50ms
+        expr: |
+          histogram_quantile(0.95, sum by (le) (rate(pcb_bus_latency_ms_bucket[5m]))) > 50
+        for: 5m
+        labels:
+          severity: warning
+          domain: pipeline
+        annotations:
+          summary: "Latence bus de contraintes p95 > 50 ms"
+          description: >-
+            La diffusion des contraintes dépasse 50 ms en p95
+            ({{ $value | printf "%.1f" }} ms). Les sous-systèmes travaillent sur
+            des contraintes périmées : vérifier Redis (CONSTRAINT_BUS) et la
+            charge du pub/sub multi-pods.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=bus"
+
+      # ------------------------------------------------------------------ #
+      # Pression GPU : plus de 90 % des nœuds GPU allouables sont réservés  #
+      # — les nuits d'optimisation et les fast_eval vont s'empiler.         #
+      # ------------------------------------------------------------------ #
+      - alert: GpuNodePressure
+        expr: |
+          sum(kube_pod_container_resource_requests{resource="nvidia_com_gpu", unit="integer"})
+            / clamp_min(sum(kube_node_status_allocatable{resource="nvidia_com_gpu", unit="integer"}), 1) > 0.90
+        for: 15m
+        labels:
+          severity: warning
+          domain: infra
+        annotations:
+          summary: "Pression GPU — 90 % des nœuds GPU allouables réservés"
+          description: >-
+            L'allocation GPU du cluster atteint {{ $value | humanizePercentage }}.
+            ai_engine (rl_agent) et simulator (multiphysique CUDA) risquent de
+            se mettre en attente : scaler le pool GPU ou dégrader les nuits
+            d'optimisation non prioritaires.
+          dashboard: "/d/pcb-designer/pcb_ai_designer?panel=fasteval"

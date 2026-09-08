@@ -1,0 +1,21 @@
+{
+  "name": "pcb-ai-designer-frontend",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Interface React 18 + Vite + Three.js de la plateforme pcb_ai_designer_v2 — visualisation WebGL, chat conversationnel, éditeur chirurgical, aperçu firmware, crédits DeepPCB.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.165.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  }
+}

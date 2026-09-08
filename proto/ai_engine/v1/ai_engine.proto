@@ -1,0 +1,64 @@
+// Service ai_engine — le cerveau IA (section 05) : contrat gRPC du sous-système.
+// En interne, les cinq sous-systèmes communiquent par le constraint_bus ; cette
+// API sert aux appels de l'orchestrator et des services voisins.
+syntax = "proto3";
+
+package pcb.ai.v1;
+
+import "common/v1/common.proto";
+
+// rl_agent — propose une action de placement (x, y, rotation, couche)
+message ProposeActionRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  string component_ref = 3;
+  int32 candidates = 4;           // nombre d'actions candidates à proposer
+}
+
+message PlacementActions {
+  repeated PlacementAction items = 1;
+}
+
+message PlacementAction {
+  string component_ref = 1;
+  double x_mm = 2;
+  double y_mm = 3;
+  double rotation_deg = 4;
+  int32 layer = 5;
+  double predicted_reward = 6;    // estimation du world_model (DreamerV3)
+}
+
+// self_verifier — vérification déterministe avant engagement [Siemens Fuse]
+message VerifyActionRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  PlacementAction action = 3;
+}
+
+message VerifyActionReply {
+  bool valid = 1;
+  repeated string violated_constraints = 2; // clés du constraint_bus violées
+  string reason = 3;                        // géométrie | électrique | routabilité
+  bool rolled_back = 4;                     // true si le rollback_manager a annulé l'état
+}
+
+// autonomous_optimizer — boucle nocturne ratchet [AutoPCB]
+message RunNightOptimizationRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  int32 max_iterations = 3;       // ~300 par défaut (≈ 1,20 USD)
+}
+
+message OptimizerIteration {
+  int32 iteration = 1;
+  string proposal_json = 2;       // modification candidate du proposer_llm
+  double eval_score = 3;          // score du fast_evaluator (< 5 s)
+  bool kept = 4;                  // décision du keeper_logic (ratchet)
+  double best_score = 5;
+}
+
+service AiEngine {
+  rpc ProposePlacement(ProposeActionRequest) returns (PlacementActions);
+  rpc VerifyAction(VerifyActionRequest) returns (VerifyActionReply);
+  rpc RunNightOptimization(RunNightOptimizationRequest) returns (stream OptimizerIteration);
+}

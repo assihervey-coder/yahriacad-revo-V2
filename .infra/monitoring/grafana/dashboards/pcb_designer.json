@@ -1,0 +1,240 @@
+{
+  "__inputs_note": "Datasource provisionnée par provisioning/datasources/prometheus.yml (uid prometheus-pcb). Métriques : pcb_drc_score, pcb_vias_per_design, pcb_fasteval_duration_seconds, pcb_keeper_acceptance_ratio, pcb_optimizer_iterations_total, pcb_ws_latency_ms, pcb_bus_latency_ms, pcb_credits_spent_usd_total.",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "type": "row",
+      "title": "Santé de conception — temps réel",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "panels": [],
+      "id": 100
+    },
+    {
+      "type": "timeseries",
+      "title": "Score DRC moyen",
+      "description": "Score composite 0-100 calculé par drc_dfm_engine (complétude du routage + pénalités vias).",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 70 },
+              { "color": "green", "value": 95 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "refId": "A", "expr": "avg(pcb_drc_score)", "legendFormat": "score DRC moyen" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Vias par design",
+      "description": "Moyenne de vias introduits par design routé. Promesse : -44 % vs Quilter — l'alerte ViasPerDesignSpike surveille un facteur x2.",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 120 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "refId": "A", "expr": "avg(pcb_vias_per_design)", "legendFormat": "vias/design" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latence fast_eval p95",
+      "description": "Durée p95 d'une itération d'évaluation rapide. SLS : < 5 s (alerte FastEvalLatencyAbove5s).",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 1 },
+      "id": 3,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 5 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le, service) (rate(pcb_fasteval_duration_seconds_bucket[$__rate_interval])))",
+          "legendFormat": "{{service}} p95"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Taux d'acceptation keeper",
+      "description": "Part des propositions validées par le keeper_logic. Sous 30 % sur 1 h : dégradation de modèle (alerte KeeperAcceptanceRateLow).",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 1 },
+      "id": 4,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 0.3 },
+              { "color": "green", "value": 0.6 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "refId": "A", "expr": "avg_over_time(pcb_keeper_acceptance_ratio[$__interval])", "legendFormat": "keeper acceptance" }
+      ]
+    },
+    {
+      "type": "row",
+      "title": "Latence plateforme & coûts",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "panels": [],
+      "id": 200
+    },
+    {
+      "type": "timeseries",
+      "title": "Itérations optimiseur (24 h)",
+      "description": "Itérations de la boucle ratchet nocturne AutoPCB accumulées sur 24 h (~300 itérations ≈ 1,20 USD).",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 10 },
+      "id": 5,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "bars", "fillOpacity": 40 } }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(pcb_optimizer_iterations_total[24h]))", "legendFormat": "itérations/24h" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latence WebSocket p95",
+      "description": "Latence p95 du canal live (éditeur chirurgical, rendu WebGL). SLS : < 100 ms (alerte WsLatencyAbove100ms).",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 10 },
+      "id": 6,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(pcb_ws_latency_ms_bucket[$__rate_interval])))",
+          "legendFormat": "WS p95"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Latence bus de contraintes p95",
+      "description": "Latence p95 de diffusion des contraintes (thermal, impedance, keepout). SLS : < 50 ms (alerte BusLatencyAbove50ms).",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 10 },
+      "id": 7,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(pcb_bus_latency_ms_bucket[$__rate_interval])))",
+          "legendFormat": "bus p95"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Coût crédits (USD / 24 h)",
+      "description": "Crédits pay-as-you-go dépensés sur 24 h (routage, fast_eval, exports, simulations).",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 10 },
+      "id": 8,
+      "datasource": { "type": "prometheus", "uid": "prometheus-pcb" },
+      "fieldConfig": { "defaults": { "unit": "currencyUSD" }, "overrides": [] },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "multi", "sort": "desc" } },
+      "targets": [
+        { "refId": "A", "expr": "sum(increase(pcb_credits_spent_usd_total[24h]))", "legendFormat": "USD/24h" }
+      ]
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": ["pcb", "ai", "production"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "pcb_ai_designer — vue production",
+  "uid": "pcb-designer",
+  "version": 1,
+  "weekStart": ""
+}

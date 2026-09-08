@@ -1,0 +1,24 @@
+# Chart Helm de la plateforme pcb_ai_designer_v2 — couche .infra (spec section 07).
+# Déploie les 9 microservices : api_gateway, orchestrator, parser, ai_engine,
+# simulator, router, drc_dfm_engine, firmware_bridge, exporter.
+# Reproductibilité [Circuitron] : les images sont figées par digests (voir
+# .infra/docker_toolchain/versions.lock).
+apiVersion: v2
+name: pcb-ai-designer
+description: >-
+  Plateforme de conception de circuits imprimés par essaim d'agents
+  (RL + LLM + symbolique) : gateway FastAPI, orchestrateur multi-agents,
+  7 services gRPC et exportation Gerber/ODB++.
+type: application
+version: 2.0.0          # version du chart (semver) — bump à chaque évolution des templates
+appVersion: "2.0.0"     # version applicative alignée sur pyproject.toml
+home: https://git.example.com/pcb/pcb_ai_designer_v2
+keywords:
+  - pcb
+  - kicad
+  - reinforcement-learning
+  - grpc
+  - quilter-alternative
+maintainers:
+  - name: pcb-ai-designer platform team
+    email: platform@pcb-ai.example.com

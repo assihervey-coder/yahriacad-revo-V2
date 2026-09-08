@@ -1,0 +1,5 @@
+run_id,project_id,design_version,fab,fab_date,panels,units_produced,units_failed,process
+RUN-2024-0601,drone_stm32_lora,3,JLCPCB,2024-06-01,20,400,14,reflow
+RUN-2024-0602,usb_c_dock,2,PCBWay,2024-06-03,15,300,9,reflow
+RUN-2024-0603,soc_ddr4,1,JLCPCB,2024-06-05,10,150,11,reflow
+RUN-2024-0604,drone_stm32_lora,4,JLCPCB,2024-06-08,20,400,7,reflow

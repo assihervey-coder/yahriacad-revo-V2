@@ -1,0 +1,100 @@
+{{/*
+Déploiement générique — boucle sur .Values.services (9 microservices).
+Chaque itération rend : container ports, env (global + service), probes /health,
+ressources CPU ou GPU conditionnelles, nodeSelector (pool gpu ou général).
+Les 9 images sont issues du même Dockerfile.service (cible unique, ENTRYPOINT
+paramétré par SERVICE_MODULE) — voir .infra/docker_toolchain/.
+*/}}
+{{- range $name, $svc := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pcb-ai-designer.fullname" (dict "root" $ "service" $name) }}
+  labels:
+    {{- include "pcb-ai-designer.labels" (merge (dict "component" $name) $) | nindent 4 }}
+spec:
+  {{- if $svc.autoscaling.enabled }}
+  # Quand l'HPA est actif, il pilote replicas — on fige quand même une graine.
+  replicas: {{ $svc.autoscaling.minReplicas | default $svc.replicas }}
+  {{- else }}
+  replicas: {{ $svc.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pcb-ai-designer.selectorLabels" (merge (dict "component" $name) $) | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        {{- include "pcb-ai-designer.selectorLabels" (merge (dict "component" $name) $) | nindent 8 }}
+      annotations:
+        # Force le redéploiement quand la config change (configMap/secret).
+        checksum/config: {{ toYaml (dict "env" $svc.env "global" $.Values.global.env) | sha256sum }}
+    spec:
+      {{- $gpu := $svc.gpu | default dict }}
+      {{- $pool := default "cpu" $svc.nodeSelectorKey }}
+      {{- with (get $.Values.global.nodeSelector $pool) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      # Tolérance pour réserver les nœuds GPU (taint nvidia.com/gpu=present).
+      {{- if $gpu.enabled }}
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: {{ include "pcb-ai-designer.serviceImage" (dict "root" $ "svc" $svc "name" $name) }}
+          imagePullPolicy: {{ $.Values.global.image.pullPolicy }}
+          ports:
+            {{- range $svc.containerPorts }}
+            - name: {{ .name }}
+              containerPort: {{ .containerPort }}
+              protocol: TCP
+            {{- end }}
+          env:
+            # Environnement global (REDIS_URL, NEO4J_URI, S3_ENDPOINT, ...)
+            {{- range $k, $v := $.Values.global.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            # Environnement spécifique du service (SERVICE_NAME, GRPC_PORT, ...)
+            {{- range $k, $v := $svc.env }}
+            - name: {{ $k }}
+              value: {{ $v | quote }}
+            {{- end }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          envFrom:
+            # JWT_SECRET, NEO4J_PASSWORD, S3_ACCESS_KEY... (templates/secret.yaml)
+            - secretRef:
+                name: {{ include "pcb-ai-designer.fullname" (dict "root" $ "service" "secrets") }}
+          # Sonde de vie/lecture : /health sur le port HTTP (gateway) ou métriques (gRPC).
+          livenessProbe:
+            httpGet:
+              path: {{ $.Values.global.probes.path }}
+              port: {{ $svc.probePort }}
+            initialDelaySeconds: {{ $.Values.global.probes.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.global.probes.periodSeconds }}
+            timeoutSeconds: {{ $.Values.global.probes.timeoutSeconds }}
+            failureThreshold: {{ $.Values.global.probes.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ $.Values.global.probes.path }}
+              port: {{ $svc.probePort }}
+            initialDelaySeconds: {{ $.Values.global.probes.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.global.probes.periodSeconds }}
+            timeoutSeconds: {{ $.Values.global.probes.timeoutSeconds }}
+            failureThreshold: {{ $.Values.global.probes.failureThreshold }}
+          resources:
+            {{- include "pcb-ai-designer.resources" (dict "root" $ "svc" $svc) | nindent 12 }}
+{{- end }}

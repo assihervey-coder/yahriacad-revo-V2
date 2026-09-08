@@ -1,0 +1,38 @@
+// Service firmware_bridge — intégration HW/SW (section 6.5, brique Flux.ai).
+syntax = "proto3";
+
+package pcb.firmware.v1;
+
+import "common/v1/common.proto";
+
+message ExportPinsRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  string target = 3;              // "zephyr" | "arduino" | "raw"
+}
+
+message PinAssignments {
+  repeated PinAssignment items = 1;
+}
+
+message PinAssignment {
+  string component_ref = 1;
+  string pin = 2;                 // ex. "PA9"
+  string function = 3;            // "GPIO_OUT", "UART1_TX", "I2C1_SDA"...
+  string net = 4;
+}
+
+message GeneratedHeaders {
+  repeated GeneratedHeader items = 1;
+}
+
+message GeneratedHeader {
+  string filename = 1;            // ex. "pin_map_zephyr.h"
+  string c_source = 2;            // en-tête C complet
+  repeated PinAssignment assignments = 3;
+}
+
+service FirmwareBridge {
+  rpc ExportPins(ExportPinsRequest) returns (PinAssignments);
+  rpc GenerateHeaders(ExportPinsRequest) returns (GeneratedHeaders);
+}

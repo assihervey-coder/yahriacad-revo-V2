@@ -1,0 +1,51 @@
+{
+  "id": "drone_stm32_lora",
+  "name": "Carte drone STM32 + LoRa",
+  "description": "Contrôleur de vol compact : STM32F411, radio LoRa SX1276, IMU et baromètre I2C, régulateur buck 3A, connecteur JST-GH. Le keepout antenne RF est la contrainte discriminante du corpus — les moteurs doivent router SPI2 sous 25 mm sans traverser la zone.",
+  "components": [
+    {"ref": "U1", "mpn": "STM32F411CEU6", "value": "MCU", "footprint": "QFP-48", "pins": 48, "width_mm": 8.0, "height_mm": 8.0, "power_w": 0.45, "price_usd": 5.10, "stock": 4200, "functional_block": "mcu"},
+    {"ref": "U2", "mpn": "SX1276IMLTRT", "value": "LoRa 868MHz", "footprint": "QFN-28", "pins": 28, "width_mm": 5.5, "height_mm": 5.5, "power_w": 0.35, "price_usd": 3.85, "stock": 1850, "functional_block": "rf"},
+    {"ref": "U3", "mpn": "LSM6DS3TR-C", "value": "IMU 6 axes", "footprint": "LGA-14", "pins": 14, "width_mm": 3.0, "height_mm": 2.5, "power_w": 0.01, "price_usd": 2.20, "stock": 5600, "functional_block": "sensors"},
+    {"ref": "U4", "mpn": "LPS22HBTR", "value": "Baromètre", "footprint": "LGA-10", "pins": 10, "width_mm": 2.5, "height_mm": 2.0, "power_w": 0.01, "price_usd": 1.90, "stock": 3200, "functional_block": "sensors"},
+    {"ref": "U5", "mpn": "TPS63020DSJR", "value": "Buck 3A", "footprint": "SON-10", "pins": 10, "width_mm": 3.5, "height_mm": 3.5, "power_w": 0.60, "price_usd": 2.75, "stock": 7400, "functional_block": "power"},
+    {"ref": "J1", "mpn": "SM02B-GHFS-TF", "value": "Batterie 2S", "footprint": "JST-GH-2", "pins": 2, "width_mm": 5.0, "height_mm": 3.5, "power_w": 0.0, "price_usd": 0.65, "stock": 9800, "functional_block": "connectivity"},
+    {"ref": "J2", "mpn": "SM04B-GHFS-TF", "value": "Debug SWD", "footprint": "JST-GH-4", "pins": 4, "width_mm": 6.5, "height_mm": 3.5, "power_w": 0.0, "price_usd": 0.80, "stock": 8100, "functional_block": "connectivity"},
+    {"ref": "A1", "mpn": "ANT-868-JW", "value": "Antenne 868", "footprint": "SMD-ANT", "pins": 1, "width_mm": 8.0, "height_mm": 3.0, "power_w": 0.0, "price_usd": 1.10, "stock": 2400, "functional_block": "rf"},
+    {"ref": "R1", "mpn": "RC0603FR-0710KL", "value": "10k", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.01, "stock": 48000, "functional_block": "passives"},
+    {"ref": "R2", "mpn": "RC0603FR-0710KL", "value": "10k", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.01, "stock": 48000, "functional_block": "passives"},
+    {"ref": "C1", "mpn": "GRM188R71H104KA93D", "value": "100n", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.02, "stock": 62000, "functional_block": "passives"},
+    {"ref": "C2", "mpn": "GRM188R61E226ME11D", "value": "22u", "footprint": "0603", "pins": 2, "width_mm": 1.6, "height_mm": 0.8, "power_w": 0.0, "price_usd": 0.09, "stock": 15000, "functional_block": "passives"},
+    {"ref": "L1", "mpn": "XFL4020-2R2ME", "value": "2u2", "footprint": "4020", "pins": 2, "width_mm": 4.0, "height_mm": 4.0, "power_w": 0.0, "price_usd": 0.35, "stock": 6900, "functional_block": "power"}
+  ],
+  "nets": [
+    {"name": "VBAT", "net_class": "POWER", "connections": [["J1", "1"], ["U5", "1"]], "impedance_target_ohm": 0},
+    {"name": "3V3", "net_class": "POWER", "connections": [["U5", "6"], ["U1", "12"], ["U2", "5"], ["U3", "1"], ["U4", "2"], ["R1", "1"], ["R2", "1"], ["C1", "1"], ["C2", "1"]], "impedance_target_ohm": 0},
+    {"name": "GND", "net_class": "POWER", "connections": [["J1", "2"], ["U5", "5"], ["U1", "23"], ["U2", "1"], ["U3", "7"], ["U4", "3"], ["C1", "2"], ["C2", "2"]], "impedance_target_ohm": 0},
+    {"name": "SPI2_SCK", "net_class": "SPI", "connections": [["U1", "30"], ["U2", "12"]], "impedance_target_ohm": 0},
+    {"name": "SPI2_MOSI", "net_class": "SPI", "connections": [["U1", "31"], ["U2", "13"]], "impedance_target_ohm": 0},
+    {"name": "SPI2_MISO", "net_class": "SPI", "connections": [["U1", "32"], ["U2", "14"]], "impedance_target_ohm": 0},
+    {"name": "SPI2_NSS", "net_class": "SPI", "connections": [["U1", "29"], ["U2", "15"]], "impedance_target_ohm": 0},
+    {"name": "I2C1_SDA", "net_class": "I2C", "connections": [["U1", "37"], ["U3", "3"], ["U4", "4"], ["R1", "2"]], "impedance_target_ohm": 0},
+    {"name": "I2C1_SCL", "net_class": "I2C", "connections": [["U1", "38"], ["U3", "5"], ["U4", "5"], ["R2", "2"]], "impedance_target_ohm": 0},
+    {"name": "RF_ANT", "net_class": "RF", "connections": [["U2", "9"], ["A1", "1"]], "impedance_target_ohm": 50},
+    {"name": "SWDIO", "net_class": "DEBUG", "connections": [["U1", "34"], ["J2", "2"]], "impedance_target_ohm": 0},
+    {"name": "SWCLK", "net_class": "DEBUG", "connections": [["U1", "35"], ["J2", "3"]], "impedance_target_ohm": 0},
+    {"name": "SW_5V", "net_class": "POWER", "connections": [["U5", "9"], ["L1", "1"]], "impedance_target_ohm": 0}
+  ],
+  "constraints": {
+    "board": {"width_mm": 55.0, "height_mm": 35.0, "layers": 4},
+    "keepouts": [
+      {"name": "antenna_keepout", "x_min_mm": 44.0, "y_min_mm": 0.0, "x_max_mm": 55.0, "y_max_mm": 35.0, "kind": "keepout"}
+    ],
+    "thermal": {"max_temp_c": 85.0, "hot_components": ["U5"]},
+    "impedance_targets": [{"net": "RF_ANT", "ohm": 50.0}],
+    "factory": "pcbway"
+  },
+  "expected_metrics": {
+    "drc_score": 95.0,
+    "via_count": 42,
+    "routed_length_mm": 480.0,
+    "convergence_s": 210.0,
+    "cost_usd": 1.20
+  }
+}

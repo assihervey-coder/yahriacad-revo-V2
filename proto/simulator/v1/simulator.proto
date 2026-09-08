@@ -1,0 +1,49 @@
+// Service simulator — moteur physique C++/CUDA (section 6.2, brique Cadence AuraStack).
+syntax = "proto3";
+
+package pcb.simulator.v1;
+
+import "common/v1/common.proto";
+
+message SimulateRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  string physics = 3;             // "em" | "thermal" | "signal_integrity" | "multi_physics"
+  bool streaming = 4;             // true = résultats partiels en stream pendant le calcul
+}
+
+message ThermalResult {
+  double max_temp_c = 1;
+  repeated Hotspot hotspots = 2;  // zones dépassant la consigne — publiées sur le constraint_bus
+  message Hotspot {
+    pcb.common.v1.BoundingBox area = 1;
+    double temp_c = 2;
+    string component_ref = 3;
+  }
+}
+
+message EMResult {
+  double crosstalk_max_db = 1;    // diaphonie maximale
+  double ground_bounce_mv = 2;
+  repeated pcb.common.v1.BoundingBox emi_zones = 3;
+}
+
+message SignalIntegrityResult {
+  double eye_opening_pct = 1;     // ouverture d'œil minimale des buses rapides
+  double overshoot_mv = 2;
+  double ir_drop_mv = 3;
+  repeated string failing_nets = 4;
+}
+
+message SimulateEvent {
+  oneof result {
+    ThermalResult thermal = 1;
+    EMResult em = 2;
+    SignalIntegrityResult si = 3;
+    pcb.common.v1.Metrics progress = 4;
+  }
+}
+
+service Simulator {
+  rpc Simulate(SimulateRequest) returns (stream SimulateEvent); // streaming multiphysique continu
+}

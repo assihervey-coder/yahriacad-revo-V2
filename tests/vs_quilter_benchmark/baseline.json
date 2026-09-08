@@ -1,0 +1,37 @@
+{
+  "generated_by": "run_benchmark v2.0.0 — moteur interne déterministe, certifié par revue d'architecture",
+  "thresholds": {
+    "drc_score_min_delta": 0.0,
+    "via_count_max_ratio": 1.1,
+    "routed_length_max_ratio": 1.1,
+    "si_compliance_min_delta": -5.0,
+    "convergence_max_ratio": 1.25,
+    "cost_max_ratio": 1.1
+  },
+  "designs": {
+    "drone_stm32_lora": {
+      "drc_score": 97.35,
+      "via_count": 53,
+      "routed_length_mm": 584.2,
+      "si_compliance": 100.0,
+      "convergence_s": 3.45,
+      "cost_usd": 0.9
+    },
+    "soc_ddr4": {
+      "drc_score": 97.15,
+      "via_count": 57,
+      "routed_length_mm": 779.9,
+      "si_compliance": 100.0,
+      "convergence_s": 3.52,
+      "cost_usd": 0.89
+    },
+    "usb_c_dock": {
+      "drc_score": 97.55,
+      "via_count": 49,
+      "routed_length_mm": 700.7,
+      "si_compliance": 100.0,
+      "convergence_s": 3.13,
+      "cost_usd": 0.84
+    }
+  }
+}

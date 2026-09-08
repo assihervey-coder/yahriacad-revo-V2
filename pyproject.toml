@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pcb-ai-designer-v2"
+version = "2.0.0"
+description = "Plateforme de conception PCB par essaim d'agents (RL + LLM + symbolique)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+
+[tool.setuptools.packages.find]
+include = ["common*", "backend*", "tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = ["backend/proto_gen"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]

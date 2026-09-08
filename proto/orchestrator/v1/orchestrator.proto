@@ -1,0 +1,49 @@
+// Orchestrator — coordination multi-agents (section 04, briques Siemens Fuse + AuraStack).
+syntax = "proto3";
+
+package pcb.orchestrator.v1;
+
+import "common/v1/common.proto";
+
+// Déclenchement du workflow 8 étapes (section 09)
+message RunPipelineRequest {
+  string project_id = 1;
+  string request_text = 2;        // requête NL ou vide si netlist déjà importée
+  repeated int32 steps = 3;       // [1..8] — vide = workflow complet
+  bool night_mode = 4;            // exécute l'étape 4 en arrière-plan
+}
+
+message StepStatus {
+  int32 step = 1;
+  string label = 2;
+  string state = 3;               // "pending" | "running" | "done" | "failed" | "skipped"
+  string detail = 4;
+  double duration_s = 5;
+}
+
+message PipelineEvent {
+  oneof event {
+    StepStatus step_status = 1;   // alimente l'event WebSocket step_progress
+    pcb.common.v1.Metrics metrics = 2;
+    string escalation = 3;        // escalade d'un agent vers le super_agent
+  }
+}
+
+message RollbackRequest {
+  string project_id = 1;
+  int32 to_version = 2;           // restauration depuis le journal du state_manager
+}
+
+// Arbitrage de conflits par le super_agent (ex. thermique vs empilement de couches)
+message ConflictReport {
+  string constraint_a = 1;
+  string constraint_b = 2;
+  string resolution = 3;          // décision justifiée, enregistrée dans le graphe d'intention
+  string rationale = 4;
+}
+
+service Orchestrator {
+  rpc RunPipeline(RunPipelineRequest) returns (stream PipelineEvent);
+  rpc Rollback(RollbackRequest) returns (pcb.common.v1.StatusReply);
+  rpc ReportConflict(ConflictReport) returns (ConflictReport);
+}

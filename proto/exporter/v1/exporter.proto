@@ -1,0 +1,24 @@
+// Service exporter — génération des fichiers finaux (section 6.6).
+syntax = "proto3";
+
+package pcb.exporter.v1;
+
+import "common/v1/common.proto";
+
+message ExportRequest {
+  pcb.common.v1.DesignRef design = 1;
+  pcb.common.v1.Board board = 2;
+  string factory_profile = 3;     // dernière vérification drc_dfm avant emballement
+  repeated string outputs = 4;    // "gerber", "odb", "bom", "pick_place"
+}
+
+message ExportReply {
+  bool ok = 1;
+  string archive_s3_key = 2;      // objet dans data/projects/{project_id}/exports/
+  repeated string files = 3;
+  string sha256 = 4;              // checksums de l'archive — journal manufacturing_feedback
+}
+
+service Exporter {
+  rpc Export(ExportRequest) returns (ExportReply);
+}

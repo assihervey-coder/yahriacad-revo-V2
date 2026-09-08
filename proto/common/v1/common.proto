@@ -1,0 +1,105 @@
+// Contrats communs — types partagés entre tous les services gRPC.
+// Versionnage : v1 (sémantique figée — toute rupture passe en v2).
+syntax = "proto3";
+
+package pcb.common.v1;
+
+option java_multiple_files = true;
+
+// ---------- Géométrie ----------
+
+message Point2D {
+  double x_mm = 1;
+  double y_mm = 2;
+}
+
+message BoundingBox {
+  double x_min_mm = 1;
+  double y_min_mm = 2;
+  double x_max_mm = 3;
+  double y_max_mm = 4;
+}
+
+// ---------- Design ----------
+
+message Component {
+  string ref = 1;
+  string mpn = 2;
+  string value = 3;
+  string footprint = 4;
+  int32 pins = 5;
+  double width_mm = 6;
+  double height_mm = 7;
+  double power_w = 8;
+  double price_usd = 9;
+  int32 stock = 10;
+  string functional_block = 11;
+}
+
+message Placement {
+  string ref = 1;
+  double x_mm = 2;
+  double y_mm = 3;
+  double rotation_deg = 4;
+  int32 layer = 5;
+  bool locked = 6;
+}
+
+message Segment {
+  string net = 1;
+  Point2D start = 2;
+  Point2D end = 3;
+  int32 layer = 4;
+  double width_mm = 5;
+  bool is_via = 6;
+}
+
+message Net {
+  string name = 1;
+  repeated string connections = 2;  // format "ref/pad"
+  string net_class = 3;
+  double impedance_target_ohm = 4;  // 0 = non applicable
+  string length_match_group = 5;
+  repeated Segment routed_segments = 6;
+}
+
+message Board {
+  double width_mm = 1;
+  double height_mm = 2;
+  int32 layer_count = 3;
+  repeated Component components = 4;
+  repeated Placement placements = 5;
+  repeated Net nets = 6;
+}
+
+message DesignRef {
+  string project_id = 1;
+  int32 version = 2;   // 0 = dernière version connue
+}
+
+// ---------- Contraintes (bus pub/sub — payload REST/GW miroir) ----------
+
+message Constraint {
+  string kind = 1;       // thermal_zone_update | impedance_target | keepout_zone | length_match_rule
+  string key = 2;
+  string json_value = 3; // charge utile JSON-sérialisable
+  string project_id = 4;
+  string source = 5;
+  int32 revision = 6;
+}
+
+// ---------- Statut & métriques ----------
+
+message Metrics {
+  double drc_score = 1;
+  int32 via_count = 2;
+  double routed_length_mm = 3;
+  int32 unrouted_nets = 4;
+  double convergence_s = 5;
+}
+
+message StatusReply {
+  bool ok = 1;
+  string detail = 2;
+  Metrics metrics = 3;
+}
