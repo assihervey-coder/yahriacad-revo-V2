@@ -63,6 +63,9 @@ nightly-quick: ## Smoke nocturne : passe RL courte + 60 itérations
 
 docs: docs-sphinx docs-doxygen ## Génère TOUTE la documentation (Sphinx + Doxygen)
 
+docs-pages: ## Déploie le site Sphinx sur la branche gh-pages (GitHub Pages)
+	bash scripts/deploy_pages.sh
+
 docs-sphinx: ## API Python -> docs/sphinx/_build/html/index.html
 	$(PY) -m sphinx -b html docs/sphinx docs/sphinx/_build/html
 	@echo "Sphinx : docs/sphinx/_build/html/index.html"

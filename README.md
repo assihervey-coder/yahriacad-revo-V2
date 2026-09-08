@@ -123,7 +123,7 @@ Le HTML généré est versionné dans le dépôt : `docs/sphinx/_build/html/` et
 `docs/doxygen/build/html/` sont consultables directement depuis GitHub.
 La chaîne Sphinx est aussi servie en ligne via GitHub Pages :
 **https://assihervey-coder.github.io/yahriacad-revo-V2/**
-(source : branche `main`, chemin `/docs/sphinx/_build/html`).
+(source : branche `gh-pages`, mise à jour par `make docs-pages`).
 
 ## Ordre d'implémentation recommandé (section 11)
 
