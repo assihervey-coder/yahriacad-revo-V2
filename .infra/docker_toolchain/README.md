@@ -10,7 +10,7 @@ vérité unique.
 
 ```bash
 # Image de base (chaîne EDA gelée : python 3.11.9, KiCad 8.0.5, SKiDL 1.2.1,
-# FreeRouting 2.6.1, numpy 1.26.4) — construite depuis le dossier lui-même :
+# FreeRouting 2.4.1, numpy 1.26.4) — construite depuis le dossier lui-même :
 docker build -f .infra/docker_toolchain/Dockerfile.base \
              -t pcb-base:2.0.0 .infra/docker_toolchain/
 
@@ -87,6 +87,6 @@ d'entrée) et re-certifier le design.
 
 | Couche | Image | Contenu gelé |
 |---|---|---|
-| Base CPU | `pcb-base:2.0.0-cpu` | python 3.11.9-slim, KiCad 8.0.5 (ppa), SKiDL 1.2.1, FreeRouting 2.6.1 + JRE 17, numpy 1.26.4 |
+| Base CPU | `pcb-base:2.0.0-cpu` | python 3.11 (deadsnakes, ubuntu 22.04), KiCad 8.0 (ppa), SKiDL 1.2.1, FreeRouting 2.4.1 + JRE 17, numpy 1.26.4 |
 | Base GPU | `pcb-base:2.0.0-cuda12.4` | idem + runtime CUDA 12.4.1, cupy-cuda12x (bloc commenté dans Dockerfile.base) |
 | Service | `pcb-service:2.0.0` | requirements.txt + common/ + proto/ + backend/, user non-root `pcb` (10001), `PYTHONPATH=/app`, ENTRYPOINT `python -m ${SERVICE_MODULE}` |

@@ -4,7 +4,7 @@
 # -----------------------------------------------------------------------------
 # Contient la chaîne d'outils EDA :
 #   python 3.11 (deadsnakes) + KiCad 8.0 (ppa) + SKiDL 1.2.1
-#   + FreeRouting 2.6.1 (jar) + numpy 1.26.4 — versions miroir de versions.lock.
+#   + FreeRouting 2.4.1 (jar) + numpy 1.26.4 — versions miroir de versions.lock.
 #
 # Base : ubuntu:22.04 (jammy). CONTRAINTE STRUCTURELLE : ppa:kicad/kicad-8.0-releases
 # ne publie des paquets QUE pour Ubuntu (jammy/noble) — une base Debian
@@ -22,7 +22,7 @@ FROM ubuntu:22.04 AS pcb-base
 # --- versions gelées (source de vérité : .infra/docker_toolchain/versions.lock)
 ARG SKIDL_VERSION=1.2.1
 ARG NUMPY_VERSION=1.26.4
-ARG FREEROUTING_VERSION=2.6.1
+ARG FREEROUTING_VERSION=2.4.1   # dernière release réelle github.com/freerouting/freerouting
 # Digest du jar FreeRouting à figer après vérification sur la page de release
 # upstream (github.com/freerouting/freerouting/releases) — politique : on NE
 # TELECHARGE QUE depuis un tag précis, jamais "latest".
@@ -64,10 +64,10 @@ RUN python -m pip install --no-cache-dir \
         "numpy==${NUMPY_VERSION}" \
         "skidl==${SKIDL_VERSION}"
 
-# --- FreeRouting 2.6.1 (jar Java) --------------------------------------------
+# --- FreeRouting 2.4.1 (jar Java) --------------------------------------------
 # Utilisé comme moteur de routage externe optionnel dans la chaîne déterministe
 # (appelle via CLI : java -jar /opt/freerouting/freerouting.jar ...).
-# Le jar est téléchargé depuis le tag exact v2.6.1 et son digest SHA-256 est
+# Le jar est téléchargé depuis le tag exact v2.4.1 et son digest SHA-256 est
 # enregistré dans /opt/freerouting/SHA256SUMS : toute reproduction de l'image
 # doit retrouver EXACTEMENT ce digest (sinon le build échoue en prod, où l'ARG
 # FREEROUTING_SHA256 attendu est fourni par le pipeline de release).
@@ -109,7 +109,7 @@ RUN apt-get update \
 
 # --- métadonnées OCI ----------------------------------------------------------
 LABEL org.opencontainers.image.title="pcb-ai-designer base toolchain" \
-      org.opencontainers.image.description="KiCad 8 + SKiDL 1.2.1 + FreeRouting 2.6.1 + Python 3.11 (ubuntu 22.04, gelés — reproductibilité Circuitron)" \
+      org.opencontainers.image.description="KiCad 8 + SKiDL 1.2.1 + FreeRouting 2.4.1 + Python 3.11 (ubuntu 22.04, gelés — reproductibilité Circuitron)" \
       org.opencontainers.image.version="2.0.0" \
       org.opencontainers.image.base.name="ubuntu:22.04" \
       org.opencontainers.image.source="https://git.example.com/pcb/pcb_ai_designer_v2"

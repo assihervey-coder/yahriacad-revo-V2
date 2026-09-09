@@ -12,7 +12,7 @@ python = "3.11"              # ubuntu:22.04 + ppa:deadsnakes (jammy) — branche
 kicad = "8.0"                # ppa:kicad/kicad-8.0-releases (jammy) — branche 8.0.*,
                              # parse/footprints/CLI ; digest de l'image = épinglage
 skidl = "1.2.1"              # NL->netlist (étape 1 du workflow)
-freerouting = "2.6.1"        # jar Java 17 — moteur de routage externe optionnel
+freerouting = "2.4.1"        # jar Java 17 — moteur de routage externe optionnel
 java_jre = "17"              # openjdk-17-jre-headless (hôte de freerouting.jar)
 
 [compute]
