@@ -1,0 +1,51 @@
+# Déploiement GitHub Pages depuis main — remplace la branche gh-pages.
+# Même recette Sphinx que le job docs de ci.yml ; publication via les actions
+# officielles (configure-pages -> upload-pages-artifact -> deploy-pages),
+# SANS branche de publication : le dépôt ne vit plus que sur main.
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Construction Sphinx
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Installer Sphinx
+        run: pip install sphinx sphinx-rtd-theme numpy
+      - name: Générer le HTML
+        run: python -m sphinx -b html docs/sphinx docs/sphinx/_build/html
+      - name: Configurer Pages
+        uses: actions/configure-pages@v5
+      - name: Publier l'artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/sphinx/_build/html
+
+  deploy:
+    name: Déploiement GitHub Pages
+    needs: [build]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
