@@ -12,8 +12,9 @@ retombe sur l'heuristique de référence embarquée — le harnais reste
 exécutable hors ligne en permanence.
 
 Quilter est un ADAPTATEUR : QuilterClient. Hors ligne, il est alimenté par un
-stub déterministe (documenté ci-dessous) ; en production, on branche
-l'endpoint réel (voir TODO de classe).
+stub déterministe (documenté ci-dessous) ; en production, l'endpoint réel
+prend le relais dès que QUILTER_ENDPOINT + QUILTER_API_KEY sont définis
+(bascule automatique dans `route_design()`, replay archivé par design).
 
 Gate de release : comparaison aux métriques certifiées de baseline.json
 (committed). Toute régression au-delà des seuils => exit code 1 (échec CI).
