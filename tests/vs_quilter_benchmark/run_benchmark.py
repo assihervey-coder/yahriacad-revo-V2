@@ -384,7 +384,8 @@ class QuilterClient:
         bon score DRC, plus de vias, convergence dépendante de la file cloud,
         coût d'abonnement amorti par design."""
         if not self.deterministic_stub:
-            raise RuntimeError("endpoint réel non configuré — voir TODO de classe")
+            raise RuntimeError(
+                "endpoint réel non configuré — définir QUILTER_ENDPOINT et QUILTER_API_KEY")
         h = self._hash(design)
         n_nets, n_comps = len(design.nets), len(design.components)
         width = float(design.board_config.get("width_mm", 100.0))
