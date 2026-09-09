@@ -340,27 +340,38 @@ class InternalEngine:
 
 
 # ---------------------------------------------------------------------------
-# Adaptateur Quilter — stub déterministe hors ligne, endpoint réel à brancher
+# Adaptateur Quilter — stub déterministe hors ligne, endpoint réel branché
 # ---------------------------------------------------------------------------
 
 class QuilterClient:
     """Adaptateur vers le moteur concurrent Quilter.
 
-    TODO PRODUCTION — branchement de l'endpoint réel :
+    Branchement de l'endpoint réel (audit P3 — opéré dès que l'accès payant
+    existe, sans retoucher le code) :
       1. définir QUILTER_ENDPOINT (ex. https://api.quilter.ai/v1/designs/route)
-         et QUILTER_API_KEY (coffre de secrets CI/CD) ;
-      2. remplacer `stub_route` par un appel httpx POST (design sérialisé) ;
-      3. persister chaque replay brut dans data/projects/<id>/quilter_replay.json
-         pour audit de comparabilité (même netliste, mêmes contraintes) ;
-      4. le stub CI reste la référence hors ligne — il est figé par hash du
-         design (aucune dérive silencieuse entre deux releases).
+         et QUILTER_API_KEY (coffre de secrets CI/CD) — sinon le stub tient ;
+      2. `route_design()` bascule alors sur un appel httpx POST (design
+         sérialisé, timeout 30 s, 1 relance) ;
+      3. chaque replay brut est persisté dans
+         data/projects/<id>/quilter_replay.json pour l'audit de comparabilité
+         (même netliste, mêmes contraintes) ;
+      4. le stub CI reste la référence hors ligne — figé par hash du design
+         (aucune dérive silencieuse entre deux releases).
     """
 
     def __init__(self, endpoint: str | None = None, api_key: str | None = None,
-                 deterministic_stub: bool = True) -> None:
-        self.endpoint = endpoint or "stub://deterministic"
-        self.api_key = api_key
+                 deterministic_stub: bool | None = None,
+                 replay_dir: str | Path | None = None) -> None:
+        import os
+
+        self.endpoint = (endpoint or os.environ.get("QUILTER_ENDPOINT", "")).strip() \
+            or "stub://deterministic"
+        self.api_key = api_key or os.environ.get("QUILTER_API_KEY", "")
+        real_ready = self.endpoint.startswith(("http://", "https://")) and bool(self.api_key)
+        if deterministic_stub is None:
+            deterministic_stub = not real_ready
         self.deterministic_stub = deterministic_stub
+        self.replay_dir = Path(replay_dir) if replay_dir else None
 
     def _hash(self, design: ReferenceDesign) -> int:
         seed = f"{design.id}|{design.name}|{len(design.components)}|{len(design.nets)}"
@@ -388,8 +399,63 @@ class QuilterClient:
                                 si_compliance=si, convergence_s=convergence, cost_usd=cost)
 
     def route_design(self, design: ReferenceDesign) -> BenchmarkMetrics:
-        """Point d'entrée de l'adaptateur (endpoint réel à brancher ici)."""
+        """Bascule stub déterministe <-> endpoint réel (httpx, 1 relance)."""
+        if not self.deterministic_stub and self.endpoint.startswith(("http://", "https://")):
+            return self._real_route(design)
         return self.stub_route(design)
+
+    def _real_route(self, design: ReferenceDesign) -> BenchmarkMetrics:
+        """Appel httpx authentifié vers l'endpoint Quilter + replay persisté."""
+        import time
+
+        import httpx
+
+        payload = {
+            "design_id": design.id,
+            "name": design.name,
+            "board": dict(design.board_config),
+            "components": design.components,
+            "nets": design.nets,
+        }
+        started = time.perf_counter()
+        body: dict[str, Any] | None = None
+        last_error: Exception | None = None
+        for _attempt in (1, 2):                          # 1 relance — file cloud
+            try:
+                response = httpx.post(
+                    self.endpoint, json=payload,
+                    headers={"Authorization": f"Bearer {self.api_key}"},
+                    timeout=30.0)
+                response.raise_for_status()
+                body = response.json()
+                break
+            except Exception as exc:                     # noqa: BLE001 — relance puis échec explicite
+                last_error = exc
+        if body is None:
+            raise RuntimeError(f"endpoint Quilter injoignable : {last_error}")
+        convergence_s = round(time.perf_counter() - started, 2)
+        self._persist_replay(design, payload, body)
+        return BenchmarkMetrics(
+            drc_score=float(body.get("drc_score", 0.0)),
+            via_count=int(body.get("via_count", 0)),
+            routed_length_mm=float(body.get("routed_length_mm", 0.0)),
+            si_compliance=float(body.get("si_compliance", 0.0)),
+            convergence_s=float(body.get("convergence_s", convergence_s)),
+            cost_usd=float(body.get("cost_usd", 0.0)),
+        )
+
+    def _persist_replay(self, design: ReferenceDesign,
+                        payload: dict[str, Any], body: dict[str, Any]) -> None:
+        """Archive le replay brut (audit de comparabilité) — échec non bloquant."""
+        out_dir = self.replay_dir or (Path("data/projects") / design.id)
+        try:
+            out_dir.mkdir(parents=True, exist_ok=True)
+            (out_dir / "quilter_replay.json").write_text(
+                json.dumps({"request": payload, "response": body},
+                           indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8")
+        except OSError:
+            pass
 
 
 # ---------------------------------------------------------------------------
@@ -585,7 +651,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     engine = InternalEngine()
-    quilter = QuilterClient()  # stub déterministe — endpoint réel à brancher (TODO classe)
+    quilter = QuilterClient()  # endpoint réel dès QUILTER_ENDPOINT+QUILTER_API_KEY ; stub sinon
     runs, errors = run_benchmark(args.corpus, args.replays, quilter, engine)
 
     if args.update_baseline:
