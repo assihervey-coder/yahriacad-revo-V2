@@ -15,7 +15,9 @@ backend/proto_gen/
 
 # Artefacts de run
 out/
-build/   # artefacts pip/setuptools (recommandation audit v2 — jamais de build/ dans le dépôt)
+# Artefacts pip/setuptools à la racine (recommandation audit v2) —
+# ancré : docs/doxygen/build (HTML Doxygen versionné) doit rester tracké
+/build/
 /tmp/
 data/projects/*/exports/
 data/projects/credits.json
