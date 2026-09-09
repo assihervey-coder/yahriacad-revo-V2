@@ -15,6 +15,7 @@ backend/proto_gen/
 
 # Artefacts de run
 out/
+build/   # artefacts pip/setuptools (recommandation audit v2 — jamais de build/ dans le dépôt)
 /tmp/
 data/projects/*/exports/
 data/projects/credits.json
