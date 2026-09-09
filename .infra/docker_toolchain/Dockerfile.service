@@ -28,8 +28,9 @@ ENV PYTHONPATH=/app \
 WORKDIR /app
 
 # Dépendances applicatives d'abord (meilleure réutilisation du cache layer).
+# python -m pip : portable (la base pcb-base n'expose pas forcément `pip` nu).
 COPY requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Code source : socle commun + contrats gRPC + backend.
 # backend/ est développé en parallèle ; wildcard + mkdir pour rester buildable
