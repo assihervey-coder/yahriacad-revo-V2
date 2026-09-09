@@ -10,6 +10,8 @@ PROJECT_NUMBER         = 2.0.0
 PROJECT_BRIEF          = "Plateforme de conception PCB pilotée par IA — essaim d'agents, RL + LLM + symbolique"
 
 # ---- entrées -------------------------------------------------------------------------
+# Chemins relatifs À LA RACINE du dépôt (make docs-doxygen exécute doxygen
+# depuis la racine — un `cd docs/doxygen` cassait l'INPUT : 2 pages seulement).
 INPUT                  = backend \
                          common \
                          tests \
@@ -39,9 +41,13 @@ JAVADOC_AUTOBRIEF      = YES
 MARKDOWN_SUPPORT       = YES
 STRIP_CODE_COMMENTS    = NO
 
+# Filtre Python — doxypypy retraite les docstrings (styles Google/NumPy) et
+# expose les métadonnées (types, exceptions, rendements) à Doxygen.
+FILTER_PATTERNS        = *.py=doxypypy
+
 # ---- sortie HTML ---------------------------------------------------------------------
 GENERATE_HTML          = YES
-OUTPUT_DIRECTORY       = build
+OUTPUT_DIRECTORY       = docs/doxygen/build
 HTML_OUTPUT            = html
 HTML_FILE_EXTENSION    = .html
 GENERATE_LATEX         = NO

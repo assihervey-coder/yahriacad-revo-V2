@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.12.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pcb_ai_designer_v2: Main Page</title>
+<title>pcb_ai_designer_v2: pcb_ai_designer_v2 — plateforme de conception PCB pilotée par IA</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -84,10 +84,117 @@ $(function(){ initResizable(false); });
 </div>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">pcb_ai_designer_v2 Documentation</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">pcb_ai_designer_v2 — plateforme de conception PCB pilotée par IA </div></div>
 </div><!--header-->
 <div class="contents">
+<div class="textblock"><p><a class="anchor" id="md_README"></a></p>
+<blockquote class="doxtable">
+<p>&zwj;<b>Essaim d'agents — RL + LLM + symbolique</b> couvrant l'ensemble des angles morts de Quilter. Implémentation de référence de la spécification technique <code>specification_pcb_ai_designer_v2.pdf</code>. </p>
+</blockquote>
+<h1><a class="anchor" id="autotoc_md3"></a>
+Vue d'ensemble</h1>
+<p>Ce dépôt implémente intégralement l'arborescence de la spécification :</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Couche racine   </th><th class="markdownTableHeadNone">Rôle   </th><th class="markdownTableHeadNone">Sections spec    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>.infra/</code>   </td><td class="markdownTableBodyNone">Kubernetes (Helm), Prometheus/Grafana, outillage Docker reproductible [Circuitron]   </td><td class="markdownTableBodyNone">07    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>frontend/</code>   </td><td class="markdownTableBodyNone">Interface React / Three.js — WebGL 60 fps, chat, éditeur chirurgical   </td><td class="markdownTableBodyNone">03    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>backend/</code>   </td><td class="markdownTableBodyNone"><a class="el" href="namespaceapi__gateway.html">api_gateway</a> (FastAPI/GraphQL/MCP), orchestrator multi-agents, 7 services gRPC   </td><td class="markdownTableBodyNone">04–06    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>data/</code>   </td><td class="markdownTableBodyNone">Projets S3, bibliothèque composants, feedback usine, modèles, graphe Neo4j   </td><td class="markdownTableBodyNone">07    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>tests/</code>   </td><td class="markdownTableBodyNone">Harnais de benchmark <code>vs_quilter_benchmark</code>   </td><td class="markdownTableBodyNone">07    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>proto/</code>   </td><td class="markdownTableBodyNone">Contrats gRPC versionnés v1 (source de vérité des interfaces)   </td><td class="markdownTableBodyNone">11    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>common/</code>   </td><td class="markdownTableBodyNone">Socle partagé : modèle de design, événements typés, bus de contraintes, crédits   </td><td class="markdownTableBodyNone">11   </td></tr>
+</table>
+<h1><a class="anchor" id="autotoc_md4"></a>
+Les six briques technologiques intégrées</h1>
+<ul>
+<li><b>DeepPCB</b> — routage en direct (WebSocket), réduction de vias −44 %, crédits pay-as-you-go</li>
+<li><b>Siemens Fuse</b> — auto-vérification physique (self_verifier), multi-agents, RAG datasheets</li>
+<li><b>Cadence AuraStack</b> — modèle mental partagé (intent_graph), super-agent, multiphysique continue</li>
+<li><b>Flux.ai</b> — chat conversationnel, MCP server, modifications chirurgicales, firmware HW/SW</li>
+<li><b>Circuitron</b> — NL→SKiDL, pipeline d'agents, graphe Neo4j, conteneurisation reproductible</li>
+<li><b>AutoPCB</b> — boucle ratchet nocturne (~300 itérations ≈ 1,20 USD, gain ×5,8)</li>
+</ul>
+<h1><a class="anchor" id="autotoc_md5"></a>
+Démarrage rapide</h1>
+<div class="fragment"><div class="line"># 1. Environnement Python (≥ 3.11) — un seul venv pour tous les services en dev</div>
+<div class="line">python -m venv .venv &amp;&amp; source .venv/bin/activate</div>
+<div class="line">pip install -r requirements.txt</div>
+<div class="line"> </div>
+<div class="line"># 2. Générer les stubs gRPC depuis proto/</div>
+<div class="line">make proto</div>
+<div class="line"> </div>
+<div class="line"># 3. Lancer la plateforme complète (Redis, Neo4j, MinIO, Postgres, Ollama, Grafana...)</div>
+<div class="line">cp .env.example .env</div>
+<div class="line">docker compose up -d redis neo4j minio postgres ollama</div>
+<div class="line">docker compose exec ollama ollama pull qwen2.5-coder:14b   # LLM local du RAG (~9 Go)</div>
+<div class="line"># GPU NVIDIA ? docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d ollama</div>
+<div class="line"> </div>
+<div class="line"># 4. Démarrer les services (terminaux séparés ou make start)</div>
+<div class="line">make start-services      # gateway :8000 + les 7 services gRPC</div>
+<div class="line"> </div>
+<div class="line"># 5. Frontend</div>
+<div class="line">cd frontend &amp;&amp; npm install &amp;&amp; npm run dev   # http://localhost:5173</div>
+<div class="line"> </div>
+<div class="line"># 6. Benchmark vs Quilter</div>
+<div class="line">make benchmark           # tests/vs_quilter_benchmark — score, vias, convergence</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md6"></a>
+LLM local (Ollama) branché dans le RAG</h1>
+<p>Le retriever RAG peut déléguer la rédaction des réponses à un <b>vrai LLM local</b> servi par Ollama (API native <code>/api/chat</code>, <code>/api/tags</code>, <code>/api/embeddings</code>), sans jamais dépendre du réseau : tout échec retombe instantanément sur le mode extractif déterministe (réponses citées <code>[source p.X]</code>).</p>
+<div class="fragment"><div class="line">LLM_PROVIDER=ollama LLM_MODEL=qwen2.5-coder:14b \   # variables : .env.example</div>
+<div class="line">OLLAMA_BASE_URL=http://localhost:11434 make start-services</div>
+</div><!-- fragment --><p>Le client natif vit dans <code><a class="el" href="ollama__client_8py.html">rag_engine/ollama_client.py</a></code> ; la doc complète est sous <code>docs/sphinx/_build/html/ollama_rag.html</code> et les tests end-to-end (serveur simulé, zéro dépendance réseau) sous <code><a class="el" href="test__ollama__rag_8py.html">tests/unit/test_ollama_rag.py</a></code>. <code>make ollama-setup</code> (scripts/ollama_setup.sh) détecte binaire natif ou compose, tire le modèle et conseille un repli (<code>llama3.1:8b</code>) si la VRAM est &lt; 10 Go.</p>
+<h1><a class="anchor" id="autotoc_md7"></a>
+Passe RL d'entraînement (torch)</h1>
+<p>La passe offline renforce le cerveau avant déploiement du runtime : collecte de transitions dans un environnement de placement type gym, pré-entraînement du world model (miroir exact du TinyNet numpy → export <code>.npz</code> chargeable tel quel), puis policy-gradient <b>REINFORCE</b> (baseline EMA + entropie) sur la policy de placement. torch est optionnel — le runtime numpy continue de fonctionner sans.</p>
+<div class="fragment"><div class="line">pip install torch --index-url https://download.pytorch.org/whl/cpu</div>
+<div class="line">make train-rl          # artefacts : data/trained_models/rl_checkpoints/</div>
+<div class="line">make train-rl-quick    # smoke test ~2 s</div>
+</div><!-- fragment --><p>Artefacts produits : <code>world_model_torch.npz</code>, <code>policy_reinforce.pt</code>, <code>training_report.json</code> (courbes d'apprentissage, résumé de l'archive keeper). L'export npz est installé au <b>slot runtime</b> <code>data/trained_models/world_model_torch.npz</code> (variable <code>PCB_WORLD_MODEL_NPZ</code>).</p>
+<h2><a class="anchor" id="autotoc_md8"></a>
+Boucle nocturne branchée au world model</h2>
+<p>Chaque nuit, <code>make nightly</code> enchaîne la passe RL puis la boucle ratchet du cerveau IA : <code>run_night_optimization</code> <b>charge <code>world_model_torch.npz</code> en warm start</b> à l'ouverture de la nuit, prédit les conséquences des placements avec les poids torch, et <b>réécrit le slot en fin de nuit</b> avec les poids mis à jour par les itérations gardées — le modèle de la veille sert de départ à la suivante. Le bilan de chaque nuit est disponible via <code>AiEngine.last_night_summary</code> (warm start, score initial/final, gain, slot réécrit).</p>
+<div class="fragment"><div class="line">make nightly          # passe RL complète + boucle ratchet 300 itérations</div>
+<div class="line">make nightly-quick    # smoke : passe RL courte + 60 itérations (~5 s)</div>
+<div class="line"># nuit du smoke test : score 0,544 → 0,6122 (+12,55 %), 5 keep / 1 reject</div>
+</div><!-- fragment --><h1><a class="anchor" id="autotoc_md9"></a>
+Documentation</h1>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Chaîne   </th><th class="markdownTableHeadNone">Portée   </th><th class="markdownTableHeadNone">Sortie    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><b>Sphinx</b> (autodoc + napoleon)   </td><td class="markdownTableBodyNone">API Python complète — common, <a class="el" href="namespaceai__engine.html">ai_engine</a>, rl_agent, orchestrator, services   </td><td class="markdownTableBodyNone"><code>docs/sphinx/_build/html/index.html</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><b>Doxygen</b>   </td><td class="markdownTableBodyNone">Python + noyaux de simulation <b>C++/CUDA</b> + README en page principale   </td><td class="markdownTableBodyNone"><code>docs/doxygen/build/html/index.html</code>   </td></tr>
+</table>
+<div class="fragment"><div class="line">make docs              # les deux chaînes (doxygen requis pour la 2e)</div>
+<div class="line">make docs-sphinx       # Sphinx seul : pip install sphinx sphinx-rtd-theme</div>
+<div class="line">make docs-doxygen      # Doxygen seul : apt install doxygen</div>
+</div><!-- fragment --><p>Le HTML généré est versionné dans le dépôt : <code>docs/sphinx/_build/html/</code> et <code>docs/doxygen/build/html/</code> sont consultables directement depuis GitHub. La chaîne Sphinx est aussi servie en ligne via GitHub Pages : <b><a href="https://assihervey-coder.github.io/yahriacad-revo-V2/">https://assihervey-coder.github.io/yahriacad-revo-V2/</a></b> (source : branche <code>gh-pages</code>, mise à jour par <code>make docs-pages</code>).</p>
+<h1><a class="anchor" id="autotoc_md10"></a>
+Ordre d'implémentation recommandé (section 11)</h1>
+<ol type="1">
+<li><b>Socle</b> : <code>state_manager</code>, <code>constraint_bus</code>, gateway REST minimale</li>
+<li><b>Chaîne déterministe</b> : <code>parser</code>, <code><a class="el" href="namespacedrc__dfm__engine.html">drc_dfm_engine</a></code>, <code>exporter</code></li>
+<li><b>Cœur IA</b> : <code>rl_agent</code>, <code>self_verifier</code>, <code>llm_orchestrator</code>, <code>autonomous_optimizer</code></li>
+<li><b>Différenciateurs</b> : <code>websocket_live</code>, <code>kicad_live_host</code>, <code>surgical_editor</code>, <code><a class="el" href="namespacefirmware__bridge.html">firmware_bridge</a></code>, <code>mcp_server</code></li>
+</ol>
+<p>Chaque étape livre une valeur testable et alimente le benchmark.</p>
+<h1><a class="anchor" id="autotoc_md11"></a>
+Makefile</h1>
+<p><code>make help</code> liste toutes les cibles : <code>proto</code>, <code>start-services</code>, <code>lint</code>, <code>test</code>, <code>benchmark</code>, <code>train-rl</code>, <code>docs</code>, <code>docs-sphinx</code>, <code>docs-doxygen</code>, <code>ollama-pull</code>, <code>compose-up</code>, <code>compose-down</code>.</p>
+<h1><a class="anchor" id="autotoc_md12"></a>
+Licences &amp; mentions</h1>
+<p>Références techniques (DeepPCB, Siemens Fuse, Cadence AuraStack, Flux.ai, Circuitron, AutoPCB) : qualités d'architecture intégrées, sans réutilisation de code propriétaire. Les noms de produits cités appartiennent à leurs propriétaires respectifs. </p>
+</div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"></a>
 </div><!-- contents -->
 <!-- start footer part -->

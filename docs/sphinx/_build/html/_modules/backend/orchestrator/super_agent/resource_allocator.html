@@ -49,6 +49,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -56,6 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -387,13 +389,14 @@
   <h1>Code source de backend.orchestrator.super_agent.resource_allocator</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Allocateur de ressources du super_agent.</span>
 
-<span class="sd">- table service → endpoint gRPC (ports 50051-50057, cf. section 06) ;</span>
+<span class="sd">- table service → endpoint gRPC (ports 50051-50058, cf. section 06) ;</span>
 <span class="sd">- budget de temps par agent (Priority interactive vs batch de nuit) ;</span>
 <span class="sd">- file de priorité : les requêtes interactives passent avant le batch nocturne.</span>
 
-<span class="sd">TODO(gRPC) : `allocate()` retourne l&#39;endpoint cible — la création du canal</span>
-<span class="sd">`grpc.insecure_channel(endpoint)` se fera ici quand les stubs seront générés</span>
-<span class="sd">(`make proto`). Aucun appel réseau n&#39;est effectué dans cette version.</span>
+<span class="sd">Le canal réseau se crée À LA DEMANDE : `allocate(..., probe=True)` sonde</span>
+<span class="sd">l&#39;endpoint (`grpc.channel_ready_future`, timeout 2 s) pour détecter tôt un</span>
+<span class="sd">service absent — uniquement en mode distribué (ORCH_DISTRIBUTED=1 + `make</span>
+<span class="sd">proto`, voir orchestrator/grpc_transport.py). Sinon, aucun appel réseau.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -414,6 +417,7 @@
     <span class="s2">&quot;firmware_bridge&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1:50056&quot;</span><span class="p">,</span>
     <span class="s2">&quot;exporter&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1:50057&quot;</span><span class="p">,</span>
     <span class="s2">&quot;orchestrator&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1:50050&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;drc_dfm&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1:50058&quot;</span><span class="p">,</span>   <span class="c1"># service drc_dfm_engine (contrat pcb.drc.v1)</span>
 <span class="p">}</span>
 
 <span class="n">DEFAULT_BUDGET_S</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -437,13 +441,14 @@
 <a class="viewcode-back" href="../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.Allocation">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Allocation</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Résultat d&#39;une allocation : endpoint + budget + priorité.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Résultat d&#39;une allocation : endpoint + budget + priorité (+ sonde).&quot;&quot;&quot;</span>
 
     <span class="n">agent</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">service</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">endpoint</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">budget_s</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">priority</span><span class="p">:</span> <span class="n">Priority</span></div>
+    <span class="n">priority</span><span class="p">:</span> <span class="n">Priority</span>
+    <span class="n">reachable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>   <span class="c1"># résultat du probe — None si non sondé</span></div>
 
 
 
@@ -479,18 +484,27 @@
 <a class="viewcode-back" href="../../../../api/orchestrator.html#backend.orchestrator.super_agent.resource_allocator.ResourceAllocator.allocate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">agent</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">service</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                  <span class="n">priority</span><span class="p">:</span> <span class="n">Priority</span> <span class="o">=</span> <span class="n">Priority</span><span class="o">.</span><span class="n">INTERACTIVE</span><span class="p">,</span>
-                 <span class="n">budget_s</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Allocation</span><span class="p">:</span>
+                 <span class="n">budget_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">probe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Allocation</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Alloue un service à un agent (endpoint gRPC + budget de temps).</span>
 
-<span class="sd">        TODO(gRPC) : créer ici `grpc.aio.insecure_channel(endpoint)` avec</span>
-<span class="sd">        keepalive + `grpc.channel_ready_future(...).result(timeout=2)` au</span>
-<span class="sd">        démarrage, pour détecter tôt un service absent.</span>
+<span class="sd">        `probe=True` sonde l&#39;endpoint au moment de l&#39;allocation</span>
+<span class="sd">        (`grpc.channel_ready_future`, timeout 2 s) pour détecter tôt un</span>
+<span class="sd">        service absent — effectif uniquement en mode distribué</span>
+<span class="sd">        (ORCH_DISTRIBUTED=1 + `make proto`, orchestrator/grpc_transport) :</span>
+<span class="sd">        `Allocation.reachable` porte le résultat, None si non sondé.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">service</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpoints</span><span class="p">[</span><span class="s2">&quot;ai_engine&quot;</span><span class="p">])</span>
+        <span class="n">reachable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">probe</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">..grpc_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">distributed_enabled</span><span class="p">,</span> <span class="n">probe_channel</span>
+
+            <span class="k">if</span> <span class="n">distributed_enabled</span><span class="p">():</span>
+                <span class="n">reachable</span> <span class="o">=</span> <span class="n">probe_channel</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Allocation</span><span class="p">(</span><span class="n">agent</span><span class="o">=</span><span class="n">agent</span><span class="p">,</span> <span class="n">service</span><span class="o">=</span><span class="n">service</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="n">endpoint</span><span class="p">,</span>
                           <span class="n">budget_s</span><span class="o">=</span><span class="n">budget_s</span> <span class="k">if</span> <span class="n">budget_s</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
                           <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">budget_for</span><span class="p">(</span><span class="n">agent</span><span class="p">),</span>
-                          <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">)</span></div>
+                          <span class="n">priority</span><span class="o">=</span><span class="n">priority</span><span class="p">,</span> <span class="n">reachable</span><span class="o">=</span><span class="n">reachable</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ResourceAllocator.budget_for">

@@ -1,0 +1,21 @@
+var searchData=
+[
+  ['h_5fconv_5fdefault_0',['H_CONV_DEFAULT',['../namespacesimulator_1_1thermal__sim_1_1diffusion.html#ac416873a25f120ad26e4aacd6e3ad1c9',1,'simulator::thermal_sim::diffusion']]],
+  ['handle_1',['handle',['../classapi__gateway_1_1compat_1_1FastAPIStub.html#a52800cf4cb65b5577ae5301ee325922b',1,'api_gateway::compat::FastAPIStub']]],
+  ['handle_5fescalation_2',['handle_escalation',['../classorchestrator_1_1super__agent_1_1super__agent_1_1SuperAgent.html#a1a9002dd485ce225d45ee267220063db',1,'orchestrator::super_agent::super_agent::SuperAgent']]],
+  ['handle_5fline_3',['handle_line',['../classapi__gateway_1_1mcp__server_1_1server_1_1MCPServer.html#afe314ffe870bab7ae9e56006a632e594',1,'api_gateway::mcp_server::server::MCPServer']]],
+  ['handle_5frequest_4',['handle_request',['../classapi__gateway_1_1mcp__server_1_1server_1_1MCPServer.html#ac47a411e70bbf0796f908a1132c7a6f7',1,'api_gateway::mcp_server::server::MCPServer']]],
+  ['has_5fcupy_5',['HAS_CUPY',['../namespacesimulator_1_1em__sim_1_1quasi__static.html#af80da3918b5d2f2afff6241116ac5d37',1,'simulator.em_sim.quasi_static.HAS_CUPY'],['../namespacesimulator_1_1thermal__sim_1_1diffusion.html#acc101c5c43101bf55a658de499d05988',1,'simulator.thermal_sim.diffusion.HAS_CUPY']]],
+  ['head_6',['head',['../classai__engine_1_1rl__agent_1_1training_1_1torch__modules_1_1TorchWorldModel.html#ae03ed77fbc0969cce29adf98eb332d13',1,'ai_engine::rl_agent::training::torch_modules::TorchWorldModel']]],
+  ['health_7',['health',['../classapi__gateway_1_1runtime_1_1GatewayRuntime.html#a45fece9503e20e68a91c2f68a82d1901',1,'api_gateway::runtime::GatewayRuntime']]],
+  ['height_5fmm_8',['height_mm',['../classcommon_1_1design__model_1_1Component.html#ad8f4a1b59080f17a3da92da886eb4cdf',1,'common.design_model.Component.height_mm'],['../classcommon_1_1design__model_1_1Board.html#abe5e827fe7294e0fcea9ec041a5c0e2c',1,'common.design_model.Board.height_mm']]],
+  ['heuristicproposer_9',['HeuristicProposer',['../classai__engine_1_1autonomous__optimizer_1_1proposer__llm_1_1proposer_1_1HeuristicProposer.html',1,'ai_engine::autonomous_optimizer::proposer_llm::proposer']]],
+  ['hidden_10',['hidden',['../classai__engine_1_1rl__agent_1_1world__model_1_1dreamer_1_1TinyNet.html#ab82fa3e3ae5d6042d3bff5e5a73fd6c8',1,'ai_engine::rl_agent::world_model::dreamer::TinyNet']]],
+  ['history_11',['history',['../classorchestrator_1_1super__agent_1_1conflict__arbiter_1_1ConflictArbiter.html#ad659d097b6427a197ebbd46056782126',1,'orchestrator.super_agent.conflict_arbiter.ConflictArbiter.history'],['../classai__engine_1_1rl__agent_1_1training_1_1reinforce_1_1ReinforceTrainer.html#a6f2bcf5763e3f5f68c085a73c6cad919',1,'ai_engine.rl_agent.training.reinforce.ReinforceTrainer.history'],['../classcommon_1_1credits_1_1CreditLedger.html#af1f12c449e4d9a58ee353e3f0ac57ee6',1,'common.credits.CreditLedger.history()']]],
+  ['hotspot_12',['Hotspot',['../classsimulator_1_1thermal__sim_1_1diffusion_1_1Hotspot.html',1,'simulator::thermal_sim::diffusion']]],
+  ['hotspot_5fdelta_5fc_13',['HOTSPOT_DELTA_C',['../namespacesimulator_1_1thermal__sim_1_1diffusion.html#af3feb3b85246c80549091fd629b2d873',1,'simulator::thermal_sim::diffusion']]],
+  ['hotspots_14',['hotspots',['../classsimulator_1_1thermal__sim_1_1diffusion_1_1ThermalResult.html#afe849ab79fd77e86d1b06dc0140c34f5',1,'simulator::thermal_sim::diffusion::ThermalResult']]],
+  ['hpwl_5fmm_15',['hpwl_mm',['../namespaceai__engine_1_1autonomous__optimizer_1_1proposer__llm_1_1proposer.html#a8b3dd81418abc1eb9c58fc65d2dfa70f',1,'ai_engine::autonomous_optimizer::proposer_llm::proposer']]],
+  ['httpexception_16',['HTTPException',['../classapi__gateway_1_1compat_1_1HTTPException.html',1,'api_gateway::compat']]],
+  ['human_5fowner_17',['HUMAN_OWNER',['../namespaceorchestrator_1_1state__manager_1_1locks.html#a1d5c6b0808efb7378991b00e625695fc',1,'orchestrator::state_manager::locks']]]
+];

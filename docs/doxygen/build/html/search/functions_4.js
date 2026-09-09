@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['debit_0',['debit',['../classcommon_1_1credits_1_1CreditLedger.html#a196975437ddc1a55a731aab4a66f1778',1,'common::credits::CreditLedger']]],
+  ['decode_1',['decode',['../classai__engine_1_1rl__agent_1_1action__space_1_1space_1_1ActionSpace.html#a68504fe56c2b677cd297b3a59bf45899',1,'ai_engine::rl_agent::action_space::space::ActionSpace']]],
+  ['default_5fpackage_5ffor_2',['default_package_for',['../namespaceparser_1_1netlist__parser_1_1spice__parser.html#a2a3c89f0258d1f7daad15cdc82389d8d',1,'parser::netlist_parser::spice_parser']]],
+  ['default_5fplan_3',['default_plan',['../namespaceorchestrator_1_1super__agent_1_1plan.html#a986eb0289f5da82d389861d72d057893',1,'orchestrator::super_agent::plan']]],
+  ['default_5frules_4',['default_rules',['../namespacedrc__dfm__engine_1_1design__rules_1_1rules.html#a37b7ae56ee0711fad2462a231565c04f',1,'drc_dfm_engine::design_rules::rules']]],
+  ['depth_5',['depth',['../classai__engine_1_1self__verifier_1_1rollback__manager_1_1rollback_1_1RollbackManager.html#a7ffd4f171490ef90e1af5ad6e9fc63da',1,'ai_engine::self_verifier::rollback_manager::rollback::RollbackManager']]],
+  ['describe_6',['describe',['../classdrc__dfm__engine_1_1design__rules_1_1rules_1_1DesignRule.html#aefb6763a76afff2f84bca4473ca8b498',1,'drc_dfm_engine::design_rules::rules::DesignRule']]],
+  ['detect_5fformat_7',['detect_format',['../namespaceparser_1_1netlist__parser_1_1normalizer.html#a882a0cd00625b23f86f1718b5bc24f18',1,'parser::netlist_parser::normalizer']]],
+  ['dict_8',['dict',['../classapi__gateway_1_1compat_1_1BaseModel.html#ac58021aea083c2a8a8d1f127f594ca31',1,'api_gateway::compat::BaseModel']]],
+  ['diff_9',['diff',['../classpcb__plugin_1_1altium__bridge_1_1bridge_1_1AltiumBridge.html#a5541268d7f9fb3588dc0161f47af0a0d',1,'pcb_plugin::altium_bridge::bridge::AltiumBridge']]],
+  ['distributed_5fenabled_10',['distributed_enabled',['../namespaceorchestrator_1_1grpc__transport.html#af7536c42417ffa68350c973b7eac61ed',1,'orchestrator::grpc_transport']]],
+  ['do_5fget_11',['do_GET',['../classtests_1_1unit_1_1test__ollama__rag_1_1__FakeOllama.html#a80bae8aad8356dd0a1abd7985aa97fe5',1,'tests::unit::test_ollama_rag::_FakeOllama']]],
+  ['do_5fpost_12',['do_POST',['../classtests_1_1unit_1_1test__ollama__rag_1_1__FakeOllama.html#ac4da616182bb608abd2e20f031b87a61',1,'tests::unit::test_ollama_rag::_FakeOllama']]],
+  ['download_13',['download',['../namespaceapi__gateway_1_1routes_1_1exports.html#a2dffbe368b175e8003c79523b000a7b0',1,'api_gateway::routes::exports']]],
+  ['drc_5fcheck_14',['drc_check',['../namespacetests_1_1unit_1_1test__deterministic__chain.html#acaaa453cbf42f6971c9748c92caf335e',1,'tests::unit::test_deterministic_chain']]],
+  ['drc_5fscore_15',['drc_score',['../classcommon_1_1design__model_1_1Board.html#a5a619e7dc6444fca75f0ff905fbb54b7',1,'common::design_model::Board']]],
+  ['dynamic_5fholder_5fat_16',['dynamic_holder_at',['../classpcb__plugin_1_1kicad__live__host_1_1plugin_1_1ZoneLockManager.html#a185bb13e4563faf0b3cfc016f0843c49',1,'pcb_plugin::kicad_live_host::plugin::ZoneLockManager']]]
+];

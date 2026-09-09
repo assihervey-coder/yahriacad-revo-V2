@@ -1,0 +1,24 @@
+var searchData=
+[
+  ['scopededitrequest_0',['ScopedEditRequest',['../classapi__gateway_1_1routes_1_1edits_1_1ScopedEditRequest.html',1,'api_gateway::routes::edits']]],
+  ['scopededitresponse_1',['ScopedEditResponse',['../classapi__gateway_1_1routes_1_1edits_1_1ScopedEditResponse.html',1,'api_gateway::routes::edits']]],
+  ['segment_2',['Segment',['../classcommon_1_1design__model_1_1Segment.html',1,'common::design_model']]],
+  ['selectoragent_3',['SelectorAgent',['../classorchestrator_1_1agent__pipeline_1_1selector__agent_1_1agent_1_1SelectorAgent.html',1,'orchestrator::agent_pipeline::selector_agent::agent']]],
+  ['sessionrestorer_4',['SessionRestorer',['../classpcb__plugin_1_1session__restorer_1_1restorer_1_1SessionRestorer.html',1,'pcb_plugin::session_restorer::restorer']]],
+  ['sessionsnapshot_5',['SessionSnapshot',['../classpcb__plugin_1_1session__restorer_1_1snapshot_1_1SessionSnapshot.html',1,'pcb_plugin::session_restorer::snapshot']]],
+  ['settings_6',['Settings',['../classcommon_1_1config_1_1Settings.html',1,'common::config']]],
+  ['side_7',['Side',['../classcommon_1_1design__model_1_1Side.html',1,'common::design_model']]],
+  ['signalclassspec_8',['SignalClassSpec',['../classparser_1_1constraint__extractor_1_1signal__classes_1_1SignalClassSpec.html',1,'parser::constraint_extractor::signal_classes']]],
+  ['simresult_9',['SimResult',['../classsimulator_1_1main_1_1SimResult.html',1,'simulator::main']]],
+  ['simulator_10',['Simulator',['../classsimulator_1_1main_1_1Simulator.html',1,'simulator::main']]],
+  ['skidlpatcher_11',['SKiDLPatcher',['../classorchestrator_1_1agent__pipeline_1_1corrector__agent_1_1patcher_1_1SKiDLPatcher.html',1,'orchestrator::agent_pipeline::corrector_agent::patcher']]],
+  ['skidlsummary_12',['SkidlSummary',['../classai__engine_1_1llm__orchestrator_1_1knowledge__graph_1_1pattern__validator_1_1SkidlSummary.html',1,'ai_engine::llm_orchestrator::knowledge_graph::pattern_validator']]],
+  ['skipstep_13',['SkipStep',['../classorchestrator_1_1main_1_1SkipStep.html',1,'orchestrator::main']]],
+  ['snapshotintegrityerror_14',['SnapshotIntegrityError',['../classpcb__plugin_1_1session__restorer_1_1snapshot_1_1SnapshotIntegrityError.html',1,'pcb_plugin::session_restorer::snapshot']]],
+  ['spicenetlist_15',['SpiceNetlist',['../classparser_1_1netlist__parser_1_1spice__parser_1_1SpiceNetlist.html',1,'parser::netlist_parser::spice_parser']]],
+  ['statemanager_16',['StateManager',['../classorchestrator_1_1state__manager_1_1manager_1_1StateManager.html',1,'orchestrator::state_manager::manager']]],
+  ['stepstatus_17',['StepStatus',['../classorchestrator_1_1main_1_1StepStatus.html',1,'orchestrator::main']]],
+  ['superagent_18',['SuperAgent',['../classorchestrator_1_1super__agent_1_1super__agent_1_1SuperAgent.html',1,'orchestrator::super_agent::super_agent']]],
+  ['supplierclient_19',['SupplierClient',['../classorchestrator_1_1agent__pipeline_1_1researcher__agent_1_1providers_1_1SupplierClient.html',1,'orchestrator::agent_pipeline::researcher_agent::providers']]],
+  ['symbolinstance_20',['SymbolInstance',['../classparser_1_1netlist__parser_1_1kicad__sch__parser_1_1SymbolInstance.html',1,'parser::netlist_parser::kicad_sch_parser']]]
+];

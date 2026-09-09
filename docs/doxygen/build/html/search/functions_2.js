@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['best_5ftemplate_0',['best_template',['../classai__engine_1_1llm__orchestrator_1_1prompt__optimizer_1_1optimizer_1_1PromptOptimizer.html#a5f71ba5d77e3326fe7f8832103f2f288',1,'ai_engine::llm_orchestrator::prompt_optimizer::optimizer::PromptOptimizer']]],
+  ['block_5fcells_1',['block_cells',['../classrouter_1_1topological_1_1pathfinder_1_1Pathfinder.html#ae4479a2d2056b98f754329de45c43a07',1,'router::topological::pathfinder::Pathfinder']]],
+  ['block_5fpads_2',['block_pads',['../classrouter_1_1topological_1_1pathfinder_1_1Pathfinder.html#a841d859a56942f4fb6a8ac6ff9da2e9b',1,'router::topological::pathfinder::Pathfinder']]],
+  ['board_5fconfig_3',['board_config',['../classtests_1_1vs__quilter__benchmark_1_1corpus__loader_1_1ReferenceDesign.html#a9b9cbbea4b0879d36b67d024a76eeb53',1,'tests::vs_quilter_benchmark::corpus_loader::ReferenceDesign']]],
+  ['board_5ffrom_5fdict_4',['board_from_dict',['../namespacepcb__plugin_1_1session__restorer_1_1snapshot.html#a59d1b571e7e94c29a80c437969c0367b',1,'pcb_plugin::session_restorer::snapshot']]],
+  ['board_5ffrom_5fproto_5',['board_from_proto',['../namespacesimulator_1_1proto__adapter.html#a0802f3612cbc7905bd04eb2fa46c3c67',1,'simulator::proto_adapter']]],
+  ['board_5fto_5fdict_6',['board_to_dict',['../namespacepcb__plugin_1_1session__restorer_1_1snapshot.html#a80963661ff0461a64fca759f10e756b6',1,'pcb_plugin::session_restorer::snapshot']]],
+  ['bounding_5fbox_7',['bounding_box',['../classcommon_1_1design__model_1_1Component.html#af8d681921775625d79e074473f34ab04',1,'common::design_model::Component']]],
+  ['bounding_5fbox_5foverlap_8',['bounding_box_overlap',['../classcommon_1_1design__model_1_1Board.html#ad1ad4c76be58df10c11dc7efe73e8c53',1,'common::design_model::Board']]],
+  ['broadcast_5fboard_5fconstraints_9',['broadcast_board_constraints',['../classai__engine_1_1shared__mental__model_1_1constraint__bus_1_1service_1_1ProjectConstraintBus.html#af600484584021c44cd288a5a2c0a3dcd',1,'ai_engine::shared_mental_model::constraint_bus::service::ProjectConstraintBus']]],
+  ['broadcasts_10',['broadcasts',['../classai__engine_1_1shared__mental__model_1_1constraint__bus_1_1service_1_1ProjectConstraintBus.html#a4ff07455fac1a095756f228b6f3d0e18',1,'ai_engine::shared_mental_model::constraint_bus::service::ProjectConstraintBus']]],
+  ['budget_5ffor_11',['budget_for',['../classorchestrator_1_1super__agent_1_1resource__allocator_1_1ResourceAllocator.html#aa717c1d923c2ddb92d643e0f05d2c17e',1,'orchestrator::super_agent::resource_allocator::ResourceAllocator']]],
+  ['build_5fboard_12',['build_board',['../namespacetests_1_1unit_1_1test__deterministic__chain.html#a6c648c3342681b0b4d3b28a360d46117',1,'tests::unit::test_deterministic_chain']]],
+  ['build_5fdemo_5fboard_13',['build_demo_board',['../namespaceai__engine_1_1main.html#a2656cd85ce04bd2f8c43e87735d09b78',1,'ai_engine.main.build_demo_board()'],['../namespaceai__engine_1_1rl__agent_1_1training_1_1train.html#aed6c51f86d8e4c93511f50757d24c2ce',1,'ai_engine.rl_agent.training.train.build_demo_board()']]],
+  ['build_5fplan_14',['build_plan',['../classorchestrator_1_1super__agent_1_1super__agent_1_1SuperAgent.html#a744c2bf1fe8d0da6ee1d2ebc4390441c',1,'orchestrator::super_agent::super_agent::SuperAgent']]],
+  ['build_5fschema_15',['build_schema',['../namespaceapi__gateway_1_1graphql__schema.html#a1bbf5d5dc7dbfe057459d108788663b7',1,'api_gateway::graphql_schema']]],
+  ['bump_5fversion_16',['bump_version',['../classorchestrator_1_1super__agent_1_1plan_1_1ExecutionPlan.html#a20a23a438cd22650b0c2b9ad86b3d58e',1,'orchestrator::super_agent::plan::ExecutionPlan']]]
+];

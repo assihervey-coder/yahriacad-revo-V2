@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['iat_0',['iat',['../classapi__gateway_1_1middleware_1_1auth_1_1Claims.html#a0483a82105591370916097a4795c62a2',1,'api_gateway::middleware::auth::Claims']]],
+  ['impact_5fbbox_1',['impact_bbox',['../classapi__gateway_1_1routes_1_1edits_1_1ScopedEditResponse.html#aa96d698b6e420a9d694180347b66a177',1,'api_gateway::routes::edits::ScopedEditResponse']]],
+  ['impedance_5ftarget_2',['IMPEDANCE_TARGET',['../classcommon_1_1bus_1_1ConstraintKind.html#ac05f017a88cb73ec8369a09a6d827a62',1,'common::bus::ConstraintKind']]],
+  ['impedance_5ftarget_5fohm_3',['impedance_target_ohm',['../classcommon_1_1design__model_1_1Net.html#a6c03cae7a702e98a0eb4ef596cc5970a',1,'common::design_model::Net']]],
+  ['in_5fpath_4',['in_path',['../classpcb__plugin_1_1kicad__live__host_1_1ipc_1_1FileIPC.html#a73deb7041e8faee4a7ab60c63fa9db0f',1,'pcb_plugin::kicad_live_host::ipc::FileIPC']]],
+  ['index_5',['index',['../classai__engine_1_1llm__orchestrator_1_1rag__engine_1_1retriever_1_1RagRetriever.html#a0db0232056d54f1025cd5450c8b11609',1,'ai_engine::llm_orchestrator::rag_engine::retriever::RagRetriever']]],
+  ['inflight_5fevents_6',['inflight_events',['../classpcb__plugin_1_1session__restorer_1_1snapshot_1_1SessionSnapshot.html#adafdea736028d6a3d7a225886610276f',1,'pcb_plugin::session_restorer::snapshot::SessionSnapshot']]],
+  ['init_7',['init',['../namespaceapi__gateway_1_1mcp__server_1_1server.html#a7f758e80d7804c88f2cf4ded844f0cd2',1,'api_gateway::mcp_server::server']]],
+  ['initial_5fscore_8',['initial_score',['../classai__engine_1_1autonomous__optimizer_1_1keeper__logic_1_1keeper_1_1KeeperLogic.html#a9715b4800aacf7f690f6e62da12959de',1,'ai_engine::autonomous_optimizer::keeper_logic::keeper::KeeperLogic']]],
+  ['input_5fschema_9',['input_schema',['../classapi__gateway_1_1mcp__server_1_1tools_1_1McpTool.html#aef88b540f547703eaf3f68c4cff9a93e',1,'api_gateway::mcp_server::tools::McpTool']]],
+  ['intent_5fgraph_10',['intent_graph',['../classai__engine_1_1main_1_1AiEngine.html#a459eb2809b2ada8df10c2af465d721b5',1,'ai_engine::main::AiEngine']]],
+  ['interactive_11',['INTERACTIVE',['../classorchestrator_1_1super__agent_1_1resource__allocator_1_1Priority.html#a5d5890584d798c5b145ab1164529f415',1,'orchestrator::super_agent::resource_allocator::Priority']]],
+  ['interval_5fs_12',['interval_s',['../classsimulator_1_1multi__physics__loop_1_1loop_1_1MultiPhysicsLoop.html#aa6c9f695a9ef0a452d1c64f2b3d51a6f',1,'simulator::multi_physics_loop::loop::MultiPhysicsLoop']]],
+  ['ir_13',['ir',['../classsimulator_1_1main_1_1SimResult.html#aa993ecd6917c7e4e3c6a1e272d17f1e0',1,'simulator::main::SimResult']]],
+  ['ir_5fdrop_5fmv_14',['ir_drop_mv',['../classsimulator_1_1signal__integrity_1_1ir__drop_1_1IRDropResult.html#a6b4b69ec730d063b3ade417c372143b5',1,'simulator::signal_integrity::ir_drop::IRDropResult']]],
+  ['ir_5fdrop_5fpct_15',['ir_drop_pct',['../classsimulator_1_1signal__integrity_1_1ir__drop_1_1IRDropResult.html#a0c0f5db2735921fd4ac352df0a371efe',1,'simulator::signal_integrity::ir_drop::IRDropResult']]],
+  ['is_5fcopper_16',['is_copper',['../classcommon_1_1design__model_1_1Layer.html#a486b0c041348893e73120d2c0d9d3585',1,'common::design_model::Layer']]],
+  ['is_5fvia_17',['is_via',['../classcommon_1_1design__model_1_1Segment.html#af40da5143d2e6d8328e7686d71cd92e5',1,'common::design_model::Segment']]],
+  ['iss_18',['iss',['../classapi__gateway_1_1middleware_1_1auth_1_1Claims.html#a1cf453039d494f12b436b136981b5b91',1,'api_gateway::middleware::auth::Claims']]],
+  ['issues_19',['issues',['../classorchestrator_1_1agent__pipeline_1_1validator__agent_1_1agent_1_1ValidationReport.html#abe3635aba78795103024553fd2074378',1,'orchestrator::agent_pipeline::validator_agent::agent::ValidationReport']]],
+  ['iteration_20',['iteration',['../classai__engine_1_1autonomous__optimizer_1_1keeper__logic_1_1keeper_1_1IterationReport.html#a845b8c4d0800ebbc48ddcc580b47d56d',1,'ai_engine::autonomous_optimizer::keeper_logic::keeper::IterationReport']]],
+  ['iterations_21',['iterations',['../classai__engine_1_1autonomous__optimizer_1_1keeper__logic_1_1keeper_1_1KeeperLogic.html#a46869b9761445a79fc2d37958db3bdbb',1,'ai_engine.autonomous_optimizer.keeper_logic.keeper.KeeperLogic.iterations'],['../classsimulator_1_1signal__integrity_1_1ir__drop_1_1IRDropResult.html#ac254fad5154ba8ef003990a58fb00227',1,'simulator.signal_integrity.ir_drop.IRDropResult.iterations'],['../classsimulator_1_1thermal__sim_1_1diffusion_1_1ThermalResult.html#aa69806d983b41a3730f2836c38199d49',1,'simulator.thermal_sim.diffusion.ThermalResult.iterations']]]
+];

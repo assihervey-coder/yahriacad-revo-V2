@@ -49,6 +49,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -56,6 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -388,17 +390,21 @@
 <span></span><span class="sd">&quot;&quot;&quot;Adaptateurs inter-services — point d&#39;extension unique de l&#39;orchestrateur.</span>
 
 <span class="sd">Tout appel vers un service externe (parser, ai_engine, rl_agent, exporteur…)</span>
-<span class="sd">passe par `call_adapter()` : interface + implémentation « in-process » (import</span>
-<span class="sd">direct du package cible). Les versions gRPC sont des stubs à générer</span>
-<span class="sd">(TODO ci-dessous) — AUCUN appel réseau réel n&#39;est effectué ici.</span>
+<span class="sd">passe par `call_adapter()` — trois voies, essayées dans cet ordre :</span>
 
-<span class="sd">Les services cibles sont écrits EN PARALLÈLE par d&#39;autres agents : si</span>
-<span class="sd">l&#39;import échoue, un fallback de simulation locale renvoie un résultat</span>
-<span class="sd">plausible + un avertissement, afin que le pipeline reste exécutable hors ligne.</span>
+<span class="sd">1. gRPC réel (mode distribué OPTIONNEL) : stubs générés depuis</span>
+<span class="sd">   `proto/&lt;service&gt;/v1/*.proto` (`make proto`), endpoints décrits dans</span>
+<span class="sd">   `super_agent/resource_allocator.py` (`SERVICE_ENDPOINTS`, ports</span>
+<span class="sd">   50051-50058) — activé par ORCH_DISTRIBUTED=1, voir</span>
+<span class="sd">   `orchestrator/grpc_transport.py` ; la valeur suit alors le contrat proto v1 ;</span>
+<span class="sd">2. import in-process (voie PAR DÉFAUT) : import direct du package cible —</span>
+<span class="sd">   aucun appel réseau ;</span>
+<span class="sd">3. fallback de simulation locale : si l&#39;import échoue, un résultat plausible</span>
+<span class="sd">   + un avertissement — le pipeline reste exécutable hors ligne.</span>
 
-<span class="sd">TODO(gRPC) : remplacer l&#39;import in-process par un stub généré depuis</span>
-<span class="sd">`proto/&lt;service&gt;/v1/*.proto` ; les endpoints (ports 50051-50057) sont déjà</span>
-<span class="sd">décrits dans `super_agent/resource_allocator.py` (`SERVICE_ENDPOINTS`).</span>
+<span class="sd">En mode distribué, un RPC en échec bascule automatiquement sur la voie</span>
+<span class="sd">in-process puis sur le fallback (`AdapterResult.source` trace la voie</span>
+<span class="sd">empruntée : « grpc », « service » ou « fallback »).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
@@ -409,6 +415,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">common.log</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">grpc_transport</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="s2">&quot;orchestrator.adapters&quot;</span><span class="p">)</span>
 
@@ -506,14 +514,20 @@
 <div class="viewcode-block" id="call_adapter">
 <a class="viewcode-back" href="../../../api/orchestrator.html#backend.orchestrator.adapters.call_adapter">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">call_adapter</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AdapterResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Appelle le service `key` in-process, avec fallback de simulation locale.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Appelle le service `key` — gRPC (optionnel), in-process, puis fallback.</span>
 
-<span class="sd">    TODO(gRPC) : ici, brancher `grpc.insecure_channel(endpoint)` + le stub</span>
-<span class="sd">    généré (voir ADAPTER_CONTRACTS / SERVICE_ENDPOINTS) — l&#39;interface de cette</span>
-<span class="sd">    fonction resterait inchangée pour tous les appelants.</span>
+<span class="sd">    L&#39;interface est inchangée pour tous les appelants depuis la version</span>
+<span class="sd">    initiale ; seule la VOIE empruntée change selon l&#39;environnement</span>
+<span class="sd">    (`AdapterResult.source` : « grpc » | « service » | « fallback »).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">contract</span> <span class="o">=</span> <span class="n">ADAPTER_CONTRACTS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
     <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="c1"># 1) mode distribué (optionnel) — RPC proto v1 via les stubs générés</span>
+    <span class="n">grpc_value</span> <span class="o">=</span> <span class="n">grpc_transport</span><span class="o">.</span><span class="n">try_grpc</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">grpc_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">AdapterResult</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">grpc_value</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s2">&quot;grpc&quot;</span><span class="p">,</span>
+                             <span class="n">elapsed_s</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="c1"># 2) voie in-process (défaut hors ligne) puis 3) fallback de simulation</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">contract</span><span class="p">[</span><span class="s2">&quot;module&quot;</span><span class="p">])</span>
         <span class="n">fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module</span><span class="p">,</span> <span class="n">contract</span><span class="p">[</span><span class="s2">&quot;function&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">)</span>

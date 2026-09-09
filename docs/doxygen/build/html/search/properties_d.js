@@ -1,0 +1,7 @@
+var searchData=
+[
+  ['shadow_5fsegments_0',['shadow_segments',['../classpcb__plugin_1_1kicad__live__host_1_1plugin_1_1KiCadLivePlugin.html#a6474cf60e83dd29feab993208b7391cc',1,'pcb_plugin::kicad_live_host::plugin::KiCadLivePlugin']]],
+  ['size_1',['size',['../classai__engine_1_1llm__orchestrator_1_1rag__engine_1_1indexer_1_1TfidfIndex.html#a6a9ba9b818a86ee127f2b1b34f33c60c',1,'ai_engine::llm_orchestrator::rag_engine::indexer::TfidfIndex']]],
+  ['stats_2',['stats',['../classai__engine_1_1rl__agent_1_1policy__network_1_1policy_1_1EpsilonGreedyPolicy.html#ab6c3839e56b5c2fffdf5f51200d6a310',1,'ai_engine.rl_agent.policy_network.policy.EpsilonGreedyPolicy.stats'],['../classai__engine_1_1shared__mental__model_1_1intent__graph_1_1graph_1_1IntentGraph.html#a9d8dc3d988235c1169f48c9505dcb2aa',1,'ai_engine.shared_mental_model.intent_graph.graph.IntentGraph.stats'],['../classpcb__plugin_1_1kicad__live__host_1_1ipc_1_1Transport.html#ac6f496cb3257135d42122cf86a1b1df4',1,'pcb_plugin.kicad_live_host.ipc.Transport.stats'],['../classpcb__plugin_1_1kicad__live__host_1_1ipc_1_1WebSocketClient.html#acd0f994871fce12fd9bc2c3e4d6dc298',1,'pcb_plugin.kicad_live_host.ipc.WebSocketClient.stats'],['../classpcb__plugin_1_1kicad__live__host_1_1ipc_1_1FileIPC.html#a0249032ca7ea1849f26b20ea7142daf2',1,'pcb_plugin.kicad_live_host.ipc.FileIPC.stats']]],
+  ['subsystem_5freport_3',['subsystem_report',['../classai__engine_1_1main_1_1AiEngine.html#a3af59d90338ae8783858eaa05189f41d',1,'ai_engine::main::AiEngine']]]
+];

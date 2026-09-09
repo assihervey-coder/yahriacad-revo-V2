@@ -49,6 +49,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../ollama_rag.html">LLM local (Ollama) branché dans le RAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#installation-du-serveur">Installation du serveur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#acceleration-gpu">Accélération GPU</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#configuration">Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#fonctionnement">Fonctionnement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../ollama_rag.html#verifier-le-branchement">Vérifier le branchement</a></li>
@@ -56,6 +57,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../rl_training.html">Passe RL d’entraînement (torch)</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#les-quatre-etapes">Les quatre étapes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#branchement-sur-la-boucle-nocturne">Branchement sur la boucle nocturne</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#environnement-de-placement">Environnement de placement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../../rl_training.html#hyperparametres-du-cli">Hyperparamètres du CLI</a></li>
 </ul>
@@ -463,8 +465,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">state_manager</span> <span class="o">=</span> <span class="n">state_manager</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">super_agent</span> <span class="o">=</span> <span class="n">super_agent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;agent.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="c1"># TODO(gRPC) : le canal vers `grpc_service` sera créé ici quand les</span>
-        <span class="c1"># stubs seront générés (voir super_agent/resource_allocator.py).</span>
+        <span class="c1"># Canal gRPC paresseux vers `grpc_service` — branché via</span>
+        <span class="c1"># orchestrator.grpc_transport (mode distribué optionnel :</span>
+        <span class="c1"># ORCH_DISTRIBUTED=1 + `make proto`). In-process reste la voie par</span>
+        <span class="c1"># défaut : aucun appel réseau tant que le mode n&#39;est pas activé.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">channel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Canal gRPC du service cible — None hors mode distribué (paresseux).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">..grpc_transport</span><span class="w"> </span><span class="kn">import</span> <span class="n">agent_channel</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span> <span class="o">=</span> <span class="n">agent_channel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grpc_service</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_channel</span>
 
     <span class="c1"># ---- API publique ---------------------------------------------------------</span>
 <div class="viewcode-block" id="BaseAgent.run">
