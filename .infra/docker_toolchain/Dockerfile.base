@@ -2,29 +2,30 @@
 # =============================================================================
 # Image de base reproductible [Circuitron] — pcb_ai_designer_v2
 # -----------------------------------------------------------------------------
-# Contient la chaîne d'outils EDA complète GELÉE :
-#   python 3.11.9 + KiCad 8.0.5 (ppa) + SKiDL 1.2.1 + FreeRouting 2.6.1 (jar)
-#   + numpy 1.26.4 (socle numérique) — versions miroir de versions.lock.
+# Contient la chaîne d'outils EDA :
+#   python 3.11 (deadsnakes) + KiCad 8.0 (ppa) + SKiDL 1.2.1
+#   + FreeRouting 2.6.1 (jar) + numpy 1.26.4 — versions miroir de versions.lock.
+#
+# Base : ubuntu:22.04 (jammy). CONTRAINTE STRUCTURELLE : ppa:kicad/kicad-8.0-releases
+# ne publie des paquets QUE pour Ubuntu (jammy/noble) — une base Debian
+# (slim-bookworm) ne peut jamais résoudre kicad=8.0.*. Python 3.11 vient du
+# ppa:deadsnakes ; l'épinglage exact de la chaîne est assuré par le DIGEST de
+# l'image publiée (docker push puis pcb-base@sha256:<digest>), cf. versions.lock.
 #
 # Build :
 #   docker build -f .infra/docker_toolchain/Dockerfile.base \
 #     -t pcb-base:2.0.0 .infra/docker_toolchain/
-#
-# Reproductibilité : chaque dépendance est épinglée (versions exactes, pas de
-# ">="), et l'image finale doit être publiée par digest
-# (docker push puis utilisation de pcb-base@sha256:<digest> — voir README.md).
 # =============================================================================
 
-FROM python:3.11.9-slim-bookworm AS pcb-base
+FROM ubuntu:22.04 AS pcb-base
 
 # --- versions gelées (source de vérité : .infra/docker_toolchain/versions.lock)
-ARG KICAD_VERSION=8.0.5
 ARG SKIDL_VERSION=1.2.1
 ARG NUMPY_VERSION=1.26.4
 ARG FREEROUTING_VERSION=2.6.1
 # Digest du jar FreeRouting à figer après vérification sur la page de release
-# upstream (github.com/ignam0/freerouting-ahi/releases ou freerouting.org) —
-# politique : on NE TELECHARGE QUE depuis un tag précis, jamais "latest".
+# upstream (github.com/freerouting/freerouting/releases) — politique : on NE
+# TELECHARGE QUE depuis un tag précis, jamais "latest".
 ARG FREEROUTING_RELEASE_URL=https://github.com/freerouting/freerouting/releases/download/v${FREEROUTING_VERSION}/freerouting-${FREEROUTING_VERSION}.jar
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -33,16 +34,23 @@ ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
     LANG=C.UTF-8
 
-# --- dépendances système + dépôt KiCad 8 -------------------------------------
-# Le ppa:kicad/kicad-8.0-releases fournit les paquets Debian/Ubuntu du projet
-# KiCad ; on épingle la version via le ARG ci-dessus (8.0.*).
+# --- dépendances système + python 3.11 (deadsnakes) + dépôt KiCad 8 -----------
+# kicad-packages3d est volontairement omis (~1 Go) : les services de la
+# plateforme (parse netlist, ERC, export Gerber via kicad-cli) n'utilisent pas
+# les modèles 3D ; l'ajouter si besoin :
+#   && apt-get install -y --no-install-recommends kicad-packages3d="8.0.*"
 RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates curl gpg-agent software-properties-common gnupg \
         build-essential git \
+    && add-apt-repository --yes ppa:deadsnakes/ppa \
     && add-apt-repository --yes ppa:kicad/kicad-8.0-releases \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        "kicad=${KICAD_VERSION}*" kicad-packages3d="${KICAD_VERSION}*" \
+        python3.11 python3.11-venv python3.11-dev \
+        "kicad=8.0.*" \
+    && python3.11 -m ensurepip --upgrade \
+    && ln -sf /usr/bin/python3.11 /usr/local/bin/python3 \
+    && ln -sf /usr/local/bin/python3 /usr/local/bin/python \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # --- socle Python gelé --------------------------------------------------------
@@ -52,8 +60,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 #   pip install --require-hashes -r requirements/base.txt
 # (bloc volontairement commenté : les hashes se régénèrent à chaque bump de
 #  versions.lock, on les maintient dans requirements/base.txt)
-# RUN pip install --require-hashes -r /tmp/requirements-frozen.txt
-RUN pip install --no-cache-dir \
+RUN python -m pip install --no-cache-dir \
         "numpy==${NUMPY_VERSION}" \
         "skidl==${SKIDL_VERSION}"
 
@@ -80,28 +87,31 @@ RUN apt-get update \
 # --- CUDA 12.4 runtime (OPTIONNEL) --------------------------------------------
 # Les services d'inférence (ai_engine/rl_agent, simulator) tournent sur les
 # nœuds GPU Kubernetes avec le driver NVIDIA >= 550 (CUDA 12.4). Pour une
-# variante GPU de cette image de base, décommenter la pile ci-dessous et
-# remplacer le FROM par :
+# variante GPU de cette image de base, remplacer le FROM par :
 #
 # FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04 AS pcb-base-cuda
 # ENV DEBIAN_FRONTEND=noninteractive
 # RUN apt-get update && apt-get install -y --no-install-recommends \
-#         python3.11 python3.11-venv python3.11-dev software-properties-common \
-#         ca-certificates curl gpg-agent \
+#         software-properties-common ca-certificates curl gpg-agent gnupg \
+#     && add-apt-repository --yes ppa:deadsnakes/ppa \
 #     && add-apt-repository --yes ppa:kicad/kicad-8.0-releases \
-#     && apt-get update && apt-get install -y --no-install-recommends kicad=8.0.* \
+#     && apt-get update && apt-get install -y --no-install-recommends \
+#         python3.11 python3.11-venv kicad="8.0.*" \
+#     && python3.11 -m ensurepip --upgrade \
+#     && ln -sf /usr/bin/python3.11 /usr/local/bin/python3 \
+#     && ln -sf /usr/local/bin/python3 /usr/local/bin/python \
 #     && rm -rf /var/lib/apt/lists/*
 # # pip : numpy 1.26.4 + cupy-cuda12x (bindings CUDA optionnels de requirements.txt)
-# RUN pip install --no-cache-dir numpy==1.26.4 cupy-cuda12x==13.1 skidl==1.2.1
+# RUN python -m pip install --no-cache-dir numpy==1.26.4 cupy-cuda12x==13.1 skidl==1.2.1
 #
 # Les deux variantes publient des digests distincts :
 #   pcb-base:2.0.0-cpu  et  pcb-base:2.0.0-cuda12.4
 
 # --- métadonnées OCI ----------------------------------------------------------
 LABEL org.opencontainers.image.title="pcb-ai-designer base toolchain" \
-      org.opencontainers.image.description="KiCad 8 + SKiDL 1.2.1 + FreeRouting 2.6.1 + Python 3.11.9 gelés (reproductibilité Circuitron)" \
+      org.opencontainers.image.description="KiCad 8 + SKiDL 1.2.1 + FreeRouting 2.6.1 + Python 3.11 (ubuntu 22.04, gelés — reproductibilité Circuitron)" \
       org.opencontainers.image.version="2.0.0" \
-      org.opencontainers.image.base.name="python:3.11.9-slim-bookworm" \
+      org.opencontainers.image.base.name="ubuntu:22.04" \
       org.opencontainers.image.source="https://git.example.com/pcb/pcb_ai_designer_v2"
 
 # Vérification de la chaîne au démarrage du conteneur (make verify-toolchain).
