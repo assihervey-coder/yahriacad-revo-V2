@@ -1,17 +1,21 @@
 """Adaptateurs inter-services — point d'extension unique de l'orchestrateur.
 
 Tout appel vers un service externe (parser, ai_engine, rl_agent, exporteur…)
-passe par `call_adapter()` : interface + implémentation « in-process » (import
-direct du package cible). Les versions gRPC sont des stubs à générer
-(TODO ci-dessous) — AUCUN appel réseau réel n'est effectué ici.
+passe par `call_adapter()` — trois voies, essayées dans cet ordre :
 
-Les services cibles sont écrits EN PARALLÈLE par d'autres agents : si
-l'import échoue, un fallback de simulation locale renvoie un résultat
-plausible + un avertissement, afin que le pipeline reste exécutable hors ligne.
+1. gRPC réel (mode distribué OPTIONNEL) : stubs générés depuis
+   `proto/<service>/v1/*.proto` (`make proto`), endpoints décrits dans
+   `super_agent/resource_allocator.py` (`SERVICE_ENDPOINTS`, ports
+   50051-50058) — activé par ORCH_DISTRIBUTED=1, voir
+   `orchestrator/grpc_transport.py` ; la valeur suit alors le contrat proto v1 ;
+2. import in-process (voie PAR DÉFAUT) : import direct du package cible —
+   aucun appel réseau ;
+3. fallback de simulation locale : si l'import échoue, un résultat plausible
+   + un avertissement — le pipeline reste exécutable hors ligne.
 
-TODO(gRPC) : remplacer l'import in-process par un stub généré depuis
-`proto/<service>/v1/*.proto` ; les endpoints (ports 50051-50057) sont déjà
-décrits dans `super_agent/resource_allocator.py` (`SERVICE_ENDPOINTS`).
+En mode distribué, un RPC en échec bascule automatiquement sur la voie
+in-process puis sur le fallback (`AdapterResult.source` trace la voie
+empruntée : « grpc », « service » ou « fallback »).
 """
 
 from __future__ import annotations
@@ -22,6 +26,8 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from common.log import get_logger
+
+from . import grpc_transport
 
 logger = get_logger("orchestrator.adapters")
 
@@ -114,14 +120,20 @@ class AdapterResult:
 
 
 def call_adapter(key: str, *args: Any, **kwargs: Any) -> AdapterResult:
-    """Appelle le service `key` in-process, avec fallback de simulation locale.
+    """Appelle le service `key` — gRPC (optionnel), in-process, puis fallback.
 
-    TODO(gRPC) : ici, brancher `grpc.insecure_channel(endpoint)` + le stub
-    généré (voir ADAPTER_CONTRACTS / SERVICE_ENDPOINTS) — l'interface de cette
-    fonction resterait inchangée pour tous les appelants.
+    L'interface est inchangée pour tous les appelants depuis la version
+    initiale ; seule la VOIE empruntée change selon l'environnement
+    (`AdapterResult.source` : « grpc » | « service » | « fallback »).
     """
     contract = ADAPTER_CONTRACTS[key]
     start = time.perf_counter()
+    # 1) mode distribué (optionnel) — RPC proto v1 via les stubs générés
+    grpc_value = grpc_transport.try_grpc(key, args, kwargs)
+    if grpc_value is not None:
+        return AdapterResult(key=key, value=grpc_value, source="grpc",
+                             elapsed_s=round(time.perf_counter() - start, 4))
+    # 2) voie in-process (défaut hors ligne) puis 3) fallback de simulation
     try:
         module = importlib.import_module(contract["module"])
         fn: Callable[..., Any] | None = getattr(module, contract["function"], None)

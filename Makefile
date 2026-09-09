@@ -13,18 +13,19 @@ help: ## Liste les cibles disponibles
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
 proto: ## Génère les stubs gRPC (proto/ -> backend/proto_gen/)
+	@mkdir -p backend/proto_gen
 	$(PY) -m grpc_tools.protoc \
 	-I proto \
 	--python_out=backend/proto_gen \
 	--grpc_python_out=backend/proto_gen \
 	--mypy_out=backend/proto_gen \
-	proto/common/v1/*.proto proto/*/v1/*.proto 2>/dev/null || \
+	proto/*/v1/*.proto 2>/dev/null || \
 	$(PY) -m grpc_tools.protoc \
 	-I proto \
 	--python_out=backend/proto_gen \
 	--grpc_python_out=backend/proto_gen \
-	proto/common/v1/*.proto proto/*/v1/*.proto
-	@touch backend/proto_gen/__init__.py backend/proto_gen/**/__init__.py
+	proto/*/v1/*.proto
+	@find backend/proto_gen -type d -exec touch {}/__init__.py \;
 	@echo "stubs générés dans backend/proto_gen/"
 
 start-services: ## Démarre la gateway + les 7 services gRPC en arrière-plan
@@ -72,7 +73,7 @@ docs-sphinx: ## API Python -> docs/sphinx/_build/html/index.html
 
 docs-doxygen: ## Python + noyaux C++/CUDA -> docs/doxygen/build/html/index.html
 	@if [ -z "$(DOXYGEN)" ]; then echo "doxygen introuvable (apt install doxygen)"; exit 1; fi
-	cd docs/doxygen && $(DOXYGEN) Doxyfile
+	$(DOXYGEN) docs/doxygen/Doxyfile
 	@echo "Doxygen : docs/doxygen/build/html/index.html"
 
 ollama-pull: ## Télécharge le LLM local du RAG (qwen2.5-coder:14b) dans le service compose

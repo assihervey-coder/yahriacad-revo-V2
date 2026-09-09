@@ -62,8 +62,20 @@ class BaseAgent(ABC):
         self.state_manager = state_manager
         self.super_agent = super_agent
         self.log = get_logger(f"agent.{name}")
-        # TODO(gRPC) : le canal vers `grpc_service` sera créé ici quand les
-        # stubs seront générés (voir super_agent/resource_allocator.py).
+        # Canal gRPC paresseux vers `grpc_service` — branché via
+        # orchestrator.grpc_transport (mode distribué optionnel :
+        # ORCH_DISTRIBUTED=1 + `make proto`). In-process reste la voie par
+        # défaut : aucun appel réseau tant que le mode n'est pas activé.
+        self._channel = None
+
+    @property
+    def channel(self):
+        """Canal gRPC du service cible — None hors mode distribué (paresseux)."""
+        if self._channel is None:
+            from ..grpc_transport import agent_channel
+
+            self._channel = agent_channel(self.grpc_service)
+        return self._channel
 
     # ---- API publique ---------------------------------------------------------
     def run(self, context: AgentContext) -> AgentResult:

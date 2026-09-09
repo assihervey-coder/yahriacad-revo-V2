@@ -51,6 +51,9 @@ class Settings:
     # Réseau gRPC / HTTP
     grpc_host: str = field(default_factory=lambda: _env("GRPC_HOST", "0.0.0.0"))
     grpc_port: int = field(default_factory=lambda: _env_int("GRPC_PORT", 50051))
+    # mode distribué optionnel de l'orchestrator — RPC gRPC réels via les
+    # stubs générés (make proto) ; sinon voie in-process (aucun réseau)
+    orch_distributed: bool = field(default_factory=lambda: _env_bool("ORCH_DISTRIBUTED", False))
     gateway_port: int = field(default_factory=lambda: _env_int("GATEWAY_PORT", 8000))
 
     # Persistance (section 07 de la spécification)

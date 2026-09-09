@@ -1,12 +1,13 @@
 """Allocateur de ressources du super_agent.
 
-- table service → endpoint gRPC (ports 50051-50057, cf. section 06) ;
+- table service → endpoint gRPC (ports 50051-50058, cf. section 06) ;
 - budget de temps par agent (Priority interactive vs batch de nuit) ;
 - file de priorité : les requêtes interactives passent avant le batch nocturne.
 
-TODO(gRPC) : `allocate()` retourne l'endpoint cible — la création du canal
-`grpc.insecure_channel(endpoint)` se fera ici quand les stubs seront générés
-(`make proto`). Aucun appel réseau n'est effectué dans cette version.
+Le canal réseau se crée À LA DEMANDE : `allocate(..., probe=True)` sonde
+l'endpoint (`grpc.channel_ready_future`, timeout 2 s) pour détecter tôt un
+service absent — uniquement en mode distribué (ORCH_DISTRIBUTED=1 + `make
+proto`, voir orchestrator/grpc_transport.py). Sinon, aucun appel réseau.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ SERVICE_ENDPOINTS: dict[str, str] = {
     "firmware_bridge": "127.0.0.1:50056",
     "exporter": "127.0.0.1:50057",
     "orchestrator": "127.0.0.1:50050",
+    "drc_dfm": "127.0.0.1:50058",   # service drc_dfm_engine (contrat pcb.drc.v1)
 }
 
 DEFAULT_BUDGET_S: dict[str, float] = {
@@ -45,13 +47,14 @@ class Priority(IntEnum):
 
 @dataclass
 class Allocation:
-    """Résultat d'une allocation : endpoint + budget + priorité."""
+    """Résultat d'une allocation : endpoint + budget + priorité (+ sonde)."""
 
     agent: str
     service: str
     endpoint: str
     budget_s: float
     priority: Priority
+    reachable: bool | None = None   # résultat du probe — None si non sondé
 
 
 @dataclass
@@ -79,18 +82,27 @@ class ResourceAllocator:
 
     def allocate(self, agent: str, service: str,
                  priority: Priority = Priority.INTERACTIVE,
-                 budget_s: Optional[float] = None) -> Allocation:
+                 budget_s: float | None = None,
+                 probe: bool = False) -> Allocation:
         """Alloue un service à un agent (endpoint gRPC + budget de temps).
 
-        TODO(gRPC) : créer ici `grpc.aio.insecure_channel(endpoint)` avec
-        keepalive + `grpc.channel_ready_future(...).result(timeout=2)` au
-        démarrage, pour détecter tôt un service absent.
+        `probe=True` sonde l'endpoint au moment de l'allocation
+        (`grpc.channel_ready_future`, timeout 2 s) pour détecter tôt un
+        service absent — effectif uniquement en mode distribué
+        (ORCH_DISTRIBUTED=1 + `make proto`, orchestrator/grpc_transport) :
+        `Allocation.reachable` porte le résultat, None si non sondé.
         """
         endpoint = self.endpoints.get(service, self.endpoints["ai_engine"])
+        reachable: bool | None = None
+        if probe:
+            from ..grpc_transport import distributed_enabled, probe_channel
+
+            if distributed_enabled():
+                reachable = probe_channel(endpoint)
         return Allocation(agent=agent, service=service, endpoint=endpoint,
                           budget_s=budget_s if budget_s is not None
                           else self.budget_for(agent),
-                          priority=priority)
+                          priority=priority, reachable=reachable)
 
     def budget_for(self, agent: str) -> float:
         """Budget de temps par défaut — les agents RL/optimiseur ont plus de marge."""

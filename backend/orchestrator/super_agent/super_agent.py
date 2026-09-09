@@ -8,9 +8,11 @@ Responsabilités :
 - modèle mental : chaque décision est enregistrée avec son INTENTION et les
   ALTERNATIVES REJETÉES (audit complet, rejouable).
 
-TODO(gRPC) : `execute_step()` appelera les services via les stubs générés
-(ports 50051-50057) — l'adaptateur in-process (orchestrator.adapters) reste la
-voie par défaut tant que les stubs ne sont pas générés.
+Branchement gRPC (audit P3 — réalisé) : `execute_step()` alloue l'endpoint via
+le resource_allocator et les appels services passent par les stubs générés
+(ports 50051-50058) en mode distribué optionnel (ORCH_DISTRIBUTED=1 +
+`make proto`, orchestrator/grpc_transport.py) ; l'adaptateur in-process
+(orchestrator.adapters) reste la voie par défaut hors ligne.
 """
 
 from __future__ import annotations

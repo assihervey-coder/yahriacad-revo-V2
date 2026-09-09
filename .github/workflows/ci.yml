@@ -41,7 +41,9 @@ jobs:
       - name: Installer le socle
         run: |
           python -m pip install --upgrade pip
-          pip install numpy pytest httpx   # httpx : client Ollama du RAG (mode ollama)
+          pip install numpy pytest httpx grpcio grpcio-tools   # httpx : RAG Ollama ; grpcio : transport distribué
+      - name: Générer les stubs gRPC (make proto)
+        run: make proto
       - name: pytest tests/unit
         run: python -m pytest tests/unit -q
 
